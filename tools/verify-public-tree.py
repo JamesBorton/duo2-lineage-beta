@@ -15,11 +15,11 @@ def verify(root=ROOT):
     errors = []
     manifest = json.loads((root/'manifests/source-snapshot.json').read_text())
     projects = manifest['projects']
-    if len(projects) != 5:
-        errors.append('Expected five source projects')
-    omitted = [x for x in manifest['omissions'] if x['path'].endswith('.hal')]
+    if len(projects) != 6:
+        errors.append('Expected six source projects')
+    omitted = manifest.get('retired_contracts', [])
     if len(omitted) != 4:
-        errors.append('Expected four explicitly excluded contracts')
+        errors.append('Expected four explicitly retired contracts')
     checked = 0
     for name, entry in manifest['source_files'].items():
         path = root/name
@@ -78,7 +78,7 @@ def verify(root=ROOT):
     if errors:
         raise SystemExit('\n'.join(errors))
     print(json.dumps({'result':'PASS','source_files':checked,'projects':len(projects),
-                      'excluded_contracts':len(omitted),'files_scanned':len(paths),
+                      'retired_contracts':len(omitted),'files_scanned':len(paths),
                       'scope':'source hashes and heuristic privacy/binary checks; not legal or hardware clearance'}))
 
 if __name__ == '__main__':

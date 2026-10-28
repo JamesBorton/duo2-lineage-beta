@@ -54,7 +54,7 @@ def main():
         restored.append({'project':project['path'],'state':state})
         print(json.dumps(restored[-1]),flush=True)
     report = {'result':'PASS','projects':restored,'physical_phone_build_complete':False,
-              'reason':'four HAL contracts and external build inputs are intentionally not supplied'}
+              'reason':'External owner-provided stock inputs, compiler setup and local signing keys are required; this command only restores source'}
     (dest/'restore-report.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report),flush=True)
 

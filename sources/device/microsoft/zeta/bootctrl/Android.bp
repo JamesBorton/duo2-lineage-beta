@@ -2,8 +2,8 @@
 package { default_applicable_licenses: ["zeta_bootctrl_license"], }
 license {
     name: "zeta_bootctrl_license",
-    license_kinds: ["SPDX-license-identifier-Apache-2.0", "SPDX-license-identifier-BSD"],
-    license_text: ["NOTICE"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0", "SPDX-license-identifier-BSD-3-Clause", "SPDX-license-identifier-BSD-3-Clause-Clear"],
+    license_text: ["NOTICE", "LICENSE.Apache-2.0", "LICENSE.BSD-3-Clause-Clear"],
 }
 cc_binary {
     name: "android.hardware.boot-service.zeta",

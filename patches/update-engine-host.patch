@@ -1,0 +1,30 @@
+diff --git a/payload_generator/delta_diff_utils.cc b/payload_generator/delta_diff_utils.cc
+index 8adb820391f1e20f58c97099c9b582468e054004..d01d02ee8b6a5f2eff61018e266b7246f16223ba 100644
+--- a/payload_generator/delta_diff_utils.cc
++++ b/payload_generator/delta_diff_utils.cc
+@@ -30,6 +30,7 @@
+ #include <unistd.h>
+ 
+ #include <algorithm>
++#include <cstdlib>
+ #include <functional>
+ #include <limits>
+ #include <list>
+@@ -939,8 +940,15 @@ bool GenerateBestFullOperation(const brillo::Blob& new_data,
+ 
+   bool out_blob_set = false;
+ 
+-  // Try compressing |new_data| with xz first.
+-  if (version.OperationAllowed(InstallOperation::REPLACE_XZ)) {
++  // Opt-in host packaging policy for owner-input firmware reconstruction.
++  // The standard --compressor_types option controls delta compressors, not
++  // full replacements. Bzip2 level 9 can be reproduced by stock Python on
++  // Windows/Linux; Android still consumes standard REPLACE_BZ operations.
++  // This code is in the host payload generator, never the device consumer.
++  const char* portable_full = std::getenv("ZETA_FULL_REPLACE_BZ2_ONLY");
++  const bool bz2_only = portable_full != nullptr && string(portable_full) == "1";
++  // Default behavior remains xz first unless the release builder opts in.
++  if (!bz2_only && version.OperationAllowed(InstallOperation::REPLACE_XZ)) {
+     brillo::Blob new_data_xz;
+     if (XzCompress(new_data, &new_data_xz) && !new_data_xz.empty()) {
+       *out_type = InstallOperation::REPLACE_XZ;

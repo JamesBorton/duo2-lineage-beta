@@ -260,7 +260,6 @@
   <project name="LineageOS/android_system_netd" path="system/netd" revision="796eaca5ab9dfdd87751c51bb71fa3f26c87d034" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" groups="pdk" />
   <project name="LineageOS/android_system_security" path="system/security" revision="c83e9ba35da1860529bdf7488fe15e29dba1da00" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" groups="pdk" />
   <project name="LineageOS/android_system_sepolicy" path="system/sepolicy" revision="885cc500f6078a766d1f6def5ce4c06c55841773" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" groups="pdk" />
-  <project name="LineageOS/android_system_update_engine" path="system/update_engine" revision="fc83053aa2a71885ba8615da9946033adf3462ce" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" groups="pdk" />
   <project name="LineageOS/android_system_vold" path="system/vold" revision="cd2c5dea3e93c07be61576f658d002ecc4570de2" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" groups="pdk" />
   <project name="LineageOS/android_tools_extract-utils" path="tools/extract-utils" revision="44e3b07397a339c2721c637e40cb73159c78ad46" upstream="refs/heads/lineage-23.2" dest-branch="refs/heads/lineage-23.2" />
   <project name="LineageOS/android_vendor_apn" path="vendor/apn" revision="c270ee356520f63d98e4479f6475148665f67eba" upstream="main" dest-branch="main" />

@@ -13,16 +13,35 @@ BootControl.cpp, BootControl.h and main.cpp retain the Qualcomm 2023
 BSD-3-Clause-Clear header. Its full text, including the absence of a patent
 license, is in LICENSES/BSD-3-Clause-Clear.txt. The original Linux Foundation
 BSD notice remains in bootctrl/NOTICE. Source publication includes these notices;
-the prototype ROM's Soong notice metadata still needs reconciliation before a
-new public binary release.
+the beta source's Soong metadata includes all three applicable texts. Runtime
+notice delivery is checked separately for the exact signed build.
 
 The kernel patch retains all imported headers and notices. Files marked as
 modified are identified by the patch against the pinned public base; modifications
 were made by this project in 2026. Copyright belongs to each respective holder.
 
-Excluded dependencies: Microsoft/Qualcomm/other stock firmware is not licensed
-by us and is not present. Four Archfx/duoVendor contracts from revision
-60a3e8f6caacda6a9bafdc7c59d202f66fd8c9c8 are omitted while provenance/licensing
-is resolved. Their history identifies contributions by Thai Nguyen (thai-ng),
-Aruna Jayasena (Archfx) and Ethan Goh (Ethanol10); this is attribution information,
-not a claim that any one person can grant all underlying rights.
+Retired dependencies: the four copied Archfx/duoVendor contracts are absent
+from the beta source and build. The replacement adapter's provenance and prior
+exposure are documented in posture/controller/README.transport.md. Old history
+is private and is not relicensed or published here.
+
+Microsoft/Qualcomm stock binaries are absent. The planned assembly kit requires
+each owner to obtain the official package and contributes none of its four stock
+partitions' payload bytes. Root Apache terms do not license those inputs.
+
+WebView 156.0.8078.47 contains 769 credited components and 2,102 copyright mentions.
+It has mixed component terms, not a blanket Unicode license. Source provenance:
+
+- Chromium: [1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775](https://github.com/chromium/chromium/tree/1d17a2e2ee147bb7d6ae2ab6abdb3a2510c17775).
+- FFmpeg: [9db86ce5b5b454dfc96c435f9f0723012980c37f](https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/9db86ce5b5b454dfc96c435f9f0723012980c37f).
+- Lineage patches: [ef69054c74f7d8306446969136c806738169f1e1](https://github.com/LineageOS/android_external_chromium-webview_patches/tree/ef69054c74f7d8306446969136c806738169f1e1).
+- Prebuilt revision: 5de662a4d42b57a2efe4114e499d38fa3ce41f9d;
+  ARM64 APK SHA256 1d2f61832b2596b0046cb82cf3634609ea866098d097a83fac27c35272ac726a.
+
+Embedded credits HTML SHA256:
+bb9a402c6f072f7728bd97c67b25bcd2b1f962fb72b4148dc6241781c0fc277c.
+The credits include FFmpeg/LGPL and component-specific notices. Runtime WebView
+credits access passed on the emulator; ARM64 phone access remains to be checked.
+Upstream enables proprietary_codecs and ffmpeg_branding=Chrome. No additional
+codec patent rights or clearance are claimed. Google's Sans Flex font has an OFL
+grant; it is not an unlicensed Google font merely because it is from Google.

@@ -1,41 +1,47 @@
 # Public beta readiness
 
-As of 2026-10-28: source repository prepared; downloadable beta not released.
-The maintainer accepts residual enforcement uncertainty, but a scoped project
-license does not resolve missing grants or source/notice obligations.
+2026-10-28: no downloadable ROM beta is published yet. This document records
+engineering evidence and remaining release gates; it is not a legal opinion.
 
-## Completed for this repository
+Completed:
 
-- Fresh public history with the private archive and raw research omitted.
-- Scoped Apache-2.0 grant, retained kernel/upstream terms and third-party notices.
-- Exact source pins, payload hashes and independently checked patch reconstruction.
-- Four unresolved HAL contracts excluded, with explicit incompleteness recorded.
-- No firmware, compiled applications, phone captures or private signing keys.
-- Automated source-only/privacy checks and public bug/security reporting guidance.
+- Fresh public history, scoped Apache-2.0 contributions, retained upstream terms,
+  source hashes and verified exact patch reconstruction.
+- The four old HAL contracts and generated vendor classes have been replaced by
+  a narrow original AOSP HwBinder adapter. Three new transport tests pass; prior
+  exposure and compatibility facts are documented in its README. No formal
+  clean-room claim is made.
+- All 25 current-source emulator gates pass, including display power, rendered
+  keyboard input, default unlock pane, Recents, preview geometry and screen actions.
+- Boot controller license metadata now includes Apache, BSD and BSD-Clear texts.
+- Dedicated APK/APEX/AVB beta keys were generated outside Git and have verified
+  protected backups. Actual signed output verification remains a separate gate.
+- ARM64 WebView's embedded credits, version and exact Chromium/FFmpeg/Lineage
+  source pins are identified. The credits page works on the test emulator.
+- The owner-input assembler passes eight positive/negative tests on Windows and
+  Linux. These synthetic tests do not establish real-ROM reconstruction.
 
-## Before publishing a ROM
+Still required before publishing downloadable beta assets:
 
-- Resolve or independently replace the four omitted HAL contracts; review the
-  actual resulting bindings and shipped controller, not just source filenames.
-- Document the applicable basis for every stock component distributed in the
-  package, or implement and validate a stock-retaining/owner-input approach.
-- Finish GPL corresponding-source/build mapping for distributed modules,
-  particularly rmnet_core/ctl/offload/shs. For dual BSD/GPL Wi-Fi modules,
-  establish the actual applicable grant and deliver its required notices.
-- Reconcile boot-control BSD-Clear metadata, repair and verify legal-notice
-  delivery, and verify WebView notices, source correspondence and codec terms.
-- Use a documented beta signing setup with protected private keys. The prototype
-  uses development/test signing; do not describe it as production release-signed.
-  Ensure recovery contains no maintainer-specific ADB authorization.
-- Validate a fresh source checkout/build. Publish corresponding source and build
-  materials for the exact binary; this source snapshot alone is not that claim.
-- Run all current automated ROM/package/boot/security gates and repeat the full
-  hardware matrix on the exact release. State untested features explicitly.
-- Test the final owner-facing install, update and stock-restore instructions.
-  Verify slot/snapshot/partition prerequisites and matching recovery. No relocking.
-- Publish checksums, sizes, supported model, minimum stock base, known issues,
-  security limitations and rollback instructions alongside the signed assets.
+- Finish the exact phone candidate, release signing and all package, AVB, OTA,
+  VINTF, policy, notice and privacy checks. Verify shipped APK and APEX identities,
+  OTA trust, and removal of maintainer-specific recovery authorization.
+- Produce the owner-input kit and independently verify that all four stock
+  partitions' payload bytes are excluded. Reconstruct the real signed installer
+  on Windows and Linux and verify its full hash and signatures.
+- Deliver exact corresponding source/build materials and readable notices for
+  distributed open-source components. Stock module source/permission gaps remain
+  relevant if anyone proposes directly distributing those binaries.
+- Complete fresh-source reproduction checks; no bit-for-bit clean-host rebuild
+  is currently claimed.
+- Obtain approval for a clean transition from prototype development signing to
+  beta signing. Repeat physical hardware, installation, recovery, update and
+  restore acceptance on the exact release, with current slot/snapshot checks.
+- Publish checksums, public certificates, minimum stock input, known issues,
+  security limits and tested instructions alongside the allowlisted assets.
 
-Checksums of a local prototype are not download links or evidence of public
-release readiness. No GitHub Release or binary asset is created by this source
-preparation. Do not upload the historical private archive as a shortcut.
+The intended kit obtains stock bytes from the owner's exact official recovery
+ZIP. It does not deliver stock vendor/ODM images, Microsoft modules, vendor_boot
+or DTBO bytes in the public download. This design limits what this project
+distributes; it does not grant rights in stock firmware or settle every question
+about third-party terms. Existing private prototypes are not public releases.

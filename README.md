@@ -6,9 +6,12 @@ Qualcomm or the LineageOS project. Surface Duo 1 is not a supported target.
 
 **Status: public beta preparation. No installable ROM or recovery is published here yet.**
 This repository publishes a reviewed source snapshot, known issues and release
-requirements. Four third-party HAL interface files are deliberately omitted while
-their licensing is resolved, so this snapshot is not a complete phone build.
-See [release readiness](docs/RELEASE_READINESS.md) and [installation status](docs/INSTALLATION.md).
+requirements. The new beta candidate replaces four copied HAL contracts with an original narrow
+AOSP HwBinder adapter. All 25 current-source emulator gates pass; its exact signed
+phone build and owner-input download kit are still being verified.
+The planned download is an assembly kit: each owner supplies the official Microsoft
+recovery ZIP, then the kit reconstructs the complete signed installer locally.
+See [download design](docs/DOWNLOAD_KIT.md), [release readiness](docs/RELEASE_READINESS.md) and [installation status](docs/INSTALLATION.md).
 
 ## Prototype behavior
 
@@ -29,8 +32,8 @@ and a 5.4.233 kernel remain; no new kernel security backports are claimed.
 
 | Location | Contents |
 |---|---|
-| `patches/` | Framework, Launcher and kernel changes against exact public bases; no private Git history |
-| `sources/` | Device and vendor integration source, excluding the listed HAL contracts and historical local instructions |
+| `patches/` | Framework, Launcher, kernel and host packaging changes against exact public bases; no private Git history |
+| `sources/` | Device and vendor integration source, including the new HAL adapter; historical local instructions omitted |
 | `manifests/source-snapshot.json` | Original revisions, expected reconstructed trees, SHA-256 values and explicit omissions |
 | `manifests/upstream.xml` | Pinned public upstream Android dependencies; custom projects are restored separately |
 | `manifests/kernel-inputs.json` | Microsoft component and compiler input revisions |
@@ -44,8 +47,8 @@ python3 tools/restore-sources.py --destination ../zeta-review-sources
 ```
 
 The second command downloads pinned public source bases into a **new** directory,
-applies the patches and verifies the reconstructed trees. It does not fetch the
-omitted interfaces, firmware, signing keys or tools, and does not build or flash
+applies the patches and verifies the reconstructed trees. It does not fetch
+firmware, signing keys or compiler tools, and does not build or flash
 a phone. Read [source reproduction](docs/SOURCES.md) first.
 
 ## Licensing and participation

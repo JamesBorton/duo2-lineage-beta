@@ -1,6 +1,6 @@
 # Source reproduction
 
-This is a reviewed source snapshot associated with prototype build 1793208198,
+This is a reviewed source snapshot for candidate build 1793224122,
 not a complete reproducible public binary release. It has a fresh repository
 history; original source commit IDs are provenance references, not commits hosted
 in this repository. No private bundles or experimental branches are published.
@@ -12,23 +12,38 @@ python3 tools/restore-sources.py --destination ../zeta-review-sources
 ```
 
 Linux/WSL is recommended, especially for kernel symlinks. The tool initializes
-three source repositories, fetches their exact public base commits, applies the
+four source repositories, fetches their exact public base commits, applies the
 exported changes to their indexes and checks each resulting Git tree. It copies
 the reviewed device/vendor snapshots with their recorded Git modes. Original
 custom commit history is intentionally not recreated. Network availability of
 the pinned upstream commits remains an external dependency.
 
-The framework, Launcher and kernel patches each reconstruct their recorded
-prototype Git tree. The device snapshot deliberately excludes four HAL contracts
-and historical local documentation, recorded individually in source-snapshot.json.
-The vendor snapshot is exact, source-only integration code. These partial sources
-cannot currently build the physical phone product: the controller references the
-missing HIDL-generated interfaces. The tool does not silently download them.
+The framework, Launcher, kernel and host-only update-engine patches reconstruct
+their exact recorded Git trees. Device integration includes the original narrow
+HAL adapter and tests. Only three historical local Markdown instructions are
+omitted. No generated vendor interface source is required by the new controller.
+The vendor snapshot contains integration/staging code, with no firmware binaries.
 
-`manifests/upstream.xml` pins the public Android build inputs and omits the five
-custom projects. It contains no local/private Git remotes. It is a dependency lock,
-not an instruction to run a partial phone build. The source tool restores custom
-projects separately; running `repo sync` does not install those projects itself.
+`manifests/upstream.xml` pins public Android build inputs and omits the six custom
+projects. Restore those projects separately. Pinned source commits are
+provenance; our private custom commit history is not hosted in this repository.
+For an existing Android source root, copy the six restored project directories
+to their recorded paths without overwriting unrelated work. `repo sync` does not
+install them automatically. Obtain the toolchains in kernel-inputs.json and your
+own official stock inputs before building.
+
+Host packaging has one opt-in change in payload_generator/delta_diff_utils.cc:
+`ZETA_FULL_REPLACE_BZ2_ONLY=1` chooses standard BZ2/raw/ZERO full operations, which
+Python's standard library can reproduce on Windows and Linux. AOSP's separate
+`--compressor_types bz2` flag only selects delta compressors. Default host behavior
+and the on-device payload consumer are unchanged. The full patch is published.
+
+The current build uses `lunch lineage_zeta-bp4a-userdebug`, `OUT_DIR=out-zeta`,
+Clang/toolchain inputs recorded below, and `m -j16 droidcore target-files-package
+otatools`. Use a new build number/time for each candidate. Before release, target
+files need stock VINTF metadata, complete notice delivery, dedicated signing and
+the same package/boot/security audits as the tested candidate. The signing tools
+in tools/beta are preparation tools, not an assertion of complete reproduction.
 
 ## Kernel and external inputs
 

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "date": "2026-10-28",
-  "prototype_build": "1793208198",
-  "distribution": "reviewed source snapshot; no installable release",
+  "prototype_build": "1793224122",
+  "distribution": "beta candidate source; no installable release yet",
   "projects": [
     {
       "id": "frameworks-base",
@@ -31,18 +31,13 @@
       "path": "device/microsoft/zeta",
       "upstream_url": null,
       "upstream_base": null,
-      "head": "c1d268ce4d991d4794582f23af250ffeece4b84c",
-      "tree": "a097f7d16ed6ad5951bcc3fbd8369a8d07e6b11f",
+      "head": "d22d42891be66e4f1e97f9bd83ce5e066cb4631c",
+      "tree": "f7d84c0903e1d3c09855decf65cd21c51ed4f7b9",
       "snapshot": "sources/device/microsoft/zeta",
       "omitted": [
         "README.full-rom.md",
         "README.md",
-        "posture/README.md",
-        "posture/interfaces/NOTICE",
-        "posture/interfaces/displaytopology/1.0/IDisplayTopology.hal",
-        "posture/interfaces/touchpen/1.0/IDisplayTappedCallback.hal",
-        "posture/interfaces/touchpen/1.0/IPenCallback.hal",
-        "posture/interfaces/touchpen/1.0/ITouchPen.hal"
+        "posture/README.md"
       ],
       "snapshot_complete": false
     },
@@ -66,6 +61,17 @@
       "tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
       "patch": "patches/kernel-sm8350.patch.gz",
       "patch_sha256": "3b2351f7cd466c78c17c9e1d683a676c4fad12ef432cd7ff86ed1bf970e6ad61",
+      "patch_index_restore": "PASS: exact recorded tree"
+    },
+    {
+      "id": "update-engine-host",
+      "path": "system/update_engine",
+      "upstream_url": "https://github.com/LineageOS/android_system_update_engine.git",
+      "upstream_base": "fc83053aa2a71885ba8615da9946033adf3462ce",
+      "head": "e7f1bae306b1b86b80d65bf4cc2c3cc3435f9d37",
+      "tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
+      "patch": "patches/update-engine-host.patch",
+      "patch_sha256": "51aad733ad2cc90059487fb2072254c39a02a178156ae5ccc1d9d5f8256bb84a",
       "patch_index_restore": "PASS: exact recorded tree"
     }
   ],
@@ -106,8 +112,8 @@
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/bootctrl/Android.bp": {
-      "sha256": "be6814a86ecaed80bd1db4da299cfcd333cc8b0c93f3136ab261caa74fd1b49a",
-      "git_blob": "50b50a9e0ebef98fd72e696e46fab4533a4d2ac6",
+      "sha256": "bb4f570ba4190651434a1f246ef90478ba964e26a9013e38e9c1e3c7a8b867a2",
+      "git_blob": "c999c1a4d5e3067dce7e059b2e6a3bfe61f3a71e",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/bootctrl/BootControl.cpp": {
@@ -118,6 +124,16 @@
     "sources/device/microsoft/zeta/bootctrl/BootControl.h": {
       "sha256": "23db33616db1f2d0f11f7d07f0d33d77b5846e0a2c1ac48e4d7d16b71840850e",
       "git_blob": "4e88dacb86708c3ebe7d4ec74edb187eae19d8a6",
+      "mode": "100644"
+    },
+    "sources/device/microsoft/zeta/bootctrl/LICENSE.Apache-2.0": {
+      "sha256": "69849221bfb90053de2134ef5e6d540287b4b98062326492f1f96f5da685524b",
+      "git_blob": "66a27ec5ff940d3a9652d2948746ebac4c9d0188",
+      "mode": "100644"
+    },
+    "sources/device/microsoft/zeta/bootctrl/LICENSE.BSD-3-Clause-Clear": {
+      "sha256": "1640a0acb6ef2c4aed937a02ece704eb999c2f844b57925b22b2bdb60f7af891",
+      "git_blob": "2e664c03422bbe48c6f2cb828a82a81ba6c52959",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/bootctrl/NOTICE": {
@@ -201,13 +217,18 @@
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/emulator/permission-tests/Android.bp": {
-      "sha256": "ae5172896bd691c610cc195405b8b18b2d782af8d4e367757c6059a0b9b9f7fb",
-      "git_blob": "810e417916b41b6456ab48ebe34f077f545d3f45",
+      "sha256": "a5fad1bd6cefe34ad9ed14860ef933a7366fea4e25266f89ff069497c17fca15",
+      "git_blob": "798c2c08f697171c8efa9254474e6cd75bbc29d5",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/emulator/permission-tests/AndroidManifest.xml": {
       "sha256": "c2bbc00010a537b82da7cd8445dfa92ab29aceaa3b778d9f11198aed5931f951",
       "git_blob": "e799d524b946a901a578add45e634bdb95693af6",
+      "mode": "100644"
+    },
+    "sources/device/microsoft/zeta/emulator/permission-tests/src/org/lineageos/zeta/posturecontroller/SurfaceHalTransportTest.java": {
+      "sha256": "ce65d025c72606813cb05daa4d0856b0ec3d076cf36b09b15c6c2378bf7a0916",
+      "git_blob": "71e793c07f86846d1192c66a993afdb3e6141342",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/emulator/permission-tests/src/org/lineageos/zeta/workspacepermissiontests/GestureInjectionTest.java": {
@@ -311,13 +332,23 @@
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/controller/Android.bp": {
-      "sha256": "6e6bea2cdd79f0c609ada372ce408a6d86ac1eb52235968953339d2e848d8060",
-      "git_blob": "e3a7f94bc9787b685f664867dea61ed854db8fcb",
+      "sha256": "b47e39496092a0b2b93281aaa2531133bfaa3462c13e7c01a1f94ea546e51ae6",
+      "git_blob": "b05f4e68950259a91c875a572e3337044c4354ae",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/controller/AndroidManifest.xml": {
       "sha256": "6937fc80369ee6043a8c790fbaf781a3bc2d917f0c64b6e4a4c2b1c404914e11",
       "git_blob": "b173e018fc533de236962af7b319849b41b9752f",
+      "mode": "100644"
+    },
+    "sources/device/microsoft/zeta/posture/controller/README.transport.md": {
+      "sha256": "cc24e43be5425d1c3d6f8bd5883ca29915e21ca0c6f7967b8e1ec4b6a7955c5d",
+      "git_blob": "97e03450762c0fd06749e901b75a96f83782696e",
+      "mode": "100644"
+    },
+    "sources/device/microsoft/zeta/posture/controller/protocol/org/lineageos/zeta/posturecontroller/SurfaceHalTransport.java": {
+      "sha256": "b0c4866714295b7abd0e46764910f113c6e567d978c6a9f72258ccb46e05df4b",
+      "git_blob": "6caccc05c41a075322e76c29fb461f593b73ea62",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/controller/src/org/lineageos/zeta/posturecontroller/ControlActivity.java": {
@@ -351,8 +382,8 @@
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/controller/src/org/lineageos/zeta/posturecontroller/SurfaceHardware.java": {
-      "sha256": "0ca0863774ed323a1fd9b3a69967ba80a9b73b0fdf0990b603ceea7440e65618",
-      "git_blob": "b52c69723c6459e610e60a14bdac219f4499bbe4",
+      "sha256": "2aab90988c36dd6f4b27c5002b3107624ed2d2e6e0c811f9acbc619b4a547b74",
+      "git_blob": "8ecb7ff85b602350e1e4f89b61032bb4ed421ab9",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/controller/src/org/lineageos/zeta/posturecontroller/ViewportClient.java": {
@@ -363,21 +394,6 @@
     "sources/device/microsoft/zeta/posture/controller/tests/PanelTransitionTest.java": {
       "sha256": "3d08e8552cc16874cb04694d13746bc9722c3d92cec322a6f4c11674ce1be509",
       "git_blob": "5d5070e79c6ef06fee26670ed4e4e84de063bff2",
-      "mode": "100644"
-    },
-    "sources/device/microsoft/zeta/posture/interfaces/Android.bp": {
-      "sha256": "fc857864e0f6bf4f2ccdfe5ddb07a7e0e28656dad52a6b8803b356f277cada2d",
-      "git_blob": "0eb2e4b40dec889d56b4bd242345d5a84343df5e",
-      "mode": "100644"
-    },
-    "sources/device/microsoft/zeta/posture/interfaces/displaytopology/1.0/Android.bp": {
-      "sha256": "7fd27b5ecbcada815eff9a14d7ea3bbbea322d3403e6ca49270b35c453b16bb1",
-      "git_blob": "88284ab11534839bc219bef90d49d43405148708",
-      "mode": "100644"
-    },
-    "sources/device/microsoft/zeta/posture/interfaces/touchpen/1.0/Android.bp": {
-      "sha256": "1ab7b16cf0b96bb5c3d9f05c39331ec5b3f2ecbda97c1ae9d85fd683b39ab88f",
-      "git_blob": "273c8ff75f0f19e1ea761eab74206a8f3e7aa9fe",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/permissions/org.lineageos.zeta.posture.xml": {
@@ -529,36 +545,24 @@
       "path": "posture/README.md",
       "reason": "Historical local instructions replaced by public documentation",
       "git_blob": "1329a78bd7b45c6665f91cdc1cd402505dd30d4a"
-    },
+    }
+  ],
+  "retired_contracts": [
     {
-      "project": "device/microsoft/zeta",
-      "path": "posture/interfaces/NOTICE",
-      "reason": "Historical local instructions replaced by public documentation",
-      "git_blob": "0096642ddf54b29cca03bfee1a84021e4157f95a"
-    },
-    {
-      "project": "device/microsoft/zeta",
       "path": "posture/interfaces/displaytopology/1.0/IDisplayTopology.hal",
-      "reason": "Third-party interface contract: redistribution basis unresolved",
-      "git_blob": "ae3afb57f4558703abb370863ffb476d9493efed"
+      "reason": "Removed from build and source; original narrow AOSP HwBinder adapter replaces generated interfaces"
     },
     {
-      "project": "device/microsoft/zeta",
       "path": "posture/interfaces/touchpen/1.0/IDisplayTappedCallback.hal",
-      "reason": "Third-party interface contract: redistribution basis unresolved",
-      "git_blob": "ea4edae89bbd0b780f71c12d4bdc6a27af1a6540"
+      "reason": "Removed from build and source; original narrow AOSP HwBinder adapter replaces generated interfaces"
     },
     {
-      "project": "device/microsoft/zeta",
       "path": "posture/interfaces/touchpen/1.0/IPenCallback.hal",
-      "reason": "Third-party interface contract: redistribution basis unresolved",
-      "git_blob": "fe7d2074632a1a794fbf5b8745693321c6e7ed2d"
+      "reason": "Removed from build and source; original narrow AOSP HwBinder adapter replaces generated interfaces"
     },
     {
-      "project": "device/microsoft/zeta",
       "path": "posture/interfaces/touchpen/1.0/ITouchPen.hal",
-      "reason": "Third-party interface contract: redistribution basis unresolved",
-      "git_blob": "373313fcd06efe74240a915ffd940ddbd69495a8"
+      "reason": "Removed from build and source; original narrow AOSP HwBinder adapter replaces generated interfaces"
     }
   ]
 }

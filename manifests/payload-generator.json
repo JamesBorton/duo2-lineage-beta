@@ -1,0 +1,11 @@
+{
+  "base": "fc83053aa2a71885ba8615da9946033adf3462ce",
+  "revision": "e7f1bae306b1b86b80d65bf4cc2c3cc3435f9d37",
+  "tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
+  "patch_sha256": "e65daa59c034232e4172b15efeba1fec4b49916e4684d8ee31ce6155061d5781",
+  "changed_paths": [
+    "payload_generator/delta_diff_utils.cc"
+  ],
+  "on_device_consumer_changed": false,
+  "public_upstream": "https://github.com/LineageOS/android_system_update_engine"
+}

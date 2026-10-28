@@ -21,7 +21,8 @@ In particular:
   Qualcomm code retains Apache-2.0, BSD-3-Clause and BSD-3-Clause-Clear terms as
   indicated by its headers. Full texts and provenance are provided separately.
 - `sources/device/microsoft/zeta/posture/`: original controller/classifier code
-  uses Apache-2.0. The four third-party `.hal` contracts are not included.
+  uses Apache-2.0. The four old `.hal` contracts are retired; the new narrow adapter and its tests
+  are original compatibility code with prior exposure documented.
 - `sources/vendor/microsoft/zeta/`: project integration/staging source only;
   references to external stock inputs do not license those inputs.
 - `LICENSES/`: copies of existing license documents retain their own notices.

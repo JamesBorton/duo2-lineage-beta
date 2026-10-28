@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-28",
+  "candidate": "1793224122",
+  "result": "PASS",
+  "projects": [
+    {
+      "project": "frameworks/base",
+      "expected_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
+      "restored_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
+      "passed": true
+    },
+    {
+      "project": "packages/apps/Launcher3",
+      "expected_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
+      "restored_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
+      "passed": true
+    },
+    {
+      "project": "device/microsoft/zeta",
+      "snapshot_files_verified": true,
+      "omitted_historical_documents": [
+        "README.full-rom.md",
+        "README.md",
+        "posture/README.md"
+      ],
+      "passed": true
+    },
+    {
+      "project": "vendor/microsoft/zeta",
+      "snapshot_files_verified": true,
+      "omitted_historical_documents": [],
+      "passed": true
+    },
+    {
+      "project": "kernel/microsoft/sm8350",
+      "expected_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+      "restored_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+      "passed": true
+    },
+    {
+      "project": "system/update_engine",
+      "expected_tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
+      "restored_tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
+      "passed": true
+    }
+  ],
+  "private_history_restored": false,
+  "firmware_or_keys_downloaded": false,
+  "phone_used": false,
+  "scope": "Source restoration only; no clean-host binary rebuild or physical acceptance claim"
+}

@@ -13,3 +13,4 @@ jobs:
         with:
           python-version: '3.13'
       - run: python3 tools/verify-public-tree.py
+      - run: python3 tools/beta/test_assembly.py

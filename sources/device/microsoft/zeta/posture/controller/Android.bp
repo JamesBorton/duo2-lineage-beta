@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 android_app {
     name: "ZetaPostureController",
-    srcs: ["src/**/*.java"],
-    static_libs: ["zeta-posture-contract", "vendor.surface.displaytopology-V1.0-java", "vendor.surface.touchpen-V1.0-java"],
+    srcs: ["src/**/*.java", ":zeta-surface-transport-srcs"],
+    static_libs: ["zeta-posture-contract"],
     platform_apis: true,
     certificate: "platform",
     privileged: true,
     system_ext_specific: true,
     optimize: { enabled: false },
+}
+
+filegroup {
+    name: "zeta-surface-transport-srcs",
+    srcs: ["protocol/**/*.java"],
+    visibility: ["//device/microsoft/zeta:__subpackages__"],
 }
