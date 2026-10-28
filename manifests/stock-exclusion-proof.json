@@ -1,0 +1,15 @@
+{
+  "state": "PASS",
+  "stock_partitions": [
+    "dtbo",
+    "odm",
+    "vendor",
+    "vendor_boot"
+  ],
+  "operations_checked": 839,
+  "every_stock_payload_range_excluded": true,
+  "no_public_segment_intersects_stock_range": true,
+  "ota_sha256": "74d51ea53625c3337004f7a42bcf0398ac2275ab4d0ecf0255e35b775b6464b6",
+  "kit_public_data_sha256": "6ff9885c460f960d006d5d69d052bd11dbcdc2facae317600bee345861e13825",
+  "scope": "Payload data exclusion; stock input rights are not granted by this proof"
+}

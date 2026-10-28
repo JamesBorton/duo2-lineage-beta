@@ -1,0 +1,8 @@
+{
+  "upstream": "https://chromium.googlesource.com/chromium/third_party/ffmpeg",
+  "revision": "9db86ce5b5b454dfc96c435f9f0723012980c37f",
+  "asset": "webview-ffmpeg-source-9db86ce5b5b4.tar.gz",
+  "bytes": 23635274,
+  "sha256": "dfbec2f04cd3bfffed41b5471d821d6e4f423bf39095330d05f1fc638b698ae3",
+  "scope": "Exact Chromium FFmpeg source/config revision from WebView DEPS; preserve its mixed original licenses"
+}

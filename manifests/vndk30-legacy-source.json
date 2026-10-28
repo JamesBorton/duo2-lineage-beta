@@ -1,0 +1,47 @@
+{
+  "projects": [
+    {
+      "project": "external/libnl",
+      "url": "https://android.googlesource.com/platform/external/libnl",
+      "public_refs": [
+        "eb333468f8b9200ec5429494a96e26585a2642cf refs/heads/android11-gsi"
+      ],
+      "asset": "vndk30-libnl-upstream-source.bundle",
+      "bytes": 2184075,
+      "sha256": "eee11d2c1f423bb02973b15fae69607abea3cb2e6ab75eeeabc1ceb5281c44a8",
+      "scope": "Complete upstream history of historical API30 release branches; no private custom history",
+      "google_binary_manifest_revision_verified": false,
+      "recovered_release_branch_head": "eb333468f8b9200ec5429494a96e26585a2642cf",
+      "recovered_release_branch_last_commit": "2020-10-15T10:42:40+00:00",
+      "snapshot": {
+        "snapshot_commit": "0e2401cb12bef5c2d7598e5643248f767895a9fe",
+        "google_build": "7755159",
+        "reported_branch": "rvc-gsi-release",
+        "snapshot_date": "2021-09-24"
+      },
+      "correspondence_assessment": "Inferred from the public snapshot import and an API30 release-branch history whose newest commit predates that binary import; the original Google CI source manifest and a matching binary rebuild are not independently verified."
+    },
+    {
+      "project": "external/libexif",
+      "url": "https://android.googlesource.com/platform/external/libexif",
+      "public_refs": [
+        "acca97d862a920158ec10e0a1e92a40d7783ba5d refs/heads/android11-gsi"
+      ],
+      "asset": "vndk30-libexif-upstream-source.bundle",
+      "bytes": 1964822,
+      "sha256": "d9bf848ae775d7afabcbe0de570b170911c11c55b49175d2ad21e4146f8280c1",
+      "scope": "Complete upstream history of historical API30 release branches; no private custom history",
+      "google_binary_manifest_revision_verified": false,
+      "recovered_release_branch_head": "acca97d862a920158ec10e0a1e92a40d7783ba5d",
+      "recovered_release_branch_last_commit": "2022-02-11T09:54:42+00:00",
+      "snapshot": {
+        "snapshot_commit": "9a9deb0a0e1eba832be7d2ae9e1da2af8ddeec94",
+        "google_build": "8349746",
+        "reported_branch": "android11-gsi",
+        "snapshot_date": "2022-03-25"
+      },
+      "correspondence_assessment": "Inferred from the public snapshot import and an API30 release-branch history whose newest commit predates that binary import; the original Google CI source manifest and a matching binary rebuild are not independently verified."
+    }
+  ],
+  "limitation": "Exact Google CI build manifests7755159/8349746 remain unavailable; binary-to-source commit mapping is not yet independently proven."
+}

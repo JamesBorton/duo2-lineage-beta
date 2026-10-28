@@ -69,3 +69,29 @@ Obtain your own device's recovery package from
 No download mirror, firmware or extraction of third-party inputs is performed by
 the source restoration tool. Owner-provided inputs do not by themselves settle
 permission to redistribute a resulting binary ROM.
+
+## Staged source companions
+
+The planned download assets include complete tracked kernel source at
+5c42d31b8d702a47e84fa2282bae64fabe35cb15, conservative GPL/LGPL userspace source
+candidates, and the exact Chromium FFmpeg revision
+9db86ce5b5b454dfc96c435f9f0723012980c37f. Per-file hashes accompany the assets.
+The userspace set is deliberately overinclusive; metadata labels do not establish
+which alternative license was selected for every component. Build-specific
+configuration, applicable license texts and notices remain part of the source
+correspondence review. The full WebView credits include the relevant LGPL texts.
+
+Two legacy VNDK libraries require older source than the current Lineage projects.
+Public snapshot imports identify libnl build 7755159 from rvc-gsi-release
+(2021-09-24) and libexif build 8349746 from android11-gsi (2022-03-25). Complete
+upstream API30 histories are provided in Git bundles. Their surviving release
+branch heads predate those imports. Correspondence to those branches is an
+inference from published import metadata; the original Google CI source
+manifests and exact binary rebuilds were not independently verified. Full commit
+IDs, bundle hashes and limitations are in
+[legacy source evidence](../manifests/vndk30-legacy-source.json).
+
+To inspect a supplied legacy source bundle in a new directory, use
+`git clone PATH_TO_BUNDLE NEW_DIRECTORY`, then select the recorded android11-gsi
+revision. Bundles contain only upstream history, without this project's private
+commits. These are source assets and must never be flashed or sideloaded.

@@ -1,47 +1,61 @@
 # Public beta readiness
 
-2026-10-28: no downloadable ROM beta is published yet. This document records
-engineering evidence and remaining release gates; it is not a legal opinion.
+2026-10-28: candidate **1793224122** is signed and staged privately. No
+downloadable ROM beta is published. This records engineering evidence and its
+limits; it is not a legal opinion or permission from third-party rights holders.
 
 Completed:
 
-- Fresh public history, scoped Apache-2.0 contributions, retained upstream terms,
-  source hashes and verified exact patch reconstruction.
-- The four old HAL contracts and generated vendor classes have been replaced by
-  a narrow original AOSP HwBinder adapter. Three new transport tests pass; prior
-  exposure and compatibility facts are documented in its README. No formal
-  clean-room claim is made.
-- All 25 current-source emulator gates pass, including display power, rendered
-  keyboard input, default unlock pane, Recents, preview geometry and screen actions.
-- Boot controller license metadata now includes Apache, BSD and BSD-Clear texts.
-- Dedicated APK/APEX/AVB beta keys were generated outside Git and have verified
-  protected backups. Actual signed output verification remains a separate gate.
-- ARM64 WebView's embedded credits, version and exact Chromium/FFmpeg/Lineage
-  source pins are identified. The credits page works on the test emulator.
-- The owner-input assembler passes eight positive/negative tests on Windows and
-  Linux. These synthetic tests do not establish real-ROM reconstruction.
+- Six public source projects reconstruct against their recorded bases. Fresh
+  public history, source hashes and scoped licenses retain applicable upstream
+  terms. No private source history or signing keys are published.
+- Four copied HAL contracts and generated vendor classes were replaced by an
+  original narrow AOSP HwBinder adapter. All 25 current-image emulator gates and
+  11 transport/controller instrumentation tests pass. Prior exposure is disclosed;
+  no clean-room certification is claimed.
+- The final signed target-files pass independent checks of 123 APKs, 37 APEXes,
+  embedded APKs, MAC signer policy, AVB, VINTF, SELinux, care maps and notice XML.
+  Dedicated protected beta keys sign the new build. The upstream CTS shim is an
+  explicit preserved exception; WebView retains exact upstream bytes/signature.
+- OTA whole-file and payload signatures pass. No maintainer ADB key remains in
+  normal boot/recovery. Its OTA trust contains only the beta certificate.
+- Real Windows and Linux owner-input reconstructions produce identical signed
+  OTA bytes: 1,952,419,447 bytes. Independent interval checks prove all four stock
+  partitions' operation data is excluded from the public kit; 920,649,677 payload
+  bytes are supplied from the owner's official ZIP.
+- Owner recovery preparation is byte-identical on Windows/Linux. Two temporary
+  physical boots pass with authenticated owner-only root ADB, Enforcing SELinux,
+  QTI/UFS and snapshot checks. Do not select the menu action that disables auth.
+- Portable host tests pass on both systems: eight assembly, five recovery framing/
+  trust and seven slot-preflight guard tests. Physical installation remains separate.
+- Readable supplemental notices include all 769 WebView component sections and
+  the full credits. Kernel source, conservative userspace source candidates,
+  exact FFmpeg source and historical API30 libnl/libexif source histories are staged.
 
-Still required before publishing downloadable beta assets:
+Remaining gates before publishing download assets:
 
-- Finish the exact phone candidate, release signing and all package, AVB, OTA,
-  VINTF, policy, notice and privacy checks. Verify shipped APK and APEX identities,
-  OTA trust, and removal of maintainer-specific recovery authorization.
-- Produce the owner-input kit and independently verify that all four stock
-  partitions' payload bytes are excluded. Reconstruct the real signed installer
-  on Windows and Linux and verify its full hash and signatures.
-- Deliver exact corresponding source/build materials and readable notices for
-  distributed open-source components. Stock module source/permission gaps remain
-  relevant if anyone proposes directly distributing those binaries.
-- Complete fresh-source reproduction checks; no bit-for-bit clean-host rebuild
-  is currently claimed.
-- Obtain approval for a clean transition from prototype development signing to
-  beta signing. Repeat physical hardware, installation, recovery, update and
-  restore acceptance on the exact release, with current slot/snapshot checks.
-- Publish checksums, public certificates, minimum stock input, known issues,
-  security limits and tested instructions alongside the allowlisted assets.
+- Finish the authorized clean beta installation, verify recovery status 0, all
+  ten installed partition hashes, direct boot hash and target QTI/UFS state; then
+  verify normal Android build, boot success, snapshot completion and stability.
+  At this checkpoint sideload is still active; installation success is unconfirmed.
+- Complete fresh setup and exact-build physical acceptance: panels/touch, both
+  folded sides, close/wake, independent apps, shared Recents, toss/buttons,
+  keyboard/unlock placement, Wi-Fi, cameras and charging. Identify untested
+  features clearly rather than claiming full hardware support.
+- Test the beta-to-beta data-preserving update and official-stock restore paths,
+  then publish their tested commands and wipe implications. Old prototype restore
+  success is not evidence for this new signing transition.
+- Review remaining source correspondence limits. The historical Google VNDK
+  build manifests are unavailable; complete API30 source histories and the
+  published binary-import provenance are supplied. Branch correspondence is an
+  explicit inference; an exact legacy binary rebuild is not claimed.
+- Refresh and seal the final kit, publish matching source/notices/certificates and
+  signed checksums, and confirm CI on the exact public source commit. No clean-host
+  bit-identical full-ROM rebuild is currently claimed.
 
-The intended kit obtains stock bytes from the owner's exact official recovery
-ZIP. It does not deliver stock vendor/ODM images, Microsoft modules, vendor_boot
-or DTBO bytes in the public download. This design limits what this project
-distributes; it does not grant rights in stock firmware or settle every question
-about third-party terms. Existing private prototypes are not public releases.
+The owner-input kit does not distribute stock vendor/ODM images, Microsoft
+modules, vendor_boot or DTBO operation data. This limits the project's download;
+it grants no rights in stock firmware. Directly distributing those stock binaries
+would reopen the unresolved stock source/permission questions. See
+[source evidence](SOURCES.md), [signed candidate](../manifests/signed-candidate-validation.json)
+and [reconstruction](../manifests/owner-input-reconstruction.json).

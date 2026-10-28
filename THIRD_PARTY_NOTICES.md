@@ -50,3 +50,9 @@ The owner recovery preparation tool includes an unmodified AOSP avbtool.py at
 revision91f1bfc948d35265c3b1e5e97bf1c410e65d18fa. Its original MIT permission,
 copyright and warranty text remain at the start of that file. See
 tools/beta/third_party/provenance.json for its source and digest.
+
+The prototype's build system re-signed WebView with its development key. The beta
+preparation now restores the exact upstream prebuilt before image generation and
+explicitly preserves its signature. The original upstream APK digest and the
+final packaged digest must match; reading a source-tree certificate alone is not
+evidence about the prototype's packaged signature.

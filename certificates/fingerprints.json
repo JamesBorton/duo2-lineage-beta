@@ -1,0 +1,7 @@
+{
+  "ota_certificate_sha256": "2192dea4f2e70b54b21cd99e8a37083c85aac2a1d7b7ae8066418bbcfdd0bc45",
+  "platform_certificate_sha256": "718d0453b65f6e5960a510d8bcef50c0800c5231f1d1fe5d06966e5940c7d997",
+  "avb_public_key_sha256": "c1cea4b80df5ed2427a0f1f23c0b80bd379b01d20a4c51e04cab891f206663a4",
+  "private_keys_in_repository_or_release": false,
+  "prototype_transition_requires_wipe": true
+}

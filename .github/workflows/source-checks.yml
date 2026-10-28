@@ -18,3 +18,4 @@ jobs:
       - run: python tools/verify-public-tree.py
       - run: python tools/beta/test_assembly.py
       - run: python tools/beta/test_owner_recovery.py
+      - run: python tools/beta/test_owner_preflight.py

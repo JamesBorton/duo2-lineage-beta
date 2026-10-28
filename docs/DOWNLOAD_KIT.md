@@ -22,8 +22,9 @@ Python 3.11+ on Windows or Linux reconstructs the complete signed OTA locally.
 The assembler verifies the input, kit, chunk and final-file hashes. ZIP signature
 bytes are retained, so the result must be byte-identical to the tested installer.
 No ADB, phone operation or network access occurs during assembly. It refuses an
-existing output. Allow generous temporary disk space; exact needs will accompany
-the tested release. Do not sideload a partial result or a mismatched ZIP.
+existing output. Allow at least 12 GiB free disk space for input extraction and output.
+The actual signed candidate reconstructs to identical bytes on Windows/Linux; see
+[recorded reconstruction](../manifests/owner-input-reconstruction.json). Do not sideload a partial result or a mismatched ZIP.
 
 The eventual command will be:
 
@@ -40,5 +41,7 @@ boot image and recipe for a release, adds only your existing adbkey.pub, applies
 the validated temporary recovery layout, and verifies its AVB framing. It keeps
 secure ADB enabled and rejects an input that already contains another computer's
 key. It never accepts a private key and never connects to or flashes a phone.
-Five positive/negative framing and trust tests pass on Windows and Linux; an
-exact-image physical boot test is still required before release instructions.
+Five positive/negative framing and trust tests pass on Windows and Linux. The
+byte-identical real owner recovery has temporarily booted twice on the physical
+Duo 2 with authenticated ADB and Enforcing SELinux. Full ROM acceptance and the
+complete install/update/restore guide remain release requirements.

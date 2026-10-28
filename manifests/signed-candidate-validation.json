@@ -1,0 +1,22 @@
+{
+  "state": "PASS",
+  "signed_target_files_sha256": "fbfdbec5a86c290525975b79b598323af0c33fd5822fe69453201b9692b7b310",
+  "stock_vendor_odm_unchanged": true,
+  "stock_vendor_boot_dtbo_prefix_unchanged": true,
+  "avb_root_and_system_key_verified": true,
+  "recovery_secure_adb_without_authorized_keys": true,
+  "recovery_ota_trust_only_beta_key": true,
+  "notice_xml_parse_passed": true,
+  "webview_upstream_preserved": true,
+  "vintf_passed": true,
+  "care_map_properties_and_bounds_verified": true,
+  "notice_components": 769,
+  "candidate_build": "1793224122",
+  "verified_apks": 123,
+  "verified_apexes": 37,
+  "preserved_apex_exceptions": [
+    "SYSTEM/apex/com.android.apex.cts.shim.apex"
+  ],
+  "physical_acceptance_passed": false,
+  "public_binary_release_ready": false
+}

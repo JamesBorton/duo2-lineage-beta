@@ -1,0 +1,22 @@
+{
+  "state": "PASS",
+  "source_boot_sha256": "af01391c4fa5c2d78fb21595f82e9ca0d997706491e864ad4a6ac5ea5b7f550e",
+  "identical_entry_set": true,
+  "entry_count": 1179,
+  "same_modes_uids_gids": true,
+  "binaries_policy_properties_and_owner_authorization_identical": true,
+  "differences": [
+    "init.recovery.surfaceduo2.rc: comments only",
+    "first_stage_ramdisk/init.recovery.surfaceduo2.rc: comments only"
+  ],
+  "physical_boot_tested": true,
+  "scope": "Exact Windows/Linux image comparison plus two temporary boots of the owner-key image; authenticated root recovery, Enforcing and QTI/UFS/snapshot queries pass. ROM installation and normal hardware acceptance are separate.",
+  "windows_and_linux_byte_identical": true,
+  "portable_framing_security_tests_per_host": 5,
+  "no_device_connection_during_preparation": true,
+  "physical_boot_count": 2,
+  "authenticated_owner_adb_passed": true,
+  "selinux_enforcing": true,
+  "recovery_authentication_default_preserved": true,
+  "slot_ufs_snapshot_preflight_passed": true
+}

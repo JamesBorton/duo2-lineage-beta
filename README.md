@@ -8,7 +8,9 @@ Qualcomm or the LineageOS project. Surface Duo 1 is not a supported target.
 This repository publishes a reviewed source snapshot, known issues and release
 requirements. The new beta candidate replaces four copied HAL contracts with an original narrow
 AOSP HwBinder adapter. All 25 current-source emulator gates pass; its exact signed
-phone build and owner-input download kit are still being verified.
+phone build passes offline signing/package audits and real Windows/Linux owner-input
+reconstruction. Authenticated temporary recovery has booted on the phone; clean ROM
+installation and exact-build physical acceptance remain in progress.
 The planned download is an assembly kit: each owner supplies the official Microsoft
 recovery ZIP, then the kit reconstructs the complete signed installer locally.
 See [download design](docs/DOWNLOAD_KIT.md), [release readiness](docs/RELEASE_READINESS.md) and [installation status](docs/INSTALLATION.md).

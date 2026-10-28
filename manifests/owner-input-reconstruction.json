@@ -1,0 +1,16 @@
+{
+  "candidate_build": "1793224122",
+  "state": "PASS",
+  "ota_bytes": 1952419447,
+  "ota_sha256": "74d51ea53625c3337004f7a42bcf0398ac2275ab4d0ecf0255e35b775b6464b6",
+  "stock_input_sha256": "8e695f5e7d4a88ee76d06d4457fd6f203f4c65f35aa0c3e0a87961e24ec5c302",
+  "public_data_bytes": 1031769770,
+  "public_data_sha256": "6ff9885c460f960d006d5d69d052bd11dbcdc2facae317600bee345861e13825",
+  "stock_payload_bytes_withheld": 920649677,
+  "all_four_stock_operation_ranges_independently_excluded": true,
+  "linux_actual_reconstruction_seconds": 97.9,
+  "windows_actual_reconstruction_seconds": 91.0,
+  "windows_linux_exact_final_bytes_match": true,
+  "whole_ota_and_payload_signature_verification_passed": true,
+  "physical_installation_acceptance_passed": false
+}
