@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# Android 16 requires AIDL or HIDL >=1.2; retain vendor contents, stop its old 1.1 service.
+on early-init
+    stop vendor.boot-hal-1-1
+
+service zeta.bootctrl /system_ext/bin/hw/android.hardware.boot-service.zeta
+    class early_hal
+    user root
+    group root

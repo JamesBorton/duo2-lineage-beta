@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# QTI controller reads partition attributes and changes GPT slot flags/boot LUN.
+# These extra permissions exist only in the recovery policy; no permissive domain.
+recovery_only(`
+  # Recovery ramdisk directories and the DT fstab are read during HAL startup.
+  allow hal_bootctl_default rootfs:dir r_dir_perms;
+  allow hal_bootctl_default sysfs_dt_firmware_android:dir r_dir_perms;
+  allow hal_bootctl_default vendor_zeta_recovery_bootctl_exec:file { getattr open read execute entrypoint };
+  allow hal_bootctl_default block_device:dir r_dir_perms;
+  # libgptutils scans /dev for the UFS-BSG transport endpoint.
+  allow hal_bootctl_default device:dir r_dir_perms;
+  allow hal_bootctl_default dev_type:blk_file getattr;
+  allow hal_bootctl_default { vendor_zeta_gpt_block_device vendor_zeta_xbl_block_device }:blk_file rw_file_perms;
+  allow hal_bootctl_default vendor_zeta_sg_device:chr_file rw_file_perms;
+  allow hal_bootctl_default vendor_sysfs_zeta_scsi_target:dir r_dir_perms;
+  # block/bsg-lib.c rejects transport SG_IO without CAP_SYS_RAWIO.
+  allow hal_bootctl_default self:capability sys_rawio;
+')

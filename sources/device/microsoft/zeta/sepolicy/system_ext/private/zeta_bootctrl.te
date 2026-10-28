@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Core AIDL QTI service uses stock vendor permissions on the public hal_bootctl attribute.
+type zeta_bootctrl, domain, coredomain;
+type zeta_bootctrl_exec, exec_type, system_file_type, file_type;
+init_daemon_domain(zeta_bootctrl)
+hal_server_domain(zeta_bootctrl, hal_bootctl)
+allow zeta_bootctrl proc_cmdline:file r_file_perms;
+allow zeta_bootctrl sysfs_dt_firmware_android:dir r_dir_perms;
+allow zeta_bootctrl sysfs_dt_firmware_android:file r_file_perms;
+read_fstab(zeta_bootctrl)
+allow zeta_bootctrl block_device:dir r_dir_perms;
+allow zeta_bootctrl device:dir r_dir_perms;
+allow zeta_bootctrl dev_type:blk_file getattr;
+allow zeta_bootctrl misc_block_device:blk_file rw_file_perms;
+allow zeta_bootctrl self:capability sys_rawio;
+# Stock vendor leaves only the vbmeta_system GPT LUN generic; label that exact node.
+type zeta_bootctrl_gpt_block_device, dev_type;
+# Recovery sees this exact label too; both standard boot HAL servers need it.
+allow hal_bootctl_server zeta_bootctrl_gpt_block_device:blk_file rw_file_perms;

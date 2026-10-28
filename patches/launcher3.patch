@@ -1,0 +1,2765 @@
+diff --git a/compose/features/com/android/launcher3/widgetpicker/WidgetPickerComposeWrapperImpl.kt b/compose/features/com/android/launcher3/widgetpicker/WidgetPickerComposeWrapperImpl.kt
+index 425af3fbde1723be3fc9b3fa72e9386b57bb764d..dbb6857ce1422c00b92eeb887f3b2aa75cfb4b09 100644
+--- a/compose/features/com/android/launcher3/widgetpicker/WidgetPickerComposeWrapperImpl.kt
++++ b/compose/features/com/android/launcher3/widgetpicker/WidgetPickerComposeWrapperImpl.kt
+@@ -197,17 +197,26 @@ constructor(
+                             widgetInfo = interactionInfo.widgetInfo,
+                         )
+                 }
+-            Launcher.ACTIVITY_TRACKER.registerCallback(
+-                interactionListener,
+-                HOME_SCREEN_WIDGET_INTERACTION_REASON_STRING,
+-            )
+-            startActivity(
+-                /*intent=*/ Intent(Intent.ACTION_MAIN)
+-                    .addCategory(Intent.CATEGORY_HOME)
+-                    .setPackage(packageName)
+-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+-                /*options=*/ apiWrapper.createFadeOutAnimOptions().toBundle(),
+-            )
++            val panel = if (com.android.launcher3.ZetaWorkspaceMode.enabled(this)) {
++                intent.getIntExtra(Launcher.WORKSPACE_PANEL_EXTRA, -1)
++            } else -1
++            val tracker = Launcher.getActivityTrackerForPanel(panel)
++            val homeIntent = Intent(Intent.ACTION_MAIN)
++                .addCategory(Intent.CATEGORY_HOME)
++                .setPackage(packageName)
++                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
++            val options = apiWrapper.createFadeOutAnimOptions()
++            if (panel == 0 || panel == 1) {
++                // Capture the originating Home, never the process-global/default Home.
++                val home = tracker.getCreatedContext<Launcher>() ?: run { finish(); return }
++                homeIntent.setComponent(android.content.ComponentName(this, home.javaClass))
++                homeIntent.putExtra(Launcher.WORKSPACE_PANEL_EXTRA, panel)
++                options.setLaunchTaskDisplayAreaFeatureId(if (panel == 0)
++                    android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
++                    else android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST + 10)
++            }
++            tracker.registerCallback(interactionListener, HOME_SCREEN_WIDGET_INTERACTION_REASON_STRING)
++            startActivity(homeIntent, options.toBundle())
+             finish()
+         }
+ 
+diff --git a/quickstep/AndroidManifest-launcher.xml b/quickstep/AndroidManifest-launcher.xml
+index 88de67fe8b4f26f839d497781eae30ffc645c972..5957b7163d14fd3bb39ff8f157f981c4aeec699c 100644
+--- a/quickstep/AndroidManifest-launcher.xml
++++ b/quickstep/AndroidManifest-launcher.xml
+@@ -71,5 +71,18 @@
+                 android:value="${packageName}.grid_control" />
+         </activity>
+ 
++        <activity
++            android:name="com.android.launcher3.uioverrides.ZetaRightHome"
++            android:launchMode="singleTask"
++            android:clearTaskOnLaunch="true"
++            android:stateNotNeeded="true"
++            android:windowSoftInputMode="adjustPan"
++            android:screenOrientation="unspecified"
++            android:configChanges="keyboard|keyboardHidden|mcc|mnc|navigation|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
++            android:resizeableActivity="true"
++            android:resumeWhilePausing="true"
++            android:taskAffinity=""
++            android:exported="false" />
++
+     </application>
+ </manifest>
+diff --git a/quickstep/res/layout/overview_actions_container.xml b/quickstep/res/layout/overview_actions_container.xml
+index ce54028256efe3c750a76546c666da77d293a392..d6302caf612f9b3a4914d5b797e175f04361a232 100644
+--- a/quickstep/res/layout/overview_actions_container.xml
++++ b/quickstep/res/layout/overview_actions_container.xml
+@@ -37,6 +37,24 @@
+             android:drawableStart="@drawable/ic_screenshot"
+             android:text="@string/action_screenshot" />
+ 
++        <Button
++            android:id="@+id/action_zeta_this_screen"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_marginStart="8dp"
++            android:text="@string/zeta_this_screen"
++            android:contentDescription="@string/zeta_open_this_screen"
++            android:visibility="gone" />
++
++        <Button
++            android:id="@+id/action_zeta_other_screen"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_marginStart="8dp"
++            android:text="@string/zeta_other_screen"
++            android:contentDescription="@string/zeta_open_other_screen"
++            android:visibility="gone" />
++
+         <Button
+             android:id="@+id/action_split"
+             android:layout_width="wrap_content"
+diff --git a/quickstep/res/values/zeta_workspace_strings.xml b/quickstep/res/values/zeta_workspace_strings.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..0a43a3cad8f71b83b307388c8b61f376e8691107
+--- /dev/null
++++ b/quickstep/res/values/zeta_workspace_strings.xml
+@@ -0,0 +1,16 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="zeta_move_other_screen" translatable="false">Move to other screen</string>
++    <string name="zeta_use_one_screen" translatable="false">Use one screen</string>
++    <string name="zeta_use_both_screens" translatable="false">Use both screens</string>
++    <string name="zeta_swap_screens" translatable="false">Swap screens</string>
++    <string name="zeta_action_unavailable" translatable="false">This action is unavailable right now.</string>
++    <string name="zeta_pair_unavailable" translatable="false">Open the Duo with two different available apps to use an app pair.</string>
++    <string name="zeta_toss_right" translatable="false">Release to move to the right screen</string>
++    <string name="zeta_toss_left" translatable="false">Release to move to the left screen</string>
++    <string name="zeta_clear_all_recent_apps" translatable="false">Clear all recent apps</string>
++    <string name="zeta_this_screen" translatable="false">This screen</string>
++    <string name="zeta_other_screen" translatable="false">Other screen</string>
++    <string name="zeta_open_this_screen" translatable="false">Open app on this screen</string>
++    <string name="zeta_open_other_screen" translatable="false">Open app on the other screen</string>
++</resources>
+diff --git a/quickstep/src/com/android/launcher3/LauncherInitListener.java b/quickstep/src/com/android/launcher3/LauncherInitListener.java
+index 4e4ffe77997091175d4b9357e2d2c89e8c18188e..f9a9ffa5b813b44093dffa26a321842ab38b167f 100644
+--- a/quickstep/src/com/android/launcher3/LauncherInitListener.java
++++ b/quickstep/src/com/android/launcher3/LauncherInitListener.java
+@@ -16,6 +16,7 @@
+ package com.android.launcher3;
+ 
+ import com.android.quickstep.util.ContextInitListener;
++import com.android.launcher3.util.ContextTracker;
+ 
+ import java.util.function.BiPredicate;
+ 
+@@ -30,6 +31,11 @@ public class LauncherInitListener extends ContextInitListener<Launcher> {
+         super(onInitListener, Launcher.ACTIVITY_TRACKER);
+     }
+ 
++    public LauncherInitListener(BiPredicate<Launcher, Boolean> onInitListener,
++            ContextTracker.ActivityTracker<Launcher> tracker) {
++        super(onInitListener, tracker);
++    }
++
+     @Override
+     public boolean handleInit(Launcher launcher, boolean isHomeStarted) {
+         launcher.deferOverlayCallbacksUntilNextResumeOrStop();
+diff --git a/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java b/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
+index 5ed45bb8bd8ef5bc61ec3616cb523b0a58cbc2c8..48ff2b0fb53d492ae6b6418cd435653d631a6022 100644
+--- a/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
++++ b/quickstep/src/com/android/launcher3/taskbar/TaskbarManagerImpl.java
+@@ -981,6 +981,10 @@ public class TaskbarManagerImpl implements DisplayDecorationListener {
+     }
+ 
+     private boolean isTaskbarEnabled(int displayId, DeviceProfile deviceProfile) {
++        if (displayId == android.view.Display.DEFAULT_DISPLAY
++                && com.android.launcher3.ZetaWorkspaceMode.enabled(android.app.ActivityThread.currentApplication())) {
++            return false;
++        }
+         boolean taskbarDisallowedByDisplayPolicy = (getSharedStateForDisplay(displayId)
+                 .sysuiStateFlags & SYSUI_STATE_NAVIGATION_BAR_DISABLED) != 0;
+         if (taskbarDisallowedByDisplayPolicy) {
+diff --git a/quickstep/src/com/android/launcher3/uioverrides/QuickstepAppWidgetHostProvider.kt b/quickstep/src/com/android/launcher3/uioverrides/QuickstepAppWidgetHostProvider.kt
+index 1387cb7fce4639279f4abd05c8b7f48a9cdc202b..3888a430845776383b14d8d9c55c54ada5d080dd 100644
+--- a/quickstep/src/com/android/launcher3/uioverrides/QuickstepAppWidgetHostProvider.kt
++++ b/quickstep/src/com/android/launcher3/uioverrides/QuickstepAppWidgetHostProvider.kt
+@@ -34,7 +34,7 @@ object QuickstepAppWidgetHostProvider {
+                     ActivityThread.currentApplication(),
+                     ListenableAppWidgetHost.widgetHolderExecutor,
+                 ),
+-                LauncherWidgetHolder.APPWIDGET_HOST_ID,
++                com.android.launcher3.ZetaWorkspaceMode.widgetHostId(ActivityThread.currentApplication()),
+             )
+             .apply { if (BuildConfig.WIDGETS_ENABLED) startListening() }
+     }
+diff --git a/quickstep/src/com/android/launcher3/uioverrides/QuickstepLauncher.java b/quickstep/src/com/android/launcher3/uioverrides/QuickstepLauncher.java
+index 3b96a74f11a641b4b8052a17f92a01d6b3dd7426..c02031b46131ef27497450fe584d61ecc64343f9 100644
+--- a/quickstep/src/com/android/launcher3/uioverrides/QuickstepLauncher.java
++++ b/quickstep/src/com/android/launcher3/uioverrides/QuickstepLauncher.java
+@@ -826,9 +826,57 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
+         return new QuickstepAtomicAnimationFactory(this);
+     }
+ 
++    private int mZetaWorkspacePanel = -1;
++    private int mZetaOverviewRequest;
++
++    private void requestZetaOverview() {
++        final int request = ++mZetaOverviewRequest;
++        getDragLayer().post(() -> {
++            if (isDestroyed() || request != mZetaOverviewRequest) return;
++            RecentsView recents = getOverviewPanel();
++            if (recents == null) return;
++            recents.reloadZetaWorkspaceTasks(() -> {
++                if (!isDestroyed() && request == mZetaOverviewRequest) {
++                    getStateManager().goToState(OVERVIEW, false);
++                    recents.post(() -> {
++                        if (!isDestroyed() && request == mZetaOverviewRequest) {
++                            recents.loadVisibleTaskData(
++                                    com.android.quickstep.views.TaskView.FLAG_UPDATE_ALL);
++                        }
++                    });
++                }
++            });
++        });
++    }
++
++
++    public int getZetaWorkspacePanel() { return mZetaWorkspacePanel; }
++
++    @Override
++    public int getWorkspacePanelId() { return mZetaWorkspacePanel; }
++
++    @Override
++    protected boolean useTaskWindowProfile() { return mZetaWorkspacePanel >= 0; }
++
++    @Override
++    public com.android.launcher3.util.ContextTracker.ActivityTracker<Launcher> getActivityTracker() {
++        return ZetaWorkspaceHomes.tracker(ZetaWorkspaceHomes.panel(this));
++    }
++
++    @Override
++    public void onWindowFocusChanged(boolean hasFocus) {
++        super.onWindowFocusChanged(hasFocus);
++        if (hasFocus) ZetaWorkspaceHomes.focused(this);
++    }
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
++        mZetaWorkspacePanel = ZetaWorkspaceHomes.initialPanel(this);
+         super.onCreate(savedInstanceState);
++        if (mZetaWorkspacePanel >= 0
++                && getIntent().getBooleanExtra("org.lineageos.zeta.workspace.OVERVIEW", false)) {
++            requestZetaOverview();
++        }
+         if (savedInstanceState != null) {
+             mPendingSplitSelectInfo = ObjectWrapper.unwrap(
+                     savedInstanceState.getIBinder(PENDING_SPLIT_SELECT_INFO));
+@@ -976,6 +1024,7 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
+ 
+     @Override
+     protected void onStop() {
++        ++mZetaOverviewRequest;
+         super.onStop();
+         if (mTaskbarInteractor != null && FeatureFlags.enableHomeTransitionListener()) {
+             mTaskbarInteractor.onLauncherStop();
+@@ -984,8 +1033,14 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
+ 
+     @Override
+     protected void onNewIntent(Intent intent) {
++        ++mZetaOverviewRequest; // Cancel a prior request if Home or a newer command supersedes it.
+         boolean intentHasGnc = GestureNavContract.canBuildFromIntent(intent);
+         super.onNewIntent(intent);
++        if (mZetaWorkspacePanel >= 0
++                && intent.getBooleanExtra("org.lineageos.zeta.workspace.OVERVIEW", false)) {
++            requestZetaOverview();
++            intent.removeExtra("org.lineageos.zeta.workspace.OVERVIEW");
++        }
+         OverviewCommandHelper overviewCommandHelper = mTISBindHelper.getOverviewCommandHelper();
+         if (overviewCommandHelper != null) {
+             overviewCommandHelper.clearPendingCommands();
+@@ -1677,6 +1732,9 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
+         }
+         RecentsView recentsView = getOverviewPanel();
+         writer.println("\nQuickstepLauncher:");
++        writer.println(prefix + "\tZeta panel=" + mZetaWorkspacePanel
++                + " state=" + getStateManager().getState()
++                + " recentsTasks=" + (recentsView == null ? -1 : recentsView.getTaskViewCount()));
+         writer.println(prefix + "\tmOrientationState: " + (recentsView == null ? "recentsNull" :
+                 recentsView.getPagedViewOrientedState()));
+         if (recentsView != null) {
+@@ -1737,7 +1795,7 @@ public class QuickstepLauncher extends Launcher implements RecentsViewContainer,
+ 
+     @Override
+     public LauncherActivityInterface getContainerInterface() {
+-        return LauncherActivityInterface.INSTANCE;
++        return LauncherActivityInterface.forPanel(ZetaWorkspaceHomes.panel(this));
+     }
+ 
+     @Override
+diff --git a/quickstep/src/com/android/launcher3/uioverrides/SystemApiWrapper.kt b/quickstep/src/com/android/launcher3/uioverrides/SystemApiWrapper.kt
+index 3a0c9505fee195504352edf7c39feeb4a69037e7..c920a148139b6a8ef559ffbe5a54888cc43d1f7b 100644
+--- a/quickstep/src/com/android/launcher3/uioverrides/SystemApiWrapper.kt
++++ b/quickstep/src/com/android/launcher3/uioverrides/SystemApiWrapper.kt
+@@ -57,6 +57,15 @@ import javax.inject.Inject
+ open class SystemApiWrapper @Inject constructor(@ApplicationContext context: Context?) :
+     ApiWrapper(context) {
+ 
++    override fun isZetaWorkspaceEnabled(): Boolean = try {
++        android.view.WindowManagerGlobal.getWindowManagerService()
++            ?.getZetaWorkspaceState()?.getBoolean("enabled", false) == true
++    } catch (error: android.os.RemoteException) {
++        false
++    } catch (error: SecurityException) {
++        false
++    }
++
+     override fun getPersons(si: ShortcutInfo) = si.persons ?: Utilities.EMPTY_PERSON_ARRAY
+ 
+     override fun getActivityOverrides(): Map<String, LauncherActivityInfo> =
+diff --git a/quickstep/src/com/android/launcher3/uioverrides/ZetaRightHome.java b/quickstep/src/com/android/launcher3/uioverrides/ZetaRightHome.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a8e6962592b3c67102c7deaf114cd61f2c2eef92
+--- /dev/null
++++ b/quickstep/src/com/android/launcher3/uioverrides/ZetaRightHome.java
+@@ -0,0 +1,5 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.launcher3.uioverrides;
++
++/** Distinct singleTask component prevents RIGHT Home from stealing LEFT's task. */
++public final class ZetaRightHome extends QuickstepLauncher { }
+diff --git a/quickstep/src/com/android/launcher3/uioverrides/ZetaWorkspaceHomes.java b/quickstep/src/com/android/launcher3/uioverrides/ZetaWorkspaceHomes.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4324487e8135a128194bdb10745d6d2a87ec4531
+--- /dev/null
++++ b/quickstep/src/com/android/launcher3/uioverrides/ZetaWorkspaceHomes.java
+@@ -0,0 +1,362 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.launcher3.uioverrides;
++
++import com.android.launcher3.Launcher;
++import com.android.launcher3.util.ContextTracker;
++
++/** Per-panel lifecycle registry; the launcher application and icon model remain shared. */
++public final class ZetaWorkspaceHomes {
++    public static final String PANEL_EXTRA = "org.lineageos.zeta.workspace.PANEL";
++    private static int sFocusedPanel = 0;
++    private static long sGestureDownTime = -1;
++    private static boolean sGestureInRegion;
++    private static boolean sGestureOtherPaneShade;
++    private static android.app.TaskInfo sGestureTask;
++    private static com.android.launcher3.ZetaTossGesture sToss;
++    private static android.widget.PopupWindow sTossHint;
++    private static long sTossGeneration;
++    private static int sTossSource, sTossTask = -1;
++
++    /** Observe only Quickstep's existing stream, before rotation transforms it. */
++    public static Runnable observeToss(android.view.MotionEvent event) {
++        int action = event.getActionMasked();
++        if (action == android.view.MotionEvent.ACTION_DOWN) {
++            clearToss();
++            android.os.Bundle state = snapshot();
++            if (!sGestureInRegion || sGestureTask == null || state.getInt("composition") != 2
++                    || state.getBoolean("locked") || state.getBoolean("lock_task") || state.getBoolean("switching")
++                    || state.getInt("spanned_task", -1) >= 0
++                    || sGestureTask.getActivityType() != android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD) return null;
++            sTossSource = sFocusedPanel; sTossTask = sGestureTask.taskId;
++            android.graphics.Rect from = state.getParcelable("bounds_" + sTossSource, android.graphics.Rect.class);
++            android.graphics.Rect to = state.getParcelable("bounds_" + (1-sTossSource), android.graphics.Rect.class);
++            if (from == null || to == null) return null;
++            sToss = new com.android.launcher3.ZetaTossGesture(event.getRawX(), event.getRawY(),
++                    event.getEventTime(), android.app.ActivityThread.currentApplication().getResources().getDisplayMetrics().density,
++                    to.centerX()-from.centerX(), to.centerY()-from.centerY());
++        } else if (action == android.view.MotionEvent.ACTION_CANCEL || event.getPointerCount() != 1
++                || action == android.view.MotionEvent.ACTION_POINTER_DOWN) {
++            clearToss();
++        } else if (sToss != null) {
++            boolean ready = sToss.update(event.getRawX(), event.getRawY(), event.getEventTime());
++            if (ready && action == android.view.MotionEvent.ACTION_MOVE && sTossHint == null) {
++                Launcher home = tracker(sTossSource).getCreatedContext();
++                if (home != null && home.getDragLayer().isAttachedToWindow()
++                        && home.getDragLayer().getWidth() > 32*home.getResources().getDisplayMetrics().density) {
++                    float density = home.getResources().getDisplayMetrics().density;
++                    android.widget.TextView hint = new android.widget.TextView(home);
++                    hint.setText(sTossSource == 0 ? com.android.launcher3.R.string.zeta_toss_right
++                            : com.android.launcher3.R.string.zeta_toss_left);
++                    hint.setTextColor(android.graphics.Color.WHITE);
++                    hint.setTextSize(16);hint.setGravity(android.view.Gravity.CENTER);
++                    hint.setPadding((int)(16*density),(int)(10*density),(int)(16*density),(int)(10*density));
++                    hint.setBackgroundColor(0xee202020);
++                    sTossHint = new android.widget.PopupWindow(hint,
++                            Math.min(home.getDragLayer().getWidth()-(int)(32*density),(int)(320*density)),
++                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,false);
++                    sTossHint.setTouchable(false);sTossHint.setClippingEnabled(true);
++                    try {
++                        sTossHint.showAtLocation(home.getDragLayer(), android.view.Gravity.TOP
++                                | android.view.Gravity.CENTER_HORIZONTAL,0,(int)(48*density));
++                    } catch (RuntimeException unavailable) {
++                        sTossHint=null; android.util.Log.d("ZetaToss","Preview owner is recreating");
++                    }
++                }
++            }
++            if (action == android.view.MotionEvent.ACTION_UP) {
++                final int source = sTossSource, task = sTossTask;
++                final long generation = sTossGeneration;
++                android.util.Log.i("ZetaToss", "release ready="+ready+" source="+source+" task="+task);
++                clearToss();
++                return ready ? () -> { if (generation == sTossGeneration) commitToss(source, task); } : null;
++            }
++        }
++        return null;
++    }
++    private static void clearToss() {
++        sToss = null; sTossTask = -1;
++        if (sTossHint != null) { sTossHint.dismiss(); sTossHint = null; }
++    }
++    private static void commitToss(int source, int task) {
++        android.os.Bundle state = snapshot();
++        android.app.ActivityManager.RunningTaskInfo current = state.getParcelable(
++                "standard_taskinfo_"+source, android.app.ActivityManager.RunningTaskInfo.class);
++        if (!state.getBoolean("enabled") || state.getBoolean("locked") || state.getBoolean("lock_task") || state.getBoolean("switching")
++                || state.getInt("composition") != 2 || state.getInt("spanned_task", -1) >= 0
++                || current == null || current.taskId != task) return;
++        try {
++            android.view.WindowManagerGlobal.getWindowManagerService().zetaWorkspaceAction(
++                    com.android.internal.zeta.ZetaWorkspaceProtocol.MOVE, 1-source, task);
++            // The emptied source can expose its BACKGROUND_APP full-screen snapshot.
++            // Only after both local scrolling and remote leashes finish, return that
++            // Home to NORMAL and drop its stale snapshot/targets, retaining task history.
++            Launcher home = tracker(source).getCreatedContext();
++            if (home != null && !home.isDestroyed()) {
++                com.android.quickstep.views.RecentsView recents = home.getOverviewPanel();
++                if (recents != null) recents.onRecentsAnimationComplete();
++                home.getStateManager().goToState(com.android.launcher3.LauncherState.NORMAL, false);
++                if (recents != null) recents.reset();
++            }
++            android.util.Log.i("ZetaToss", "Moved task="+task+" from="+source+" to="+(1-source));
++        } catch (android.os.RemoteException | RuntimeException error) {
++            android.util.Log.w("ZetaWorkspace", "Toss rejected after animation", error);
++        }
++    }
++
++
++    private ZetaWorkspaceHomes() { }
++
++    public static int panel(Launcher launcher) {
++        return launcher instanceof QuickstepLauncher
++                ? ((QuickstepLauncher) launcher).getZetaWorkspacePanel() : -1;
++    }
++
++    static int initialPanel(Launcher launcher) {
++        if (!com.android.launcher3.ZetaWorkspaceMode.enabled(launcher)) return -1;
++        int expected = launcher instanceof ZetaRightHome ? 1 : 0;
++        return launcher.getIntent().getIntExtra(PANEL_EXTRA, -1) == expected ? expected : -1;
++    }
++
++    public static ContextTracker.ActivityTracker<Launcher> tracker(int panel) {
++        return Launcher.getActivityTrackerForPanel(panel);
++    }
++
++    public static void focused(Launcher launcher) {
++        int panel = panel(launcher);
++        if (panel >= 0) sFocusedPanel = panel;
++    }
++
++    /** Shared Recents selects the same task into the invoking physical panel. */
++    public static boolean prepareRecentLaunch(com.android.quickstep.views.RecentsViewContainer container,
++            com.android.systemui.shared.recents.model.Task.TaskKey key,
++            android.app.ActivityOptions options) {
++        if (!(container instanceof Launcher)) return true;
++        int panel = ((Launcher) container).getWorkspacePanelId();
++        if (panel < 0) return true;
++        return prepareRecentLaunchOnPanel(key, options, panel, false);
++    }
++
++    private static boolean prepareRecentLaunchOnPanel(
++            com.android.systemui.shared.recents.model.Task.TaskKey key,
++            android.app.ActivityOptions options, int panel, boolean requireWorkspace) {
++        if (panel < 0 || panel > 1) return false;
++        try {
++            android.os.Bundle state = snapshot();
++            if (!state.getBoolean("enabled")) return !requireWorkspace;
++            if (state.getBoolean("locked") || state.getBoolean("lock_task") || state.getBoolean("switching")
++                    || (state.getInt("composition") != 2 && state.getInt("composition") != panel)) {
++                return false;
++            }
++            // TaskKey belongs to the asynchronously cached shared history. Its owner can
++            // predate the previous move. Resolve placement by task id on the server every time.
++            android.view.WindowManagerGlobal.getWindowManagerService().zetaWorkspaceAction(
++                    com.android.internal.zeta.ZetaWorkspaceProtocol.MOVE, panel, key.id);
++            if (options != null) options.setLaunchTaskDisplayAreaFeatureId(panel == 1
++                    ? android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST + 10
++                    : android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER);
++            return true;
++        } catch (android.os.RemoteException | RuntimeException error) {
++            android.util.Log.w("ZetaWorkspace", "Recent task move rejected", error);
++            android.widget.Toast.makeText(android.app.ActivityThread.currentApplication(),
++                    com.android.launcher3.R.string.zeta_action_unavailable,
++                    android.widget.Toast.LENGTH_SHORT).show();
++            return false;
++        }
++    }
++
++    /** Button destinations are relative to the invoking Home, never cached task ownership. */
++    public static boolean canOpenRecentOnScreen(
++            com.android.quickstep.views.RecentsViewContainer container) {
++        if (!(container instanceof Launcher) || ((Launcher) container).getWorkspacePanelId() < 0) {
++            return false;
++        }
++        android.os.Bundle state = snapshot();
++        return state.getBoolean("enabled") && state.getInt("composition", -1) == 2
++                && !state.getBoolean("locked") && !state.getBoolean("lock_task")
++                && !state.getBoolean("switching");
++    }
++
++    /** Called after the live Recents animation has ended; moves and resumes the same task. */
++    public static void openRecentOnScreen(
++            com.android.quickstep.views.RecentsViewContainer container,
++            com.android.systemui.shared.recents.model.Task.TaskKey key, boolean otherScreen) {
++        if (!canOpenRecentOnScreen(container)) {
++            showScreenActionUnavailable();
++            return;
++        }
++        Launcher home = (Launcher) container;
++        int origin = home.getWorkspacePanelId();
++        int destination = otherScreen ? 1 - origin : origin;
++        android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
++        options.setLaunchDisplayId(android.view.Display.DEFAULT_DISPLAY);
++        options.setLaunchWindowingMode(android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN);
++        if (!prepareRecentLaunchOnPanel(key, options, destination, true)) return;
++        try {
++            if (!com.android.systemui.shared.system.ActivityManagerWrapper.getInstance()
++                    .startActivityFromRecents(key, options)) {
++                showScreenActionUnavailable();
++                return;
++            }
++            com.android.quickstep.views.RecentsView recents = home.getOverviewPanel();
++            if (recents != null) recents.onRecentsAnimationComplete();
++            home.getStateManager().goToState(com.android.launcher3.LauncherState.NORMAL, false);
++            if (recents != null) recents.reset();
++            android.util.Log.i("ZetaWorkspace", "Recents button task=" + key.id
++                    + " origin=" + origin + " destination=" + destination);
++        } catch (RuntimeException error) {
++            android.util.Log.w("ZetaWorkspace", "Recents screen action unavailable", error);
++            showScreenActionUnavailable();
++        }
++    }
++
++    private static void showScreenActionUnavailable() {
++        android.widget.Toast.makeText(android.app.ActivityThread.currentApplication(),
++                com.android.launcher3.R.string.zeta_action_unavailable,
++                android.widget.Toast.LENGTH_SHORT).show();
++    }
++
++    /** A touched pane Home may be resumed before its window receives focus. */
++    public static boolean isCapturedHomeGesture(
++            com.android.quickstep.views.RecentsViewContainer container) {
++        return container instanceof Launcher && sGestureInRegion && sGestureTask != null
++                && sGestureTask.getActivityType() == android.app.WindowConfiguration.ACTIVITY_TYPE_HOME
++                && ((Launcher) container).getWorkspacePanelId() >= 0
++                && ((Launcher) container).getWorkspacePanelId() == sGestureTask.zetaWorkspacePanel;
++    }
++
++    public static int focusedPanel() { return sFocusedPanel; }
++    public static boolean active() {
++        return tracker(0).getCreatedContext() != null || tracker(1).getCreatedContext() != null;
++    }
++
++    private static android.os.Bundle snapshot() {
++        try {
++            android.os.Bundle state = android.view.WindowManagerGlobal.getWindowManagerService().getZetaWorkspaceState();
++            return state != null ? state : new android.os.Bundle();
++        } catch (android.os.RemoteException | SecurityException error) {
++            return new android.os.Bundle();
++        }
++    }
++
++    /** Capture physical coordinates before RotationTouchHelper transforms the event. */
++    public static void captureTouch(android.view.MotionEvent event) {
++        if (event.getDisplayId() != android.view.Display.DEFAULT_DISPLAY
++                || event.getActionMasked() != android.view.MotionEvent.ACTION_DOWN
++                || !com.android.launcher3.ZetaWorkspaceMode.enabled(android.app.ActivityThread.currentApplication())) return;
++        ++sTossGeneration;
++        sGestureDownTime = event.getDownTime();
++        sGestureInRegion = false;
++        sGestureOtherPaneShade = false;
++        sGestureTask = null;
++        android.os.Bundle state = snapshot();
++        if (!state.getBoolean("enabled", false) || state.getBoolean("switching", false)
++                || state.getBoolean("locked", false)
++                || state.getBoolean("lock_task", false)) {
++            sGestureDownTime = -1; // Preserve Android's normal lock-screen and unpin gesture regions.
++            return;
++        }
++        int composition = state.getInt("composition", 2);
++        int x = (int) event.getRawX(), y = (int) event.getRawY();
++        int panel = -1;
++        for (int candidate = 0; candidate < 2; candidate++) {
++            if (composition != 2 && composition != candidate) continue;
++            android.graphics.Rect bounds = state.getParcelable("bounds_" + candidate, android.graphics.Rect.class);
++            if (bounds != null && bounds.contains(x, y)) { panel = candidate; break; }
++        }
++        if (panel < 0) return;
++        sFocusedPanel = panel;
++        sGestureOtherPaneShade = state.getInt("shade_panel", -1) >= 0
++                && state.getInt("shade_panel", -1) != panel;
++        android.graphics.Rect bounds = state.getParcelable("bounds_" + panel, android.graphics.Rect.class);
++        int height = state.getInt("navigation_height", 0);
++        sGestureInRegion = bounds != null && height > 0 && y >= bounds.bottom - height;
++        if (sGestureInRegion) {
++            try {
++                android.view.WindowManagerGlobal.getWindowManagerService().zetaWorkspaceAction(
++                        com.android.internal.zeta.ZetaWorkspaceProtocol.FOCUS, panel, -1);
++                state = snapshot();
++                sGestureTask = state.getParcelable(state.getInt("spanned_task", -1) >= 0
++                        ? "span_taskinfo" : "taskinfo_" + panel, android.app.ActivityManager.RunningTaskInfo.class);
++            } catch (android.os.RemoteException | IllegalStateException | IllegalArgumentException error) {
++                sGestureInRegion = false;
++            }
++        }
++    }
++
++    public static Boolean capturedSwipeRegion(android.view.MotionEvent event) {
++        return event.getDisplayId() == android.view.Display.DEFAULT_DISPLAY
++                && event.getDownTime() == sGestureDownTime ? sGestureInRegion : null;
++    }
++
++    public static boolean hasCapturedWorkspaceSwipe() { return sGestureInRegion; }
++
++    public static long scopeSystemUiFlags(long flags) {
++        if (!sGestureInRegion) return flags;
++        flags &= ~com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_NAV_BAR_HIDDEN;
++        if (sGestureOtherPaneShade) flags &= ~(
++                com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_NOTIFICATION_PANEL_EXPANDED
++                | com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_QUICK_SETTINGS_EXPANDED);
++        return flags;
++    }
++
++    public static void finishTouch(long downTime) {
++        if (sGestureDownTime != downTime) return;
++        sGestureInRegion = false;
++        sGestureTask = null;
++    }
++
++    public static com.android.quickstep.TopTaskTracker.CachedTaskInfo gestureTask(
++            android.content.Context context, int displayId) {
++        return displayId == android.view.Display.DEFAULT_DISPLAY && sGestureTask != null
++                ? com.android.quickstep.TopTaskTracker.forWorkspaceTask(sGestureTask, context, displayId) : null;
++    }
++
++    public static void prepareRecents(com.android.quickstep.GestureState gesture, int displayId) {
++        if (displayId != android.view.Display.DEFAULT_DISPLAY
++                || !com.android.launcher3.ZetaWorkspaceMode.enabled(android.app.ActivityThread.currentApplication())) return;
++        if (snapshot().getBoolean("lock_task", false)) return;
++        int panel = gesture.getHomeIntent().getIntExtra(PANEL_EXTRA, sFocusedPanel);
++        try {
++            android.view.WindowManagerGlobal.getWindowManagerService().zetaWorkspaceAction(
++                    com.android.internal.zeta.ZetaWorkspaceProtocol.PREPARE_RECENTS, panel, -1);
++            android.os.Bundle state = snapshot();
++            sGestureTask = state.getParcelable("taskinfo_" + panel,
++                    android.app.ActivityManager.RunningTaskInfo.class);
++            if (sGestureTask != null) gesture.updateRunningTask(
++                    com.android.quickstep.TopTaskTracker.forWorkspaceTask(sGestureTask,
++                            android.app.ActivityThread.currentApplication(), displayId));
++        } catch (android.os.RemoteException | IllegalStateException | IllegalArgumentException error) {
++            android.util.Log.w("ZetaWorkspace", "Recents target is unavailable", error);
++        }
++    }
++
++    public static com.android.quickstep.BaseContainerInterface<?, ?> routeContainerInterface(
++            com.android.quickstep.BaseContainerInterface<?, ?> original,
++            android.content.Intent home, int displayId) {
++        if (displayId != android.view.Display.DEFAULT_DISPLAY || home == null
++                || !(original instanceof com.android.quickstep.LauncherActivityInterface)
++                || !home.hasExtra(PANEL_EXTRA)) return original;
++        return com.android.quickstep.LauncherActivityInterface.forPanel(home.getIntExtra(PANEL_EXTRA, 0));
++    }
++
++    /** Mutable pending-intent fill-in is copied so LEFT and RIGHT never mutate shared intents. */
++    public static android.content.Intent routeHomeIntent(android.content.Intent original,
++            android.app.ActivityOptions options) {
++        if (original == null || !com.android.launcher3.ZetaWorkspaceMode.enabled(
++                android.app.ActivityThread.currentApplication())) return original;
++        if (snapshot().getBoolean("lock_task", false)) return original;
++        android.content.ComponentName component = original.getComponent();
++        if (component == null || !(component.getClassName().equals(QuickstepLauncher.class.getName())
++                || component.getClassName().equals(ZetaRightHome.class.getName()))) return original;
++        int panel = original.getIntExtra(PANEL_EXTRA, sFocusedPanel);
++        if (panel != 0 && panel != 1) panel = 0;
++        android.content.Intent intent = new android.content.Intent(original);
++        intent.setComponent(new android.content.ComponentName(component.getPackageName(),
++                panel == 1 ? ZetaRightHome.class.getName() : QuickstepLauncher.class.getName()));
++        intent.putExtra(PANEL_EXTRA, panel);
++        if (options != null) options.setLaunchTaskDisplayAreaFeatureId(panel == 1
++                ? android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST + 10
++                : android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER);
++        return intent;
++    }
++}
+diff --git a/quickstep/src/com/android/quickstep/BaseWindowInterface.java b/quickstep/src/com/android/quickstep/BaseWindowInterface.java
+index b07e23e44cf3df9eed6bb89467273d115e487ebb..32a33957cce28d8e2b10c9e0d942fe5d8d9fa7a1 100644
+--- a/quickstep/src/com/android/quickstep/BaseWindowInterface.java
++++ b/quickstep/src/com/android/quickstep/BaseWindowInterface.java
+@@ -99,10 +99,10 @@ public abstract class BaseWindowInterface extends
+ 
+     @Override
+     public boolean isLauncherOverlayShowing() {
+-        if (!RecentsWindowFlags.enableLauncherOverviewInWindow.isTrue()) {
++        if (!RecentsWindowFlags.isLauncherOverviewInWindowEnabled()) {
+             return false;
+         }
+-        Launcher launcher = Launcher.ACTIVITY_TRACKER.getCreatedContext();
++        Launcher launcher = LauncherActivityInterface.INSTANCE.getCreatedContainer();
+ 
+         return launcher != null && launcher.getWorkspace().isOverlayShown();
+     }
+diff --git a/quickstep/src/com/android/quickstep/GestureState.java b/quickstep/src/com/android/quickstep/GestureState.java
+index 58b793007a996891523dd9619bfa0fb8fc25b934..d040ae46891d32e884498f3627854629d5ed10a6 100644
+--- a/quickstep/src/com/android/quickstep/GestureState.java
++++ b/quickstep/src/com/android/quickstep/GestureState.java
+@@ -200,9 +200,14 @@ public class GestureState implements RecentsAnimationCallbacks.RecentsAnimationL
+ 
+     public GestureState(OverviewComponentObserver componentObserver, int displayId, int gestureId) {
+         mDisplayId = displayId;
+-        mHomeIntent = componentObserver.getHomeIntent(displayId);
+-        mOverviewIntent = componentObserver.getOverviewIntent();
+-        mContainerInterface = componentObserver.getContainerInterface(displayId);
++        mHomeIntent = displayId == android.view.Display.DEFAULT_DISPLAY
++                ? com.android.launcher3.uioverrides.ZetaWorkspaceHomes.routeHomeIntent(
++                        componentObserver.getHomeIntent(displayId), null) : componentObserver.getHomeIntent(displayId);
++        mOverviewIntent = displayId == android.view.Display.DEFAULT_DISPLAY
++                ? com.android.launcher3.uioverrides.ZetaWorkspaceHomes.routeHomeIntent(
++                        componentObserver.getOverviewIntent(), null) : componentObserver.getOverviewIntent();
++        mContainerInterface = com.android.launcher3.uioverrides.ZetaWorkspaceHomes.routeContainerInterface(
++                componentObserver.getContainerInterface(displayId), mHomeIntent, displayId);
+         mStateCallback = new MultiStateCallback(
+                 STATE_NAMES.toArray(new String[0]), GestureState::getTrackedEventForState);
+         mGestureId = gestureId;
+diff --git a/quickstep/src/com/android/quickstep/InputConsumerUtils.kt b/quickstep/src/com/android/quickstep/InputConsumerUtils.kt
+index ece5b39bc67666aa29694b2dfa996ff96ab333b8..91db07d77a814eacd5e5a51f7616ea5015b6dc48 100644
+--- a/quickstep/src/com/android/quickstep/InputConsumerUtils.kt
++++ b/quickstep/src/com/android/quickstep/InputConsumerUtils.kt
+@@ -750,7 +750,11 @@ object InputConsumerUtils {
+             else "%sall overview focus conditions failed",
+             SUBSTRING_PREFIX,
+         )
+-        return if (hasWindowFocus || isPreviousGestureAnimatingToLauncher || isInLiveTileMode) {
++        // Focusing a pane through WM is asynchronous. A captured physical gesture on
++        // that pane's resumed Home must keep hold-to-Recents, even before focus arrives.
++        val isCapturedWorkspaceHome =
++            com.android.launcher3.uioverrides.ZetaWorkspaceHomes.isCapturedHomeGesture(container)
++        return if (hasWindowFocus || isPreviousGestureAnimatingToLauncher || isInLiveTileMode || isCapturedWorkspaceHome) {
+             reasonString.append(
+                 "%soverview should have focus, using LauncherInputConsumer",
+                 SUBSTRING_PREFIX,
+diff --git a/quickstep/src/com/android/quickstep/LauncherActivityInterface.java b/quickstep/src/com/android/quickstep/LauncherActivityInterface.java
+index 5524c029c84596a4496618c9e19fb15821ab17ac..1f12b923eda87ad094f28810886b29907fcb12d3 100644
+--- a/quickstep/src/com/android/quickstep/LauncherActivityInterface.java
++++ b/quickstep/src/com/android/quickstep/LauncherActivityInterface.java
+@@ -43,6 +43,7 @@ import com.android.launcher3.statehandlers.DepthController;
+ import com.android.launcher3.statemanager.StateManager;
+ import com.android.launcher3.taskbar.TaskbarInteractor;
+ import com.android.launcher3.uioverrides.QuickstepLauncher;
++import com.android.launcher3.uioverrides.ZetaWorkspaceHomes;
+ import com.android.launcher3.util.DisplayController;
+ import com.android.launcher3.util.NavigationMode;
+ import com.android.launcher3.views.ScrimColors;
+@@ -63,10 +64,26 @@ import java.util.function.Predicate;
+ public final class LauncherActivityInterface extends
+         BaseActivityInterface<LauncherState, QuickstepLauncher> {
+ 
+-    public static final LauncherActivityInterface INSTANCE = new LauncherActivityInterface();
++    public static final LauncherActivityInterface INSTANCE = new LauncherActivityInterface(-1);
++    private static final LauncherActivityInterface LEFT = new LauncherActivityInterface(0);
++    private static final LauncherActivityInterface RIGHT = new LauncherActivityInterface(1);
++    private final int mPanel;
+ 
+-    private LauncherActivityInterface() {
++    public static LauncherActivityInterface forPanel(int panel) {
++        return panel == 0 ? LEFT : panel == 1 ? RIGHT : INSTANCE;
++    }
++
++    private LauncherActivityInterface(int panel) {
+         super(true, OVERVIEW, BACKGROUND_APP);
++        mPanel = panel;
++    }
++
++    /** Fixed per-gesture container identity, independent of current Home focus. */
++    public boolean isWorkspacePanel() { return mPanel >= 0; }
++
++    private int resolvedPanel() {
++        return mPanel >= 0 ? mPanel : ZetaWorkspaceHomes.active()
++                ? ZetaWorkspaceHomes.focusedPanel() : -1;
+     }
+ 
+     @Override
+@@ -137,7 +154,7 @@ public final class LauncherActivityInterface extends
+     @Override
+     public LauncherInitListener createActivityInitListener(Predicate<Boolean> onInitListener) {
+         return new LauncherInitListener((activity, alreadyOnHome) ->
+-                onInitListener.test(alreadyOnHome));
++                onInitListener.test(alreadyOnHome), ZetaWorkspaceHomes.tracker(resolvedPanel()));
+     }
+ 
+     @Override
+@@ -152,7 +169,7 @@ public final class LauncherActivityInterface extends
+     @Nullable
+     @Override
+     public QuickstepLauncher getCreatedContainer() {
+-        return QuickstepLauncher.ACTIVITY_TRACKER.getCreatedContext();
++        return ZetaWorkspaceHomes.tracker(resolvedPanel()).getCreatedContext();
+     }
+ 
+     @Nullable
+@@ -345,7 +362,7 @@ public final class LauncherActivityInterface extends
+ 
+     @Override
+     public boolean isLauncherOverlayShowing() {
+-        Launcher launcher = Launcher.ACTIVITY_TRACKER.getCreatedContext();
++        Launcher launcher = getCreatedContainer();
+ 
+         return launcher != null && launcher.getWorkspace().isOverlayShown();
+     }
+diff --git a/quickstep/src/com/android/quickstep/RecentsAnimationCallbacks.java b/quickstep/src/com/android/quickstep/RecentsAnimationCallbacks.java
+index 4d9f3528c7f9d9e4419dd0733b0597229fc18555..480da084fab09d4d65d98838c928951a123653b4 100644
+--- a/quickstep/src/com/android/quickstep/RecentsAnimationCallbacks.java
++++ b/quickstep/src/com/android/quickstep/RecentsAnimationCallbacks.java
+@@ -133,7 +133,7 @@ public class RecentsAnimationCallbacks implements
+                 nonAppTargets = new RemoteAnimationTarget[0];
+             }
+             final RecentsAnimationTargets targets = new RecentsAnimationTargets(appTargets,
+-                    wallpaperTargets, nonAppTargets, homeContentInsets, extras);
++                    wallpaperTargets, nonAppTargets, homeContentInsets, extras, transitionInfo);
+ 
+             Utilities.postAsyncCallback(MAIN_EXECUTOR.getHandler(), () -> {
+                 ActiveGestureProtoLogProxy.logOnRecentsAnimationStart(targets.apps.length);
+diff --git a/quickstep/src/com/android/quickstep/RecentsAnimationDeviceState.java b/quickstep/src/com/android/quickstep/RecentsAnimationDeviceState.java
+index 32da44a5f2e03e7c8226101305116a86af87ca23..c054d0d079f3b70276819bf6e57f9e57de22c404 100644
+--- a/quickstep/src/com/android/quickstep/RecentsAnimationDeviceState.java
++++ b/quickstep/src/com/android/quickstep/RecentsAnimationDeviceState.java
+@@ -410,7 +410,8 @@ public class RecentsAnimationDeviceState implements DisplayInfoChangeListener, E
+      * @return whether SystemUI is in a state where we can start a system gesture.
+      */
+     public boolean canStartSystemGesture() {
+-        boolean canStartWithNavHidden = (getSysuiStateFlags() & SYSUI_STATE_NAV_BAR_HIDDEN) == 0
++        boolean canStartWithNavHidden = com.android.launcher3.uioverrides.ZetaWorkspaceHomes.hasCapturedWorkspaceSwipe()
++                || (getSysuiStateFlags() & SYSUI_STATE_NAV_BAR_HIDDEN) == 0
+                 || (getSysuiStateFlags() & SYSUI_STATE_ALLOW_GESTURE_IGNORING_BAR_VISIBILITY) != 0
+                 || mRotationTouchHelper.isTaskListFrozen();
+         return canStartWithNavHidden && canStartAnyGesture();
+@@ -442,7 +443,9 @@ public class RecentsAnimationDeviceState implements DisplayInfoChangeListener, E
+     private boolean canStartAnyGesture() {
+         boolean homeOrOverviewEnabled = (getSysuiStateFlags() & SYSUI_STATE_HOME_DISABLED) == 0
+                 || (getSysuiStateFlags() & SYSUI_STATE_OVERVIEW_DISABLED) == 0;
+-        return (GESTURE_OR_KB_SHORTCUT_DISABLING_STATES & getSysuiStateFlags()) == 0
++        long gestureFlags = com.android.launcher3.uioverrides.ZetaWorkspaceHomes.scopeSystemUiFlags(
++                getSysuiStateFlags());
++        return (GESTURE_OR_KB_SHORTCUT_DISABLING_STATES & gestureFlags) == 0
+                 && homeOrOverviewEnabled;
+     }
+ 
+diff --git a/quickstep/src/com/android/quickstep/RecentsAnimationTargets.java b/quickstep/src/com/android/quickstep/RecentsAnimationTargets.java
+index fa4b55431125305082b2e098710b8fa94ec852e4..edecaabddd71229bceb6e94fd05cade96a29afef 100644
+--- a/quickstep/src/com/android/quickstep/RecentsAnimationTargets.java
++++ b/quickstep/src/com/android/quickstep/RecentsAnimationTargets.java
+@@ -39,7 +39,14 @@ public class RecentsAnimationTargets extends RemoteAnimationTargets {
+     public RecentsAnimationTargets(RemoteAnimationTarget[] apps,
+             RemoteAnimationTarget[] wallpapers, RemoteAnimationTarget[] nonApps,
+             Rect homeContentInsets, Bundle extras) {
+-        super(apps, wallpapers, nonApps, MODE_CLOSING, extras);
++        this(apps, wallpapers, nonApps, homeContentInsets, extras, null);
++    }
++
++    public RecentsAnimationTargets(RemoteAnimationTarget[] apps,
++            RemoteAnimationTarget[] wallpapers, RemoteAnimationTarget[] nonApps,
++            Rect homeContentInsets, Bundle extras, android.window.TransitionInfo transitionInfo) {
++        super(apps, wallpapers, nonApps, MODE_CLOSING, extras,
++                com.android.quickstep.util.ZetaWorkspaceAnimationGeometry.capture(apps, transitionInfo));
+         this.homeContentInsets = homeContentInsets;
+     }
+ 
+diff --git a/quickstep/src/com/android/quickstep/RecentsModel.java b/quickstep/src/com/android/quickstep/RecentsModel.java
+index 7791c8d1a832fba240343d2f729711fe6263d3bd..a617f36de60620bfedee0c64ff9185209d6905a1 100644
+--- a/quickstep/src/com/android/quickstep/RecentsModel.java
++++ b/quickstep/src/com/android/quickstep/RecentsModel.java
+@@ -113,6 +113,7 @@ public class RecentsModel implements RecentTasksDataSource, TaskStackChangeListe
+     private final TaskIconCache mIconCache;
+     private final TaskThumbnailCache mThumbnailCache;
+     private final LooperExecutor mUiExecutor;
++    private final android.util.SparseIntArray mZetaTaskOwners = new android.util.SparseIntArray();
+ 
+     @Inject
+     public RecentsModel(@ApplicationContext Context context,
+@@ -304,6 +305,13 @@ public class RecentsModel implements RecentTasksDataSource, TaskStackChangeListe
+         }, filter);
+     }
+ 
++    /** Refresh ownership metadata which Shell grouping need not treat as a list change. */
++    public void invalidateZetaWorkspaceTasks() {
++        if (com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)) {
++            mTaskList.onRecentTasksChanged();
++        }
++    }
++
+     @Override
+     public void onTaskStackChangedBackground() {
+         if (!mThumbnailCache.isPreloadingEnabled()) {
+@@ -352,8 +360,22 @@ public class RecentsModel implements RecentTasksDataSource, TaskStackChangeListe
+         removeTask(taskId);
+     }
+ 
++    @Override
++    public void onTaskMovedToFront(ActivityManager.RunningTaskInfo info) {
++        mUiExecutor.execute(() -> {
++            if (!com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)) return;
++            int panel = info.zetaWorkspacePanel;
++            int previous = mZetaTaskOwners.get(info.taskId, -2);
++            mZetaTaskOwners.put(info.taskId, panel);
++            // Focus-only stack notifications must not replace a task-menu anchor.
++            // A physical owner change really does invalidate the cached filter.
++            if (previous != -2 && previous != panel) invalidateZetaWorkspaceTasks();
++        });
++    }
++
+     @Override
+     public void onTaskRemoved(int taskId) {
++        mUiExecutor.execute(() -> mZetaTaskOwners.delete(taskId));
+         removeTask(taskId);
+     }
+ 
+diff --git a/quickstep/src/com/android/quickstep/RemoteAnimationTargets.java b/quickstep/src/com/android/quickstep/RemoteAnimationTargets.java
+index 9011150f3fd040234383687ac9c35edd02868399..0e36b8f7777a5dd80d633e2d20a7a5e38cbea7f3 100644
+--- a/quickstep/src/com/android/quickstep/RemoteAnimationTargets.java
++++ b/quickstep/src/com/android/quickstep/RemoteAnimationTargets.java
+@@ -42,6 +42,7 @@ public class RemoteAnimationTargets {
+     public final RemoteAnimationTarget[] wallpapers;
+     public final RemoteAnimationTarget[] nonApps;
+     public final Bundle extras;
++    public final com.android.quickstep.util.ZetaWorkspaceAnimationGeometry workspaceGeometry;
+     public final int targetMode;
+     public final boolean hasRecents;
+ 
+@@ -50,6 +51,15 @@ public class RemoteAnimationTargets {
+     public RemoteAnimationTargets(RemoteAnimationTarget[] apps,
+             RemoteAnimationTarget[] wallpapers, RemoteAnimationTarget[] nonApps,
+             int targetMode, Bundle extras) {
++        this(apps, wallpapers, nonApps, targetMode, extras,
++                com.android.quickstep.util.ZetaWorkspaceAnimationGeometry.EMPTY);
++    }
++
++    public RemoteAnimationTargets(RemoteAnimationTarget[] apps,
++            RemoteAnimationTarget[] wallpapers, RemoteAnimationTarget[] nonApps,
++            int targetMode, Bundle extras,
++            com.android.quickstep.util.ZetaWorkspaceAnimationGeometry workspaceGeometry) {
++        this.workspaceGeometry = workspaceGeometry;
+         ArrayList<RemoteAnimationTarget> filteredApps = new ArrayList<>();
+         boolean hasRecents = false;
+         if (apps != null) {
+@@ -162,6 +172,7 @@ public class RemoteAnimationTargets {
+         pw.println(prefix + "\ttargetMode=" + targetMode);
+         pw.println(prefix + "\thasRecents=" + hasRecents);
+         pw.println(prefix + "\tmReleased=" + mReleased);
++        pw.println(prefix + "\tworkspaceRootOrigins=" + workspaceGeometry);
+     }
+ 
+     /**
+diff --git a/quickstep/src/com/android/quickstep/RemoteTargetGluer.java b/quickstep/src/com/android/quickstep/RemoteTargetGluer.java
+index 743204b5c9e5284e9c0647561874ca216df44211..cd727481f10be1ea9f13e9c21b91af79e6372b3a 100644
+--- a/quickstep/src/com/android/quickstep/RemoteTargetGluer.java
++++ b/quickstep/src/com/android/quickstep/RemoteTargetGluer.java
+@@ -392,7 +392,8 @@ public class RemoteTargetGluer {
+         final RemoteAnimationTarget[] filteredApps = targetsToInclude.toArray(
+                 new RemoteAnimationTarget[0]);
+         return new RemoteAnimationTargets(
+-                filteredApps, targets.wallpapers, targets.nonApps, targets.targetMode);
++                filteredApps, targets.wallpapers, targets.nonApps, targets.targetMode,
++                new android.os.Bundle(), targets.workspaceGeometry);
+     }
+ 
+     /**
+diff --git a/quickstep/src/com/android/quickstep/RotationTouchHelper.java b/quickstep/src/com/android/quickstep/RotationTouchHelper.java
+index adb6eed96680c4f7fd23f8ce369466131702ee8a..b8cd9507bae14b6dcc784e0d3520eaf48761c02e 100644
+--- a/quickstep/src/com/android/quickstep/RotationTouchHelper.java
++++ b/quickstep/src/com/android/quickstep/RotationTouchHelper.java
+@@ -243,6 +243,10 @@ public class RotationTouchHelper implements DisplayInfoChangeListener {
+         if (isTrackpadMultiFingerSwipe(event)) {
+             return true;
+         }
++        if (pointerIndex == 0) {
++            Boolean workspaceRegion = com.android.launcher3.uioverrides.ZetaWorkspaceHomes.capturedSwipeRegion(event);
++            if (workspaceRegion != null) return workspaceRegion;
++        }
+         return mOrientationTouchTransformer.touchInValidSwipeRegions(event.getX(pointerIndex),
+                 event.getY(pointerIndex));
+     }
+@@ -312,6 +316,10 @@ public class RotationTouchHelper implements DisplayInfoChangeListener {
+      * orientation that is currently being tracked as a part of quickstep
+      */
+     void setOrientationTransformIfNeeded(MotionEvent event) {
++        // Pane nav regions are captured in current display coordinates. The shared
++        // portrait-phone transformer neither knows their origins nor their regions.
++        if (Boolean.TRUE.equals(com.android.launcher3.uioverrides.ZetaWorkspaceHomes
++                .capturedSwipeRegion(event))) return;
+         // negative coordinates bug b/143901881
+         if (event.getX() < 0 || event.getY() < 0) {
+             event.setLocation(Math.max(0, event.getX()), Math.max(0, event.getY()));
+@@ -397,6 +405,10 @@ public class RotationTouchHelper implements DisplayInfoChangeListener {
+     }
+ 
+     public int getCurrentActiveRotation() {
++        if (mDisplayId == android.view.Display.DEFAULT_DISPLAY
++                && com.android.launcher3.uioverrides.ZetaWorkspaceHomes.hasCapturedWorkspaceSwipe()) {
++            return mDisplayRotation;
++        }
+         if (!hasGestures(mMode)) {
+             // touch rotation should always match that of display for 3 button
+             return mDisplayRotation;
+diff --git a/quickstep/src/com/android/quickstep/SwipeUpAnimationLogic.java b/quickstep/src/com/android/quickstep/SwipeUpAnimationLogic.java
+index f845f01c70e9a4966bab26d2bca3ad7e9957e35e..3855691460e7ee405ebfcab8a927f95473916fc9 100644
+--- a/quickstep/src/com/android/quickstep/SwipeUpAnimationLogic.java
++++ b/quickstep/src/com/android/quickstep/SwipeUpAnimationLogic.java
+@@ -119,6 +119,15 @@ public abstract class SwipeUpAnimationLogic implements
+             PendingAnimation pendingAnimation = new PendingAnimation(mTransitionDragLength * 2);
+             TaskViewSimulator taskViewSimulator = remoteHandle.getTaskViewSimulator();
+             taskViewSimulator.setDp(dp);
++            if (android.os.SystemProperties.getBoolean("debug.zeta.preview", false)) {
++                android.util.Log.d("ZetaPreview", "endpoints dp="
++                        + dp.getDeviceProperties().getWidthPx() + "x"
++                        + dp.getDeviceProperties().getHeightPx() + " origin="
++                        + dp.getDeviceProperties().getWindowX() + ","
++                        + dp.getDeviceProperties().getWindowY() + " fullScale="
++                        + taskViewSimulator.getFullScreenScale()
++                        + " orientation=" + taskViewSimulator.getOrientationState());
++            }
+             taskViewSimulator.addAppToCarouselAnim(pendingAnimation, LINEAR,
+                     mGestureState.isHandlingAtomicEvent());
+             AnimatorPlaybackController playbackController =
+@@ -335,6 +344,21 @@ public abstract class SwipeUpAnimationLogic implements
+         mIsSwipeForSplit = targetCount > 1;
+     }
+ 
++    /** The overscroll guard compares against pane-sized DP dimensions. */
++    private void fixHomeAnimationStartBounds(RectF startRect) {
++        BaseContainerInterface container = mGestureState.getContainerInterface();
++        boolean workspace = container instanceof LauncherActivityInterface
++                && ((LauncherActivityInterface) container).isWorkspacePanel();
++        float originX = workspace ? mDp.getDeviceProperties().getWindowX() : 0;
++        float originY = workspace ? mDp.getDeviceProperties().getWindowY() : 0;
++        // startRect is display-space here. A valid RIGHT x exceeds the pane's width;
++        // testing it directly would snap the first Home spring frame to global x=0.
++        startRect.offset(-originX, -originY);
++        mRemoteTargetHandles[0].getTaskViewSimulator().getOrientationState()
++                .getOrientationHandler().fixBoundsForHomeAnimStartRect(startRect, mDp);
++        startRect.offset(originX, originY);
++    }
++
+     private RectFSpringAnim getWindowAnimationToHomeInternal(
+             HomeAnimationFactory homeAnimationFactory,
+             RectF targetRect,
+@@ -351,10 +375,7 @@ public abstract class SwipeUpAnimationLogic implements
+             // If the start rect ends up overshooting too much to the left/right offscreen, bring it
+             // back to fullscreen. This can happen when the recentsScroll value isn't aligned with
+             // the pageScroll value for a given taskView, see b/228829958#comment12
+-            mRemoteTargetHandles[0].getTaskViewSimulator()
+-                    .getOrientationState()
+-                    .getOrientationHandler()
+-                    .fixBoundsForHomeAnimStartRect(startRect, mDp);
++            fixHomeAnimationStartBounds(startRect);
+ 
+         }
+         homeToWindowPositionMap.invert(windowToHomePositionMap);
+@@ -531,7 +552,7 @@ public abstract class SwipeUpAnimationLogic implements
+         @Override
+         public void onBuildTargetParams(SurfaceProperties builder, RemoteAnimationTarget app,
+                 TransformParams params) {
+-            builder.setMatrix(mMatrix)
++            params.applyDisplayMatrix(builder, app, mMatrix)
+                     .setWindowCrop(mCropRect)
+                     .setCornerRadius(params.getCornerRadius());
+         }
+diff --git a/quickstep/src/com/android/quickstep/SystemUiProxy.kt b/quickstep/src/com/android/quickstep/SystemUiProxy.kt
+index 3dd1ca0cff9bb8cf9e7501e662db2fb9138fbdc6..20523d493318fbb246e48e743d6b0d4360be2c25 100644
+--- a/quickstep/src/com/android/quickstep/SystemUiProxy.kt
++++ b/quickstep/src/com/android/quickstep/SystemUiProxy.kt
+@@ -1395,10 +1395,12 @@ class SystemUiProxy @Inject constructor(
+         wct: WindowContainerTransaction? = null,
+         displayId: Int,
+     ): Boolean {
++        val routedIntent = if (displayId == android.view.Display.DEFAULT_DISPLAY)
++            com.android.launcher3.uioverrides.ZetaWorkspaceHomes.routeHomeIntent(intent, options) else intent
+         executeWithErrorLog({ "Error starting recents via shell" }) {
+             recentTasks?.startRecentsTransition(
+                 getRecentsPendingIntent(displayId),
+-                intent,
++                routedIntent,
+                 options.toBundle().apply {
+                     if (useSyntheticRecentsTransition) {
+                         putBoolean("is_synthetic_recents_transition", true)
+diff --git a/quickstep/src/com/android/quickstep/TaskAnimationManager.java b/quickstep/src/com/android/quickstep/TaskAnimationManager.java
+index 1bdd9bb1df5c8b98a8abd8367f82b1f567e64e1e..4a7db3164ccfcb140bb388e590102f09173a85e7 100644
+--- a/quickstep/src/com/android/quickstep/TaskAnimationManager.java
++++ b/quickstep/src/com/android/quickstep/TaskAnimationManager.java
+@@ -421,6 +421,7 @@ public class TaskAnimationManager implements RecentsAnimationCallbacks.RecentsAn
+         mCallbacks.addListener(gestureState);
+         mCallbacks.addListener(listener);
+ 
++        com.android.launcher3.uioverrides.ZetaWorkspaceHomes.prepareRecents(gestureState, mDisplayId);
+         final ActivityOptions options = ActivityOptions.makeBasic();
+         options.setPendingIntentBackgroundActivityStartMode(
+                 ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOW_ALWAYS);
+@@ -608,9 +609,44 @@ public class TaskAnimationManager implements RecentsAnimationCallbacks.RecentsAn
+         // TODO: Do we actually need to report canceled/finished?
+     }
+ 
+-    /**
+-     * @return whether there is a recents animation running.
+-     */
++    /** Bound the startup/recreation race without moving a task under a live leash. */
++    public void finishForWorkspaceToss(Runnable commit) {
++        long deadline = android.os.SystemClock.uptimeMillis() + 1000;
++        RecentsAnimationCallbacks expectedCallbacks = mCallbacks;
++        GestureState expectedState = mLastGestureState;
++        Runnable await = new Runnable() {
++            @Override public void run() {
++                if ((mCallbacks != null && mCallbacks != expectedCallbacks)
++                        || (mLastGestureState != null && mLastGestureState != expectedState)) return;
++                // ACTION_CANCEL starts a LAST_TASK settle animation in the swipe handler.
++                // Finishing the remote leash alone does not stop its later surface writes.
++                // Wait for that local animation as well before moving the task.
++                if (expectedState != null && !expectedState.hasState(
++                        GestureState.STATE_END_TARGET_ANIMATION_FINISHED
++                                | GestureState.STATE_RECENTS_SCROLLING_FINISHED)) {
++                    if (android.os.SystemClock.uptimeMillis() < deadline) {
++                        MAIN_EXECUTOR.getHandler().postDelayed(this, 16);
++                    } else {
++                        android.util.Log.w("ZetaToss", "Swipe settlement timed out; task unchanged");
++                    }
++                    return;
++                }
++                if (mController != null) {
++                    finishRunningRecentsAnimation(false, true, commit,
++                            new ActiveGestureLog.CompoundString("zeta app toss"));
++                } else if (!mRecentsAnimationStartPending) {
++                    commit.run();
++                } else if (android.os.SystemClock.uptimeMillis() < deadline) {
++                    MAIN_EXECUTOR.getHandler().postDelayed(this, 16);
++                } else {
++                    android.util.Log.w("ZetaToss", "Animation startup timed out; task unchanged");
++                }
++            }
++        };
++        await.run();
++    }
++
++    /** @return whether there is a recents animation running. */
+     public boolean isRecentsAnimationRunning() {
+         return mController != null;
+     }
+diff --git a/quickstep/src/com/android/quickstep/TaskOverlayFactory.java b/quickstep/src/com/android/quickstep/TaskOverlayFactory.java
+index e0586c5de3d37e990cc54fd8909649974f071006..ea974773dd4247d87154d47919c18165897cfb52 100644
+--- a/quickstep/src/com/android/quickstep/TaskOverlayFactory.java
++++ b/quickstep/src/com/android/quickstep/TaskOverlayFactory.java
+@@ -75,7 +75,9 @@ public class TaskOverlayFactory {
+         final RecentsViewContainer container = containerFromContext(taskView.getContext());
+         final ArrayList<SystemShortcut> shortcuts = new ArrayList<>();
+         if (taskContainer != null) {
+-            for (TaskShortcutFactory menuOption : PER_TASK_MENU_OPTIONS) {
++            boolean workspace = container instanceof com.android.launcher3.Launcher
++                    && ((com.android.launcher3.Launcher) container).getWorkspacePanelId() >= 0;
++            for (TaskShortcutFactory menuOption : workspace ? WORKSPACE_MENU_OPTIONS : PER_TASK_MENU_OPTIONS) {
+                 if (taskView instanceof GroupedTaskView && !menuOption.showForGroupedTask()) {
+                     continue;
+                 }
+@@ -121,8 +123,18 @@ public class TaskOverlayFactory {
+     public void clearAllActiveState() { }
+ 
+     /** Note that these will be shown in order from top to bottom, if available for the task. */
++    private static final TaskShortcutFactory[] WORKSPACE_MENU_OPTIONS = new TaskShortcutFactory[]{
++            TaskShortcutFactory.APP_INFO,
++            TaskShortcutFactory.ZETA_WORKSPACE,
++            TaskShortcutFactory.INSTALL,
++            TaskShortcutFactory.WELLBEING,
++            TaskShortcutFactory.SCREENSHOT,
++            TaskShortcutFactory.MODAL,
++    };
++
+     private static final TaskShortcutFactory[] PER_TASK_MENU_OPTIONS = new TaskShortcutFactory[]{
+             TaskShortcutFactory.APP_INFO,
++            TaskShortcutFactory.ZETA_WORKSPACE,
+             TaskShortcutFactory.SPLIT_SELECT,
+             TaskShortcutFactory.PIN,
+             TaskShortcutFactory.INSTALL,
+@@ -217,6 +229,10 @@ public class TaskOverlayFactory {
+          */
+         public void initOverlay(Task task, @Nullable Bitmap thumbnail, Matrix matrix,
+                 boolean rotated) {
++            getActionsView().setZetaScreenActionsVisible(thumbnail != null && !task.isLocked
++                    && !getTaskView().containsMultipleTasks()
++                    && com.android.launcher3.uioverrides.ZetaWorkspaceHomes.canOpenRecentOnScreen(
++                            containerFromContext(getTaskView().getContext())));
+             if (!enableRefactorTaskThumbnail()) {
+                 getActionsView().updateDisabledFlags(DISABLED_NO_THUMBNAIL, thumbnail == null);
+             }
+@@ -435,6 +451,17 @@ public class TaskOverlayFactory {
+             public void onSaveAppPair() {
+                 endLiveTileMode(TaskOverlay.this::saveAppPair);
+             }
++
++            @Override
++            public void onOpenOnScreen(boolean otherScreen) {
++                if (mTask.isLocked || getTaskView().containsMultipleTasks()
++                        || mTaskContainer.getTask().key.id != mTask.key.id) return;
++                RecentsViewContainer container = containerFromContext(getTaskView().getContext());
++                // Retire live preview leashes before changing authoritative task placement.
++                // The destination and security state are rechecked after this callback.
++                endLiveTileMode(() -> com.android.launcher3.uioverrides.ZetaWorkspaceHomes
++                        .openRecentOnScreen(container, mTask.key, otherScreen));
++            }
+         }
+     }
+ 
+@@ -451,5 +478,8 @@ public class TaskOverlayFactory {
+ 
+         /** User wants to save an app pair with current group of apps. */
+         void onSaveAppPair();
++
++        /** Open the selected task on the invoking pane or its opposite. */
++        default void onOpenOnScreen(boolean otherScreen) { }
+     }
+ }
+diff --git a/quickstep/src/com/android/quickstep/TaskShortcutFactory.java b/quickstep/src/com/android/quickstep/TaskShortcutFactory.java
+index 3c5633eaa1d911db2298ad02f852df2ed3d0ee0c..c459c06ad17095fac056b9ef76491edc16d17f18 100644
+--- a/quickstep/src/com/android/quickstep/TaskShortcutFactory.java
++++ b/quickstep/src/com/android/quickstep/TaskShortcutFactory.java
+@@ -104,6 +104,74 @@ public interface TaskShortcutFactory {
+         return null;
+     }
+ 
++    TaskShortcutFactory ZETA_WORKSPACE = new TaskShortcutFactory() {
++        @Override
++        public List<SystemShortcut> getShortcuts(RecentsViewContainer container, TaskContainer task) {
++            if (!(container instanceof com.android.launcher3.Launcher)
++                    || ((com.android.launcher3.Launcher) container).getWorkspacePanelId() < 0) return null;
++            try {
++                android.os.Bundle state = WindowManagerGlobal.getWindowManagerService().getZetaWorkspaceState();
++                if (state == null || !state.getBoolean("enabled") || state.getBoolean("lock_task") || state.getInt("composition") != 2) return null;
++                java.util.ArrayList<SystemShortcut> result = new java.util.ArrayList<>();
++                int panel = ((com.android.launcher3.Launcher) container).getWorkspacePanelId();
++                result.add(new ZetaShortcut(container, task, R.string.zeta_move_other_screen,
++                        com.android.internal.zeta.ZetaWorkspaceProtocol.MOVE,
++                        task.getTask().key.zetaWorkspacePanel == 0 ? 1
++                                : task.getTask().key.zetaWorkspacePanel == 1 ? 0 : 1 - panel));
++                boolean spanned = state.getInt("spanned_task", -1) == task.getTask().key.id;
++                result.add(new ZetaShortcut(container, task,
++                        spanned ? R.string.zeta_use_one_screen : R.string.zeta_use_both_screens,
++                        spanned ? com.android.internal.zeta.ZetaWorkspaceProtocol.UNSPAN
++                                : com.android.internal.zeta.ZetaWorkspaceProtocol.SPAN, panel));
++                int[] top = state.getIntArray("top_tasks");
++                if (top != null && top[0] >= 0 && top[1] >= 0
++                        && (task.getTask().key.id == top[0] || task.getTask().key.id == top[1])) {
++                    result.add(new ZetaShortcut(container, task, R.string.zeta_swap_screens,
++                            com.android.internal.zeta.ZetaWorkspaceProtocol.SWAP, panel));
++                }
++                if (com.android.quickstep.util.ZetaAppPairs.canSave(
++                        (com.android.launcher3.Launcher) container, task.getTask().key)) {
++                    result.add(new SaveZetaPairShortcut(container, task));
++                }
++                return result;
++            } catch (RemoteException | SecurityException error) {
++                return null;
++            }
++        }
++    };
++
++    class SaveZetaPairShortcut extends SystemShortcut<RecentsViewContainer> {
++        private final com.android.systemui.shared.recents.model.Task.TaskKey mSelected;
++        SaveZetaPairShortcut(RecentsViewContainer container, TaskContainer task) {
++            super(R.drawable.ic_split_horizontal, R.string.save_app_pair, container,
++                    task.getItemInfo(), task.getTaskView());
++            mSelected = task.getTask().key;
++        }
++        @Override public void onClick(View view) {
++            dismissTaskMenuView();
++            com.android.quickstep.util.ZetaAppPairs.save((com.android.launcher3.Launcher) mTarget, mSelected);
++        }
++    }
++
++    class ZetaShortcut extends SystemShortcut<RecentsViewContainer> {
++        private final int mAction, mPanel, mTaskId;
++        ZetaShortcut(RecentsViewContainer container, TaskContainer task, int label, int action, int panel) {
++            super(R.drawable.ic_split_horizontal, label, container, task.getItemInfo(), task.getTaskView());
++            mAction = action;
++            mPanel = panel;
++            mTaskId = task.getTask().key.id;
++        }
++        @Override public void onClick(View view) {
++            dismissTaskMenuView();
++            try {
++                WindowManagerGlobal.getWindowManagerService().zetaWorkspaceAction(mAction, mPanel, mTaskId);
++            } catch (RemoteException | SecurityException | IllegalStateException | IllegalArgumentException error) {
++                android.widget.Toast.makeText(view.getContext(), R.string.zeta_action_unavailable,
++                        android.widget.Toast.LENGTH_SHORT).show();
++            }
++        }
++    }
++
+     TaskShortcutFactory APP_INFO = new TaskShortcutFactory() {
+         @Override
+         public List<SystemShortcut> getShortcuts(RecentsViewContainer container,
+diff --git a/quickstep/src/com/android/quickstep/TaskViewUtils.java b/quickstep/src/com/android/quickstep/TaskViewUtils.java
+index fa19124f781e364029d954d4e8bd1e4cb7efa4cd..5344cdfec5c1c593bd221d8fbc2a8409aa2df6fa 100644
+--- a/quickstep/src/com/android/quickstep/TaskViewUtils.java
++++ b/quickstep/src/com/android/quickstep/TaskViewUtils.java
+@@ -193,7 +193,9 @@ public final class TaskViewUtils {
+ 
+         final RemoteAnimationTargets targets =
+                 new RemoteAnimationTargets(appTargets, wallpaperTargets, nonAppTargets,
+-                        MODE_OPENING);
++                        MODE_OPENING, new android.os.Bundle(),
++                        com.android.quickstep.util.ZetaWorkspaceAnimationGeometry.capture(
++                                appTargets, transitionInfo));
+         final RemoteAnimationTarget navBarTarget = targets.getNavBarRemoteAnimationTarget();
+ 
+         SurfaceTransactionApplier applier = new SurfaceTransactionApplier(taskView);
+diff --git a/quickstep/src/com/android/quickstep/TopTaskTracker.java b/quickstep/src/com/android/quickstep/TopTaskTracker.java
+index 62fd14c174df0ddf27b6d04631d665a33f8ff528..44d1f6c5574f7225336028ec4b076fb7fbebf497 100644
+--- a/quickstep/src/com/android/quickstep/TopTaskTracker.java
++++ b/quickstep/src/com/android/quickstep/TopTaskTracker.java
+@@ -432,6 +432,12 @@ public class TopTaskTracker extends ISplitScreenListener.Stub implements TaskSta
+      * Class to provide information about a task which can be safely cached and do not change
+      * during the lifecycle of the task.
+      */
++    public static CachedTaskInfo forWorkspaceTask(TaskInfo task, Context context, int displayId) {
++        return enableShellTopTaskTracking()
++                ? new CachedTaskInfo(GroupedTaskInfo.forFullscreenTasks(task))
++                : new CachedTaskInfo(java.util.Collections.singletonList(task), context, displayId, INACTIVE_DESK_ID);
++    }
++
+     public static class CachedTaskInfo {
+         // Only used when enableShellTopTaskTracking() is disabled.
+         private int mDisplayId = INVALID_DISPLAY;
+diff --git a/quickstep/src/com/android/quickstep/TouchInteractionService.java b/quickstep/src/com/android/quickstep/TouchInteractionService.java
+index 1cebd811f9dbc34bfacaf694232b3b6d40a709b8..1cfff6204525bb55dca53871b82c9e804157e7c4 100644
+--- a/quickstep/src/com/android/quickstep/TouchInteractionService.java
++++ b/quickstep/src/com/android/quickstep/TouchInteractionService.java
+@@ -612,7 +612,7 @@ public class TouchInteractionService extends Service {
+                 tis.mAllAppsActionManager.onDestroy();
+                 tis.onOverviewTargetChanged(tis.mOverviewComponentObserver.isHomeAndOverviewSame());
+                 if (RecentsWindowFlags.getEnableOverviewInWindow()) {
+-                    Launcher launcher = Launcher.ACTIVITY_TRACKER.getCreatedContext();
++                    Launcher launcher = LauncherActivityInterface.INSTANCE.getCreatedContainer();
+                     if (launcher != null) {
+                         tis.mTaskbarManager.setActivity(launcher);
+                     }
+@@ -1061,6 +1061,8 @@ public class TouchInteractionService extends Service {
+             return;
+         }
+         MotionEvent event = (MotionEvent) ev;
++        com.android.launcher3.uioverrides.ZetaWorkspaceHomes.captureTouch(event);
++        Runnable zetaToss = com.android.launcher3.uioverrides.ZetaWorkspaceHomes.observeToss(event);
+ 
+         TestLogging.recordMotionEvent(
+                 TestProtocol.SEQUENCE_TIS, "TouchInteractionService.onInputEvent", event);
+@@ -1265,7 +1267,10 @@ public class TouchInteractionService extends Service {
+         boolean cleanUpConsumer = (action == ACTION_UP || action == ACTION_CANCEL || cancelGesture)
+                 && mConsumer != null
+                 && !mConsumer.getActiveConsumerInHierarchy().isConsumerDetachedFromGesture();
+-        if (cancelGesture) {
++        // The captured standard task and nav origin remain valid if Launcher recreates
++        // and resets the consumer before release. The commit rechecks ownership/security.
++        boolean tossGesture = zetaToss != null;
++        if (cancelGesture || tossGesture) {
+             event.setAction(ACTION_CANCEL);
+         }
+ 
+@@ -1278,9 +1283,16 @@ public class TouchInteractionService extends Service {
+             mUncheckedConsumer.onMotionEvent(event);
+         }
+ 
++        if (tossGesture && !cancelGesture) {
++            // Finish back to the source app before reparenting; never race the Home animation.
++            taskAnimationManager.finishForWorkspaceToss(zetaToss);
++        }
+         if (cleanUpConsumer) {
+             reset(displayId);
+         }
++        if (action == ACTION_UP || action == ACTION_CANCEL) {
++            com.android.launcher3.uioverrides.ZetaWorkspaceHomes.finishTouch(event.getDownTime());
++        }
+         traceToken.close();
+     }
+ 
+@@ -1303,6 +1315,8 @@ public class TouchInteractionService extends Service {
+             int displayId,
+             GestureState previousGestureState,
+             GestureState.TrackpadGestureType trackpadGestureType) {
++        TopTaskTracker.CachedTaskInfo workspaceTask =
++                com.android.launcher3.uioverrides.ZetaWorkspaceHomes.gestureTask(this, displayId);
+         final GestureState gestureState;
+         TopTaskTracker.CachedTaskInfo taskInfo;
+         TaskAnimationManager taskAnimationManager = mTaskAnimationManagerRepository.get(displayId);
+@@ -1314,6 +1328,7 @@ public class TouchInteractionService extends Service {
+             taskInfo = previousTaskInfo != null
+                     ? previousTaskInfo
+                     : TopTaskTracker.INSTANCE.get(this).getCachedTopTask(false, displayId);
++            if (workspaceTask != null) taskInfo = workspaceTask;
+             gestureState.updateRunningTask(taskInfo);
+             gestureState.updateLastStartedTaskIds(previousGestureState.getLastStartedTaskIds());
+             gestureState.updatePreviouslyAppearedTaskIds(
+@@ -1324,6 +1339,7 @@ public class TouchInteractionService extends Service {
+                     displayId,
+                     ActiveGestureLog.INSTANCE.incrementLogId());
+             taskInfo = TopTaskTracker.INSTANCE.get(this).getCachedTopTask(false, displayId);
++            if (workspaceTask != null) taskInfo = workspaceTask;
+             gestureState.updateRunningTask(taskInfo);
+         }
+         gestureState.setTrackpadGestureType(trackpadGestureType);
+diff --git a/quickstep/src/com/android/quickstep/recents/data/RecentTasksRepository.kt b/quickstep/src/com/android/quickstep/recents/data/RecentTasksRepository.kt
+index f7b16744432a8bd85973fccb893493c28177f2c9..6612b52e7dd8ed5c413d3ecca016f596fdd0a6e0 100644
+--- a/quickstep/src/com/android/quickstep/recents/data/RecentTasksRepository.kt
++++ b/quickstep/src/com/android/quickstep/recents/data/RecentTasksRepository.kt
+@@ -47,4 +47,10 @@ interface RecentTasksRepository {
+      * populated e.g. icons/thumbnails etc.
+      */
+     fun setVisibleTasks(displayId: Int, visibleTaskIdList: Set<Int>)
++
++    /** Separate same-display overview clients must not clear one another's visuals. */
++    fun setVisibleTasksForOwner(owner: Any, displayId: Int, visibleTaskIdList: Set<Int>) {
++        setVisibleTasks(displayId, visibleTaskIdList)
++    }
++
+ }
+diff --git a/quickstep/src/com/android/quickstep/recents/data/TasksRepository.kt b/quickstep/src/com/android/quickstep/recents/data/TasksRepository.kt
+index 971c2322e36ca5b40a7df785ce15096fbea72b6f..6e1c199a5294127f2aa58c282c341b5091388c44 100644
+--- a/quickstep/src/com/android/quickstep/recents/data/TasksRepository.kt
++++ b/quickstep/src/com/android/quickstep/recents/data/TasksRepository.kt
+@@ -18,8 +18,6 @@ package com.android.quickstep.recents.data
+ 
+ import android.graphics.drawable.Drawable
+ import android.util.Log
+-import android.util.SparseArray
+-import androidx.core.util.valueIterator
+ import com.android.launcher3.util.coroutines.DispatcherProvider
+ import com.android.quickstep.recents.data.TaskVisualsChangedDelegate.TaskIconChangedCallback
+ import com.android.quickstep.recents.data.TaskVisualsChangedDelegate.TaskThumbnailChangedCallback
+@@ -49,13 +47,10 @@ class TasksRepository(
+     private val dispatcherProvider: DispatcherProvider,
+ ) : RecentTasksRepository {
+     private val tasks = MutableStateFlow(MapForStateFlow<Int, Task>(emptyMap()))
+-    private var visibleTaskIdsPerDisplay = SparseArray<Set<Int>>()
++    private val visibleTaskIdsPerOwner = mutableMapOf<Any, Set<Int>>()
+     private val taskRequests = HashMap<Int, Pair<Task.TaskKey, Job>>()
+ 
+     override fun getAllTaskData(displayId: Int, forceRefresh: Boolean): Flow<List<Task>> {
+-        if (!visibleTaskIdsPerDisplay.contains(displayId)) {
+-            visibleTaskIdsPerDisplay.put(displayId, emptySet())
+-        }
+         if (forceRefresh) {
+             recentsModel.getTasks { newTaskList ->
+                 userLockedStateRepository.invalidateCachedValues()
+@@ -92,10 +87,14 @@ class TasksRepository(
+     override fun getCurrentThumbnailById(taskId: Int) = tasks.value[taskId]?.thumbnail
+ 
+     override fun setVisibleTasks(displayId: Int, visibleTaskIdList: Set<Int>) {
++        setVisibleTasksForOwner(displayId, displayId, visibleTaskIdList)
++    }
++
++    override fun setVisibleTasksForOwner(owner: Any, displayId: Int, visibleTaskIdList: Set<Int>) {
+         if (visibleTaskIdList.isEmpty()) {
+-            visibleTaskIdsPerDisplay.remove(displayId)
++            visibleTaskIdsPerOwner.remove(owner)
+         } else {
+-            visibleTaskIdsPerDisplay.put(displayId, visibleTaskIdList)
++            visibleTaskIdsPerOwner[owner] = visibleTaskIdList
+         }
+         updateTaskRequests()
+     }
+@@ -103,7 +102,7 @@ class TasksRepository(
+     @Synchronized
+     private fun updateTaskRequests() {
+         val allVisibleTaskIds =
+-            visibleTaskIdsPerDisplay.valueIterator().asSequence().flatMap { it }.toSet()
++            visibleTaskIdsPerOwner.values.asSequence().flatMap { it }.toSet()
+         val requestsNeeded = allVisibleTaskIds.intersect(tasks.value.keys)
+ 
+         val taskRequestIds = taskRequests.keys
+diff --git a/quickstep/src/com/android/quickstep/recents/viewmodel/RecentsViewModel.kt b/quickstep/src/com/android/quickstep/recents/viewmodel/RecentsViewModel.kt
+index ec8736a6ef73cb358500c5791e9e4e80f286a53b..1b959df4213d81430d2bd1aed898a48f68d81b0d 100644
+--- a/quickstep/src/com/android/quickstep/recents/viewmodel/RecentsViewModel.kt
++++ b/quickstep/src/com/android/quickstep/recents/viewmodel/RecentsViewModel.kt
+@@ -28,6 +28,7 @@ class RecentsViewModel(
+     private val displayId: Int,
+ ) {
+     private var visibleTaskIds = emptySet<Int>()
++    private val visibilityOwner = Any()
+ 
+     fun refreshAllTaskData() {
+         recentsTasksRepository.getAllTaskData(displayId, true)
+@@ -35,7 +36,7 @@ class RecentsViewModel(
+ 
+     fun updateVisibleTasks(visibleTaskIdList: List<Int>) {
+         visibleTaskIds = visibleTaskIdList.toSet()
+-        recentsTasksRepository.setVisibleTasks(displayId, visibleTaskIds)
++        recentsTasksRepository.setVisibleTasksForOwner(visibilityOwner, displayId, visibleTaskIds)
+     }
+ 
+     fun updateTasksFullyVisible(taskIds: Set<Int>) {
+diff --git a/quickstep/src/com/android/quickstep/util/AppPairsController.java b/quickstep/src/com/android/quickstep/util/AppPairsController.java
+index 241ec2c2bd8ae9f6a9b30e253c09521054c8cb13..c9e79bdd47a968c442ce0fd443cd9889fb0c8359 100644
+--- a/quickstep/src/com/android/quickstep/util/AppPairsController.java
++++ b/quickstep/src/com/android/quickstep/util/AppPairsController.java
+@@ -113,6 +113,7 @@ public class AppPairsController {
+     }
+ 
+     private Launcher getLauncher() {
++        if (mContext instanceof Launcher) return (Launcher) mContext;
+         return mContext == null || !OverviewComponentObserver.INSTANCE.get(mContext.asContext())
+                 .isHomeAndOverviewSame()
+                 ? null : Launcher.ACTIVITY_TRACKER.getCreatedContext();
+@@ -265,6 +266,12 @@ public class AppPairsController {
+      */
+     public void launchAppPair(AppPairIcon appPairIcon, int cuj,
+             @Nullable Consumer<Boolean> callback) {
++        Launcher workspaceLauncher = getLauncher();
++        if (workspaceLauncher != null && workspaceLauncher.getWorkspacePanelId() >= 0) {
++            boolean launched = ZetaAppPairs.launch(workspaceLauncher, appPairIcon.getInfo());
++            if (callback != null) callback.accept(launched);
++            return;
++        }
+         final WorkspaceItemInfo app1 = appPairIcon.getInfo().getFirstApp();
+         final WorkspaceItemInfo app2 = appPairIcon.getInfo().getSecondApp();
+         final ResolvedTargetInfo resolvedTargetInfo1 = app1.getResolvedTargetInfo();
+@@ -547,7 +554,7 @@ public class AppPairsController {
+      * (30-70 split vs 50-50 split)
+      */
+     @VisibleForTesting
+-    public int encodeRank(int splitPosition, int snapPosition) {
++    public static int encodeRank(int splitPosition, int snapPosition) {
+         return (splitPosition << BITMASK_SIZE) + snapPosition;
+     }
+ 
+diff --git a/quickstep/src/com/android/quickstep/util/RecentsOrientedState.java b/quickstep/src/com/android/quickstep/util/RecentsOrientedState.java
+index 980b4cdc6d400cd1b6e062c57a28f6ef04cbb152..0246061b94c2349495af8d101611094b2c1a1d2b 100644
+--- a/quickstep/src/com/android/quickstep/util/RecentsOrientedState.java
++++ b/quickstep/src/com/android/quickstep/util/RecentsOrientedState.java
+@@ -124,6 +124,7 @@ public class RecentsOrientedState implements LauncherPrefChangeListener {
+ 
+     private final Context mContext;
+     private final BaseContainerInterface mContainerInterface;
++    private final boolean mWorkspacePanel;
+     private final OrientationEventListener mOrientationListener;
+     private final SettingsCache mSettingsCache;
+     private final SettingsCache.OnChangeListener mRotationChangeListener =
+@@ -147,6 +148,9 @@ public class RecentsOrientedState implements LauncherPrefChangeListener {
+             IntConsumer rotationChangeListener) {
+         mContext = context;
+         mContainerInterface = containerInterface;
++        mWorkspacePanel = containerInterface instanceof com.android.quickstep.LauncherActivityInterface
++                && ((com.android.quickstep.LauncherActivityInterface) containerInterface)
++                        .isWorkspacePanel();
+         mOrientationListener = new OrientationEventListener(mContext) {
+             @Override
+             public void onOrientationChanged(int degrees) {
+@@ -216,6 +220,9 @@ public class RecentsOrientedState implements LauncherPrefChangeListener {
+      */
+     public boolean update(
+             @SurfaceRotation int touchRotation, @SurfaceRotation int displayRotation) {
++        // Workspace Home and task buffers already follow the real display rotation.
++        // Do not simulate a portrait-only phone Recents inside a rotated physical pane.
++        if (mWorkspacePanel) touchRotation = displayRotation;
+         mDisplayRotation = displayRotation;
+         mTouchRotation = touchRotation;
+         mPreviousRotation = touchRotation;
+@@ -401,6 +408,7 @@ public class RecentsOrientedState implements LauncherPrefChangeListener {
+     }
+ 
+     public boolean isRecentsActivityRotationAllowed() {
++        if (mWorkspacePanel) return true;
+         // Activity rotation is allowed if the multi-simulated-rotation is not supported
+         // (fallback recents or tablets) or activity rotation is enabled by various settings.
+         return ((mFlags & MASK_MULTIPLE_ORIENTATION_SUPPORTED_BY_DEVICE)
+@@ -604,6 +612,11 @@ public class RecentsOrientedState implements LauncherPrefChangeListener {
+      * Returns the device profile based on expected launcher rotation
+      */
+     public DeviceProfile getLauncherDeviceProfile(int displayId) {
++        // Both workspace Homes use display 0, but each owns a pane-sized profile.
++        // Prefer the captured container, never the currently focused Home.
++        if (mWorkspacePanel && mContainerInterface.getCreatedContainer() != null) {
++            return mContainerInterface.getCreatedContainer().getDeviceProfile();
++        }
+         if (displayId != DEFAULT_DISPLAY) {
+             return mContainerInterface.getCreatedContainer().getDeviceProfile();
+         } else {
+diff --git a/quickstep/src/com/android/quickstep/util/TaskViewSimulator.java b/quickstep/src/com/android/quickstep/util/TaskViewSimulator.java
+index f17aad1577e3559668316ee8a3c1793350490fc0..906597c2a431285c586bf43fb6be0053eadd4180 100644
+--- a/quickstep/src/com/android/quickstep/util/TaskViewSimulator.java
++++ b/quickstep/src/com/android/quickstep/util/TaskViewSimulator.java
+@@ -325,10 +325,13 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
+     public void addAppToCarouselAnim(PendingAnimation pa, Interpolator interpolator,
+             boolean isHandlingAtomicEvent) {
+         pa.addFloat(fullScreenProgress, AnimatedFloat.VALUE, 1, 0, interpolator);
+-        if (enableGridOnlyOverview() && mDp.getDeviceProperties().isTablet() && !isHandlingAtomicEvent) {
+-            mIsAnimatingToCarousel = true;
+-            carouselScale.value = mCarouselTaskSize.width() / (float) mFullTaskSize.width();
+-        }
++        // A workspace gesture can first receive a display-sized fallback profile,
++        // then its pane profile. Do not retain the tablet carousel multiplier
++        // when the animation endpoints are rebuilt for a non-tablet pane.
++        mIsAnimatingToCarousel = enableGridOnlyOverview()
++                && mDp.getDeviceProperties().isTablet() && !isHandlingAtomicEvent;
++        carouselScale.value = mIsAnimatingToCarousel
++                ? mCarouselTaskSize.width() / (float) mFullTaskSize.width() : 1f;
+         pa.addFloat(recentsViewScale, AnimatedFloat.VALUE, getFullScreenScale(), 1,
+                 interpolator);
+     }
+@@ -462,6 +465,11 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
+                     mOrientationState.getRecentsActivityRotation(), isRtlEnabled,
+                     mContext.getResources().getDisplayMetrics().densityDpi);
+             mPositionHelper.getMatrix().invert(mInversePositionMatrix);
++            if (android.os.SystemProperties.getBoolean("debug.zeta.preview", false)) {
++                Log.d("ZetaPreview", "orientation=" + mOrientationState
++                        + " thumbnailRotation=" + mThumbnailData.rotation
++                        + " thumbnail=" + mThumbnailPosition + " taskRect=" + mTaskRect);
++            }
+             if (DEBUG) {
+                 Log.d(TAG, " taskRect: " + mTaskRect);
+             }
+@@ -523,16 +531,20 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
+         params.applySurfaceParams(surfaceTransaction == null
+                 ? params.createSurfaceParams(this) : surfaceTransaction);
+ 
+-        if (!DEBUG) {
++        if (!DEBUG && !android.os.SystemProperties.getBoolean("debug.zeta.preview", false)) {
+             return;
+         }
+-        Log.d(TAG, "progress: " + fullScreenProgress
++        Log.d("ZetaPreview", "simulator progress: " + fullScreenProgress
+                 + " carouselScale: " + carouselScale.value
+                 + " recentsViewScale: " + recentsViewScale.value
+                 + " crop: " + mTmpCropRect
+                 + " radius: " + getCurrentCornerRadius()
+                 + " taskW: " + taskWidth + " H: " + taskHeight
+                 + " taskRect: " + mTaskRect
++                + " dp: " + mDp.getDeviceProperties().getWidthPx()
++                + "x" + mDp.getDeviceProperties().getHeightPx()
++                + " origin: " + mDp.getDeviceProperties().getWindowX()
++                + "," + mDp.getDeviceProperties().getWindowY()
+                 + " taskPrimaryT: " + taskPrimaryTranslation.value
+                 + " taskSecondaryT: " + taskSecondaryTranslation.value
+                 + " taskGridTranslationX: " + taskGridTranslationX.value
+@@ -547,7 +559,7 @@ public class TaskViewSimulator implements TransformParams.BuilderProxy {
+     @Override
+     public void onBuildTargetParams(
+             SurfaceProperties builder, RemoteAnimationTarget app, TransformParams params) {
+-        builder.setMatrix(mMatrix)
++        params.applyDisplayMatrix(builder, app, mMatrix)
+                 .setWindowCrop(mTmpCropRect)
+                 .setCornerRadius(getCurrentCornerRadius());
+ 
+diff --git a/quickstep/src/com/android/quickstep/util/TransformParams.java b/quickstep/src/com/android/quickstep/util/TransformParams.java
+index 716803a80151d56bb53117240f6c734b63ebec63..fc4ffcc112806411490418c3ecc0b420744223f7 100644
+--- a/quickstep/src/com/android/quickstep/util/TransformParams.java
++++ b/quickstep/src/com/android/quickstep/util/TransformParams.java
+@@ -63,6 +63,7 @@ public class TransformParams {
+     private float mTargetAlpha;
+     private float mCornerRadius;
+     private RemoteAnimationTargets mTargetSet;
++    private final android.graphics.Matrix mRootRelativeMatrix = new android.graphics.Matrix();
+     private TransitionInfo mTransitionInfo;
+     private boolean mCornerRadiusIsOverridden;
+     private SurfaceTransactionApplier mSyncTransactionApplier;
+@@ -222,6 +223,23 @@ public class TransformParams {
+         return null;
+     }
+ 
++    /** Submit a display-space preview matrix in the actual Shell leash-parent space. */
++    public SurfaceProperties applyDisplayMatrix(SurfaceProperties builder,
++            RemoteAnimationTarget app, android.graphics.Matrix displayMatrix) {
++        android.graphics.Matrix surfaceMatrix = mTargetSet == null ? displayMatrix
++                : mTargetSet.workspaceGeometry.toRootSpace(
++                        app.taskId, displayMatrix, mRootRelativeMatrix);
++        if (app.taskInfo != null && app.taskInfo.zetaWorkspacePanel >= 0
++                && android.os.SystemProperties.getBoolean("debug.zeta.preview", false)) {
++            android.util.Log.d("ZetaPreview", "task=" + app.taskId
++                    + " progress=" + mProgress + " roots="
++                    + (mTargetSet == null ? "none" : mTargetSet.workspaceGeometry)
++                    + " display=" + displayMatrix.toShortString()
++                    + " submitted=" + surfaceMatrix.toShortString());
++        }
++        return builder.setMatrix(surfaceMatrix);
++    }
++
+     // Public getters so outside packages can read the values.
+ 
+     public float getProgress() {
+diff --git a/quickstep/src/com/android/quickstep/util/ZetaAppPairs.java b/quickstep/src/com/android/quickstep/util/ZetaAppPairs.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd6d5ceccaec99b4b4cc60572a53f4ed6905e239
+--- /dev/null
++++ b/quickstep/src/com/android/quickstep/util/ZetaAppPairs.java
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.quickstep.util;
++
++import android.app.ActivityManager;
++import android.app.ActivityOptions;
++import android.content.ComponentName;
++import android.content.pm.LauncherApps;
++import android.os.Bundle;
++import android.os.UserHandle;
++import android.view.WindowManagerGlobal;
++import android.widget.Toast;
++import com.android.launcher3.Launcher;
++import com.android.launcher3.LauncherAppState;
++import com.android.launcher3.R;
++import com.android.launcher3.model.data.AppInfo;
++import com.android.launcher3.model.data.AppPairInfo;
++import com.android.launcher3.model.data.WorkspaceItemInfo;
++import com.android.launcher3.util.ComponentKey;
++import java.util.List;
++import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
++import static com.android.launcher3.util.Executors.MODEL_EXECUTOR;
++
++/** Saved pairs reuse Launcher3's database/icon model, but launch into physical panel areas. */
++public final class ZetaAppPairs {
++    private ZetaAppPairs() { }
++    private static Bundle state() throws android.os.RemoteException {
++        Bundle state = WindowManagerGlobal.getWindowManagerService().getZetaWorkspaceState();
++        if (state == null || !state.getBoolean("enabled") || state.getBoolean("locked")
++                || state.getBoolean("lock_task") || state.getBoolean("switching") || state.getInt("composition") != 2
++                || state.getInt("spanned_task", -1) >= 0) {
++            throw new IllegalStateException("Two unlocked panels are required");
++        }
++        return state;
++    }
++    private static AppInfo resolve(Launcher launcher, ActivityManager.RunningTaskInfo task) {
++        if (task == null) return null;
++        ComponentName component = task.realActivity != null ? task.realActivity
++                : task.baseIntent.getComponent();
++        if (component == null) return null;
++        ComponentKey key = new ComponentKey(component, UserHandle.of(task.userId));
++        var store = launcher.getAppsView().getAppsStore();
++        AppInfo info = store.getApp(key);
++        return info != null ? info : store.getApp(key, AppInfo.PACKAGE_KEY_COMPARATOR);
++    }
++    private static List<WorkspaceItemInfo> pair(Launcher launcher,
++            com.android.systemui.shared.recents.model.Task.TaskKey selected) throws android.os.RemoteException {
++        Bundle snapshot = state();
++        AppInfo left = resolve(launcher, snapshot.getParcelable("standard_taskinfo_0",
++                ActivityManager.RunningTaskInfo.class));
++        AppInfo right = resolve(launcher, snapshot.getParcelable("standard_taskinfo_1",
++                ActivityManager.RunningTaskInfo.class));
++        int owner = selected.zetaWorkspacePanel < 0 ? 0 : selected.zetaWorkspacePanel;
++        if (owner < 0 || owner > 1) throw new IllegalStateException("Task has no independent panel");
++        ComponentKey key = com.android.quickstep.TaskUtils.getLaunchComponentKeyForTask(selected);
++        var store = launcher.getAppsView().getAppsStore();
++        AppInfo chosen = store.getApp(key);
++        if (chosen == null) chosen = store.getApp(key, AppInfo.PACKAGE_KEY_COMPARATOR);
++        if (owner == 0) left = chosen; else right = chosen;
++        if (left == null || right == null || ((left.runtimeStatusFlags | right.runtimeStatusFlags)
++                & com.android.launcher3.model.data.ItemInfoWithIcon.FLAG_NOT_PINNABLE) != 0) {
++            throw new IllegalStateException("Apps must be launchable and pinnable");
++        }
++        // Do not duplicate singleton/shared-affinity apps through a launcher shortcut.
++        if (left.componentName.getPackageName().equals(right.componentName.getPackageName())
++                && left.user.equals(right.user)) throw new IllegalStateException("Distinct apps required");
++        return List.of(left.makeWorkspaceItem(launcher), right.makeWorkspaceItem(launcher));
++    }
++    public static boolean canSave(Launcher launcher,
++            com.android.systemui.shared.recents.model.Task.TaskKey selected) {
++        try { pair(launcher, selected); return true; }
++        catch (android.os.RemoteException | RuntimeException error) { return false; }
++    }
++    public static void save(Launcher launcher,
++            com.android.systemui.shared.recents.model.Task.TaskKey selected) {
++        try {
++            List<WorkspaceItemInfo> apps = pair(launcher, selected);
++            for (int i = 0; i < 2; i++) apps.get(i).rank = AppPairsController.encodeRank(
++                    com.android.wm.shell.shared.split.SplitScreenConstants.getIndex(i),
++                    com.android.wm.shell.shared.split.SplitScreenConstants.SNAP_TO_2_50_50);
++            AppPairInfo pair = new AppPairInfo(apps);
++            var cache = LauncherAppState.getInstance(launcher).getIconCache();
++            MODEL_EXECUTOR.execute(() -> {
++                pair.getAppContents().forEach(member -> {
++                    member.title = "";
++                    member.bitmap = cache.getDefaultIcon(member.user);
++                    cache.getTitleAndIcon(member, member.getMatchingLookupFlag());
++                });
++                MAIN_EXECUTOR.execute(() -> {
++                    if (!launcher.isDestroyed()) launcher.getAccessibilityDelegate()
++                            .addToWorkspace(pair, true, success -> { if (!success) unavailable(launcher); });
++                });
++            });
++        } catch (android.os.RemoteException | RuntimeException error) { unavailable(launcher); }
++    }
++    public static boolean launch(Launcher launcher, AppPairInfo pair) {
++        try {
++            state();
++            List<WorkspaceItemInfo> apps = List.of(pair.getFirstApp(), pair.getSecondApp());
++            LauncherApps service = launcher.getSystemService(LauncherApps.class);
++            for (WorkspaceItemInfo app : apps) {
++                if (app.intent.getComponent() == null || !service.isActivityEnabled(
++                        app.intent.getComponent(), app.user)) throw new IllegalStateException("Unavailable app");
++            }
++            if (apps.get(0).intent.getComponent().getPackageName().equals(
++                    apps.get(1).intent.getComponent().getPackageName())
++                    && apps.get(0).user.equals(apps.get(1).user)) {
++                throw new IllegalStateException("Distinct apps required");
++            }
++            for (int panel = 0; panel < 2; panel++) {
++                ActivityOptions options = ActivityOptions.makeBasic();
++                options.setLaunchDisplayId(android.view.Display.DEFAULT_DISPLAY);
++                options.setLaunchTaskDisplayAreaFeatureId(panel == 0
++                        ? android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
++                        : android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST + 10);
++                service.startMainActivity(apps.get(panel).intent.getComponent(), apps.get(panel).user,
++                        null, options.toBundle());
++            }
++            return true;
++        } catch (android.os.RemoteException | RuntimeException error) { unavailable(launcher); return false; }
++    }
++    private static void unavailable(Launcher launcher) {
++        Toast.makeText(launcher, R.string.zeta_pair_unavailable, Toast.LENGTH_LONG).show();
++    }
++}
+diff --git a/quickstep/src/com/android/quickstep/util/ZetaWorkspaceAnimationGeometry.java b/quickstep/src/com/android/quickstep/util/ZetaWorkspaceAnimationGeometry.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..532ee565dc25069829459ca4ffa55810cbae64a2
+--- /dev/null
++++ b/quickstep/src/com/android/quickstep/util/ZetaWorkspaceAnimationGeometry.java
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.quickstep.util;
++
++import android.graphics.Matrix;
++import android.graphics.Point;
++import android.util.SparseArray;
++import android.view.RemoteAnimationTarget;
++import android.window.TransitionInfo;
++import com.android.wm.shell.shared.TransitionUtil;
++
++/** Immutable display-to-animation-root origins for one Shell transition.
++ *
++ * Quickstep computes preview and Home matrices in display coordinates. Shell's
++ * animation leash may instead live beneath a pane-local transition root. Capture
++ * its actual origin, not a focused Home's origin or the task's parent position.
++ * Only points are retained: this object does not own any SurfaceControl handles.
++ */
++public final class ZetaWorkspaceAnimationGeometry {
++    public static final ZetaWorkspaceAnimationGeometry EMPTY =
++            new ZetaWorkspaceAnimationGeometry(new SparseArray<>());
++    private final SparseArray<Point> mRootOrigins;
++
++    private ZetaWorkspaceAnimationGeometry(SparseArray<Point> rootOrigins) {
++        mRootOrigins = rootOrigins;
++    }
++
++    public static ZetaWorkspaceAnimationGeometry capture(RemoteAnimationTarget[] targets,
++            TransitionInfo info) {
++        if (targets == null || info == null || info.getRootCount() == 0) return EMPTY;
++        SparseArray<Point> origins = new SparseArray<>();
++        for (RemoteAnimationTarget target : targets) {
++            if (target.taskInfo == null || target.taskInfo.zetaWorkspacePanel < 0) continue;
++            for (TransitionInfo.Change change : info.getChanges()) {
++                if (change.getTaskInfo() == null
++                        || change.getTaskInfo().taskId != target.taskId) continue;
++                // This is the same root lookup Shell uses when creating the remote leash.
++                origins.put(target.taskId, new Point(TransitionUtil.getRootFor(change, info)
++                        .getOffset()));
++                break;
++            }
++        }
++        return origins.size() == 0 ? EMPTY : new ZetaWorkspaceAnimationGeometry(origins);
++    }
++
++    /** Copies into scratch only when needed. The caller's display matrix stays unchanged. */
++    public Matrix toRootSpace(int taskId, Matrix displayMatrix, Matrix scratch) {
++        Point origin = mRootOrigins.get(taskId);
++        if (origin == null || (origin.x == 0 && origin.y == 0)) return displayMatrix;
++        scratch.set(displayMatrix);
++        // Display rotation/scale has already been composed. Translate in the final space.
++        scratch.postTranslate(-origin.x, -origin.y);
++        return scratch;
++    }
++
++    @Override public String toString() { return mRootOrigins.toString(); }
++}
+diff --git a/quickstep/src/com/android/quickstep/views/OverviewActionsView.java b/quickstep/src/com/android/quickstep/views/OverviewActionsView.java
+index 674ce5b821961ef8cf7b0aca2c3af0b8ea734fc3..701a1cef7d8e2fc08391610be846932a2ef1d43f 100644
+--- a/quickstep/src/com/android/quickstep/views/OverviewActionsView.java
++++ b/quickstep/src/com/android/quickstep/views/OverviewActionsView.java
+@@ -147,6 +147,7 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
+     /** Container for the action buttons below a focused, non-split Overview tile. */
+     protected LinearLayout mActionButtons;
+     private Button mSplitButton;
++    private View mZetaThisScreen, mZetaOtherScreen;
+     /**
+      * The "save app pair" button. Currently this is the only button that is not contained in
+      * mActionButtons, since it is the sole button that appears for a grouped task.
+@@ -213,6 +214,10 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
+         // casting this.
+         View screenshotButton = findViewById(R.id.action_screenshot);
+         screenshotButton.setOnClickListener(this);
++        mZetaThisScreen = findViewById(R.id.action_zeta_this_screen);
++        mZetaOtherScreen = findViewById(R.id.action_zeta_other_screen);
++        if (mZetaThisScreen != null) mZetaThisScreen.setOnClickListener(this);
++        if (mZetaOtherScreen != null) mZetaOtherScreen.setOnClickListener(this);
+         mSplitButton = findViewById(R.id.action_split);
+         mSplitButton.setOnClickListener(this);
+         mSaveAppPairButton.setOnClickListener(this);
+@@ -225,6 +230,13 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
+      */
+     public void setCallbacks(T callbacks) {
+         mCallbacks = callbacks;
++        if (callbacks == null) setZetaScreenActionsVisible(false);
++    }
++
++    /** Only the currently bound, eligible Duo task exposes placement actions. */
++    public void setZetaScreenActionsVisible(boolean visible) {
++        if (mZetaThisScreen != null) mZetaThisScreen.setVisibility(visible ? VISIBLE : GONE);
++        if (mZetaOtherScreen != null) mZetaOtherScreen.setVisibility(visible ? VISIBLE : GONE);
+     }
+ 
+     @Override
+@@ -235,6 +247,10 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
+         int id = view.getId();
+         if (id == R.id.action_screenshot) {
+             mCallbacks.onScreenshot();
++        } else if (id == R.id.action_zeta_this_screen) {
++            mCallbacks.onOpenOnScreen(false);
++        } else if (id == R.id.action_zeta_other_screen) {
++            mCallbacks.onOpenOnScreen(true);
+         } else if (id == R.id.action_split) {
+             mCallbacks.onSplit();
+         } else if (id == R.id.action_save_app_pair) {
+diff --git a/quickstep/src/com/android/quickstep/views/RecentsView.java b/quickstep/src/com/android/quickstep/views/RecentsView.java
+index 111c99b53a51aa0acafe51508f0fbd5313bf5dd5..4cd3558bdfb2bc6ae6a9709103369d6b834c79e5 100644
+--- a/quickstep/src/com/android/quickstep/views/RecentsView.java
++++ b/quickstep/src/com/android/quickstep/views/RecentsView.java
+@@ -1065,7 +1065,9 @@ public abstract class RecentsView<
+                 this.setAndApplyFilter(null);
+             });
+         } else {
+-            mClearAllButton.setText(R.string.recents_clear_all);
++            mClearAllButton.setText(mContainer instanceof com.android.launcher3.Launcher
++                    && ((com.android.launcher3.Launcher) mContainer).getWorkspacePanelId() >= 0
++                    ? R.string.zeta_clear_all_recent_apps : R.string.recents_clear_all);
+             mClearAllButton.setOnClickListener(this::dismissAllTasks);
+         }
+     }
+@@ -1967,6 +1969,7 @@ public abstract class RecentsView<
+     }
+ 
+     protected void applyLoadPlan(List<GroupTask> taskGroups, int taskListChangeId) {
++        // Placement belongs to a physical panel; Android's eligible task history is shared.
+         if (enableRefactorTaskThumbnail() && !(isAttachedToWindow()
+                 && RecentsDependencies.Companion.hasScope(mContext))) {
+             // This can happen if a TaskView callback is triggered after the view is destroyed
+@@ -2976,6 +2979,21 @@ public abstract class RecentsView<
+     /**
+      * Reloads the view if anything in recents changed.
+      */
++    /** Explicit pane overview requests must not reuse pre-move ownership snapshots. */
++    public void reloadZetaWorkspaceTasks(Runnable afterLoad) {
++        if (!(mContainer instanceof com.android.launcher3.Launcher)
++                || ((com.android.launcher3.Launcher) mContainer).getWorkspacePanelId() < 0) return;
++        mModel.invalidateZetaWorkspaceTasks();
++        invalidateTaskList();
++        mModel.getTasks((groups, changeId) -> {
++            applyLoadPlan(groups, changeId);
++            afterLoad.run();
++        }, RecentsFilterState.getFilter(mFilterState.getPackageNameToFilter(), mContainer.getDisplayId()));
++        if (enableRefactorTaskThumbnail()) {
++            mRecentsViewModel.refreshAllTaskData();
++        }
++    }
++
+     public void reloadIfNeeded() {
+         if (!mModel.isTaskListValid(mAppliedTaskListChangeId)) {
+             mModel.getTasks(this::applyLoadPlan, RecentsFilterState
+diff --git a/quickstep/src/com/android/quickstep/views/TaskView.kt b/quickstep/src/com/android/quickstep/views/TaskView.kt
+index effda1cea6addba91cfee5470ff7e2af10a2518e..2e1670da6d69474b230df7926e3ffa76e56a6023 100644
+--- a/quickstep/src/com/android/quickstep/views/TaskView.kt
++++ b/quickstep/src/com/android/quickstep/views/TaskView.kt
+@@ -606,6 +606,18 @@ constructor(
+ 
+     init {
+         setOnClickListener { _ -> onClick() }
++        setOnLongClickListener {
++            val home = container
++            val task = taskContainers.singleOrNull()?.task
++            if (home !is com.android.launcher3.Launcher || home.getWorkspacePanelId() < 0 || task == null) {
++                false
++            } else {
++                val data = android.content.ClipData("App",
++                    arrayOf("application/vnd.lineageos.zeta.task"),
++                    android.content.ClipData.Item(task.key.id.toString()))
++                startDragAndDrop(data, View.DragShadowBuilder(this), null, View.DRAG_FLAG_GLOBAL)
++            }
++        }
+ 
+         setWillNotDraw(false)
+     }
+@@ -1476,7 +1488,11 @@ constructor(
+ 
+     /** Launch of the current task (both live and inactive tasks) with an animation. */
+     fun launchWithAnimation(): RunnableList? {
+-        return if (isRunningTask && recentsView?.remoteTargetHandles != null) {
++        val key = firstTaskContainer?.task?.key ?: return null
++        val workspacePanel = (container as? com.android.launcher3.Launcher)?.getWorkspacePanelId() ?: -1
++        val crossPanel = workspacePanel >= 0 && key.zetaWorkspacePanel != workspacePanel
++        if (!com.android.launcher3.uioverrides.ZetaWorkspaceHomes.prepareRecentLaunch(container, key, null)) return null
++        return if (!crossPanel && isRunningTask && recentsView?.remoteTargetHandles != null) {
+                 launchAsLiveTile(recentsView?.remoteTargetHandles!!)
+             } else {
+                 launchAsStaticTile()
+@@ -1602,6 +1618,8 @@ constructor(
+                 // sure fullscreen apps remain fullscreen we set the windowing mode explicitly.
+                 options.launchWindowingMode = WINDOWING_MODE_FULLSCREEN
+             }
++        if (!com.android.launcher3.uioverrides.ZetaWorkspaceHomes.prepareRecentLaunch(
++                container, firstTaskContainer.task.key, opts.options)) return null
+         if (
+             ActivityManagerWrapper.getInstance()
+                 .startActivityFromRecents(firstTaskContainer.task.key, opts.options)
+@@ -1694,6 +1712,11 @@ constructor(
+                     // TODO(b/331754864): Update this to use TV.shouldShowSplash
+                     disableStartingWindow = firstTaskContainer.shouldShowSplashView
+                 }
++        if (!com.android.launcher3.uioverrides.ZetaWorkspaceHomes.prepareRecentLaunch(
++                container, firstTaskContainer.task.key, opts)) {
++            callbackWithLogging(false)
++            return
++        }
+         Executors.UI_HELPER_EXECUTOR.execute {
+             Log.d(
+                 TAG,
+diff --git a/quickstep/src/com/android/quickstep/window/RecentsWindowFlags.kt b/quickstep/src/com/android/quickstep/window/RecentsWindowFlags.kt
+index cf2aec8e0d7e91c8a8dab1b330d064f8ab0a6623..5af15a70a9e84db848a8909efb4a9104dd6237a9 100644
+--- a/quickstep/src/com/android/quickstep/window/RecentsWindowFlags.kt
++++ b/quickstep/src/com/android/quickstep/window/RecentsWindowFlags.kt
+@@ -44,12 +44,21 @@ object RecentsWindowFlags {
+             Flags.FLAG_ENABLE_OVERVIEW_ON_CONNECTED_DISPLAYS,
+         )
+ 
++    private fun workspaceActive(): Boolean =
++        android.app.ActivityThread.currentApplication()?.let {
++            com.android.launcher3.ZetaWorkspaceMode.enabled(it)
++        } ?: false
++
++    @JvmStatic
++    fun isLauncherOverviewInWindowEnabled(): Boolean =
++        !workspaceActive() && enableLauncherOverviewInWindow.isTrue
++
+     @JvmStatic
+     val enableOverviewInWindow
+         get() =
+-            enableLauncherOverviewInWindow.isTrue ||
++            !workspaceActive() && (enableLauncherOverviewInWindow.isTrue ||
+                 enableFallbackOverviewInWindow.isTrue ||
+-                enableOverviewOnConnectedDisplays.isTrue
++                enableOverviewOnConnectedDisplays.isTrue)
+ 
+     @JvmStatic fun enableOverviewOnConnectedDisplays() = enableOverviewOnConnectedDisplays.isTrue
+ }
+diff --git a/src/com/android/launcher3/AppWidgetsRestoredReceiver.java b/src/com/android/launcher3/AppWidgetsRestoredReceiver.java
+index 429978eeb4e6965fe2863cc5ab658012f0ec8322..024a0e67519c98dbeba5cdab4e6c2079d76c2b2e 100644
+--- a/src/com/android/launcher3/AppWidgetsRestoredReceiver.java
++++ b/src/com/android/launcher3/AppWidgetsRestoredReceiver.java
+@@ -25,9 +25,9 @@ public class AppWidgetsRestoredReceiver extends BroadcastReceiver {
+         if (AppWidgetManager.ACTION_APPWIDGET_HOST_RESTORED.equals(intent.getAction())) {
+             int hostId = intent.getIntExtra(AppWidgetManager.EXTRA_HOST_ID, 0);
+             Log.d(TAG, "onReceive: Widget ID map received for host:" + hostId);
+-            if (hostId != LauncherWidgetHolder.APPWIDGET_HOST_ID) {
++            if (hostId != ZetaWorkspaceMode.widgetHostId(context)) {
+                 Log.w(TAG,  "onReceive: hostId does not match Launcher."
+-                        + " Expected: " + LauncherWidgetHolder.APPWIDGET_HOST_ID
++                        + " Expected: " + ZetaWorkspaceMode.widgetHostId(context)
+                         + ", Actual: " + hostId);
+                 return;
+             }
+diff --git a/src/com/android/launcher3/InvariantDeviceProfile.java b/src/com/android/launcher3/InvariantDeviceProfile.java
+index b1e32f450db86edad7809cce0bedd6062ad3bfcc..37cd1d7e8239fa65aac75a98806e425479e6e0ac 100644
+--- a/src/com/android/launcher3/InvariantDeviceProfile.java
++++ b/src/com/android/launcher3/InvariantDeviceProfile.java
+@@ -400,9 +400,15 @@ public class InvariantDeviceProfile {
+         numRows = closestProfile.numRows;
+         numColumns = closestProfile.numColumns;
+         numSearchContainerColumns = closestProfile.numSearchContainerColumns;
+-        dbFile = closestProfile.dbFile;
++        dbFile = ZetaWorkspaceMode.enabled(context) ? ZetaWorkspaceMode.DATABASE : closestProfile.dbFile;
+         gridType = closestProfile.gridType;
+-        defaultLayoutId = closestProfile.defaultLayoutId;
++        if (ZetaWorkspaceMode.enabled(context)) {
++            // One fixed phone grid keeps rotation/folding from triggering destructive grid migration.
++            numRows = 5;
++            numColumns = 5;
++            numSearchContainerColumns = 5;
++        }
++        defaultLayoutId = ZetaWorkspaceMode.enabled(context) ? R.xml.default_workspace_5x5 : closestProfile.defaultLayoutId;
+ 
+         numFolderRows = closestProfile.numFolderRows;
+         numFolderColumns = closestProfile.numFolderColumns;
+@@ -453,6 +459,10 @@ public class InvariantDeviceProfile {
+         numShownHotseatIcons = closestProfile.numHotseatIcons;
+         numDatabaseHotseatIcons = deviceType == TYPE_MULTI_DISPLAY
+                 ? closestProfile.numDatabaseHotseatIcons : closestProfile.numHotseatIcons;
++        if (ZetaWorkspaceMode.enabled(context)) {
++            numShownHotseatIcons = 5;
++            numDatabaseHotseatIcons = 5;
++        }
+         hotseatBarBottomSpace = displayOption.hotseatBarBottomSpace;
+         hotseatQsbSpace = displayOption.hotseatQsbSpace;
+ 
+diff --git a/src/com/android/launcher3/Launcher.java b/src/com/android/launcher3/Launcher.java
+index 66b4d70ed2e078e8082003f0e9c943cafe82cd39..8668bdedf87de4ec8810b2ebe467b708a6cbbdd4 100644
+--- a/src/com/android/launcher3/Launcher.java
++++ b/src/com/android/launcher3/Launcher.java
+@@ -293,6 +293,29 @@ public class Launcher extends StatefulActivity<LauncherState>
+     public static final ContextTracker.ActivityTracker<Launcher> ACTIVITY_TRACKER =
+             new ContextTracker.ActivityTracker<>();
+ 
++    public static final String WORKSPACE_PANEL_EXTRA = "org.lineageos.zeta.workspace.PANEL";
++    private static final ContextTracker.ActivityTracker<Launcher> LEFT_WORKSPACE_TRACKER =
++            new ContextTracker.ActivityTracker<>();
++    private static final ContextTracker.ActivityTracker<Launcher> RIGHT_WORKSPACE_TRACKER =
++            new ContextTracker.ActivityTracker<>();
++
++    /** Shared by Quickstep and the refactored picker without a Quickstep dependency. */
++    public static ContextTracker.ActivityTracker<Launcher> getActivityTrackerForPanel(int panel) {
++        return panel == 0 ? LEFT_WORKSPACE_TRACKER
++                : panel == 1 ? RIGHT_WORKSPACE_TRACKER : ACTIVITY_TRACKER;
++    }
++
++    /** A device workspace may size its home using the actual task's window metrics. */
++    protected boolean useTaskWindowProfile() { return false; }
++
++    @Override
++    public int getWorkspacePanelId() { return -1; }
++
++    /** Lifecycle ownership can be scoped by an OEM workspace without replacing the app model. */
++    public ContextTracker.ActivityTracker<Launcher> getActivityTracker() {
++        return ACTIVITY_TRACKER;
++    }
++
+     static final boolean LOGD = false;
+ 
+     private static final float BOUNCE_ANIMATION_TENSION = 1.3f;
+@@ -486,7 +509,7 @@ public class Launcher extends StatefulActivity<LauncherState>
+ 
+         SystemDragController.INSTANCE.get(this).setLauncher(this);
+ 
+-        boolean internalStateHandled = ACTIVITY_TRACKER.handleCreate(this);
++        boolean internalStateHandled = getActivityTracker().handleCreate(this);
+         if (internalStateHandled) {
+             if (savedInstanceState != null) {
+                 // InternalStateHandler has already set the appropriate state.
+@@ -728,6 +751,17 @@ public class Launcher extends StatefulActivity<LauncherState>
+     protected boolean initDeviceProfile(InvariantDeviceProfile idp) {
+         // Load configuration-specific DeviceProfile
+         DeviceProfile deviceProfile = idp.getDeviceProfile(this);
++        if (useTaskWindowProfile()) {
++            com.android.launcher3.util.WindowBounds window =
++                    com.android.launcher3.util.WindowBounds.fromWindowMetrics(
++                            getWindowManager().getCurrentWindowMetrics());
++            deviceProfile = deviceProfile.toBuilder()
++                    .setWindowBounds(new com.android.launcher3.util.WindowBounds(
++                            window.bounds, window.insets, getDisplay().getRotation()))
++                    .setIsMultiDisplay(false)
++                    .setSecondaryDisplayOptionSpec()
++                    .build();
++        }
+         if (mDeviceProfile == deviceProfile) {
+             return false;
+         }
+@@ -1548,6 +1582,12 @@ public class Launcher extends StatefulActivity<LauncherState>
+         }
+         TraceHelper.INSTANCE.beginSection(ON_NEW_INTENT_EVT);
+         super.onNewIntent(intent);
++        if (getWorkspacePanelId() >= 0
++                && intent.getBooleanExtra("org.lineageos.zeta.workspace.OVERVIEW", false)) {
++            getActivityTracker().handleNewIntent(this);
++            TraceHelper.INSTANCE.endSection();
++            return; // Quickstep consumes the command; this is not a request to reset Home.
++        }
+ 
+         boolean alreadyOnHome = hasWindowFocus() && ((intent.getFlags() &
+                 Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+@@ -1557,7 +1597,7 @@ public class Launcher extends StatefulActivity<LauncherState>
+         boolean shouldMoveToDefaultScreen = alreadyOnHome && isInState(NORMAL)
+                 && AbstractFloatingView.getTopOpenView(this) == null;
+         boolean isActionMain = Intent.ACTION_MAIN.equals(intent.getAction());
+-        boolean internalStateHandled = ACTIVITY_TRACKER.handleNewIntent(this);
++        boolean internalStateHandled = getActivityTracker().handleNewIntent(this);
+ 
+         logOnNewIntent(alreadyOnHome, shouldMoveToDefaultScreen, intent.getAction(),
+                 internalStateHandled);
+@@ -1719,7 +1759,7 @@ public class Launcher extends StatefulActivity<LauncherState>
+     @Override
+     public void onDestroy() {
+         super.onDestroy();
+-        ACTIVITY_TRACKER.onContextDestroyed(this);
++        getActivityTracker().onContextDestroyed(this);
+ 
+         SettingsCache.INSTANCE.get(this).unregister(TOUCHPAD_NATURAL_SCROLLING,
+                 mNaturalScrollingChangedListener);
+@@ -2191,12 +2231,14 @@ public class Launcher extends StatefulActivity<LauncherState>
+ 
+     @Override
+     public void bindCompleteModelAsync(WorkspaceData itemIdMap, boolean isBindingSync) {
+-        mModelCallbacks.bindCompleteModelAsync(itemIdMap, isBindingSync);
++        mModelCallbacks.bindCompleteModelAsync(itemIdMap.forPanel(getWorkspacePanelId()), isBindingSync);
+     }
+ 
+     @Override
+     public void bindItemsAdded(@NonNull List<ItemInfo> items) {
+-        mModelCallbacks.bindItemsAdded(items);
++        int panel = getWorkspacePanelId();
++        mModelCallbacks.bindItemsAdded(panel < 0 ? items : items.stream()
++                .filter(item -> ZetaPanelOwnership.visibleTo(panel, item.workspacePanel, item.container)).toList());
+     }
+ 
+     /** Inflates the binds the provided item using animation */
+@@ -2441,7 +2483,10 @@ public class Launcher extends StatefulActivity<LauncherState>
+      */
+     @Override
+     public void bindItemsUpdated(Set<ItemInfo> updates) {
+-        mModelCallbacks.bindItemsUpdated(updates);
++        int panel = getWorkspacePanelId();
++        mModelCallbacks.bindItemsUpdated(panel < 0 ? updates : updates.stream()
++                .filter(item -> ZetaPanelOwnership.visibleTo(panel, item.workspacePanel, item.container))
++                .collect(java.util.stream.Collectors.toSet()));
+     }
+ 
+     /**
+@@ -3004,6 +3049,9 @@ public class Launcher extends StatefulActivity<LauncherState>
+                      ComposeFacade.INSTANCE.isComposeAvailable()) {
+                 Intent intent = new Intent(Intent.ACTION_PICK);
+                 intent.setPackage(asContext().getPackageName());
++                if (getWorkspacePanelId() >= 0) {
++                    intent.putExtra(WORKSPACE_PANEL_EXTRA, getWorkspacePanelId());
++                }
+                 asContext().startActivity(intent);
+                 return true;
+             }
+diff --git a/src/com/android/launcher3/LauncherPrefs.kt b/src/com/android/launcher3/LauncherPrefs.kt
+index 0295ae75d9b5095d72138362dc9ed3fb1f7c5bf4..c500a51b42b57cc0902231629dedef609050335b 100644
+--- a/src/com/android/launcher3/LauncherPrefs.kt
++++ b/src/com/android/launcher3/LauncherPrefs.kt
+@@ -51,13 +51,13 @@ constructor(@ApplicationContext private val encryptedContext: Context) {
+     private val deviceProtectedSharedPrefs: SharedPreferences by lazy {
+         encryptedContext
+             .createDeviceProtectedStorageContext()
+-            .getSharedPreferences(BOOT_AWARE_PREFS_KEY, MODE_PRIVATE)
++            .getSharedPreferences(ZetaWorkspaceMode.preferenceFile(encryptedContext, BOOT_AWARE_PREFS_KEY), MODE_PRIVATE)
+     }
+ 
+     open protected fun getSharedPrefs(item: Item): SharedPreferences =
+         item.run {
+             if (encryptionType == EncryptionType.DEVICE_PROTECTED) deviceProtectedSharedPrefs
+-            else encryptedContext.getSharedPreferences(sharedPrefFile, MODE_PRIVATE)
++            else encryptedContext.getSharedPreferences(ZetaWorkspaceMode.preferenceFile(encryptedContext, sharedPrefFile), MODE_PRIVATE)
+         }
+ 
+     @Deprecated("Don't use shared preferences directly. Use other LauncherPref methods.")
+diff --git a/src/com/android/launcher3/LauncherSettings.java b/src/com/android/launcher3/LauncherSettings.java
+index 72ba7c46b0c6f9310a1f659275b98eb5637e6503..e50efbbfae269b6559b6de5f943dfa659521621f 100644
+--- a/src/com/android/launcher3/LauncherSettings.java
++++ b/src/com/android/launcher3/LauncherSettings.java
+@@ -319,6 +319,7 @@ public class LauncherSettings {
+          * <p>Type: INTEGER</p>
+          */
+         public static final String OPTIONS = "options";
++        public static final String ZETA_PANEL = "zetaPanel";
+ 
+         /**
+          * Stores the source container that the widget was added from.
+@@ -358,6 +359,7 @@ public class LauncherSettings {
+             columnsToTypes.put(PROFILE_ID, "INTEGER DEFAULT " + profileId);
+             columnsToTypes.put(RANK, "INTEGER NOT NULL DEFAULT 0");
+             columnsToTypes.put(OPTIONS, "INTEGER NOT NULL DEFAULT 0");
++            columnsToTypes.put(ZETA_PANEL, "INTEGER NOT NULL DEFAULT 0");
+             columnsToTypes.put(APPWIDGET_SOURCE, "INTEGER NOT NULL DEFAULT -1");
+             return columnsToTypes;
+         }
+diff --git a/src/com/android/launcher3/ZetaPanelOwnership.java b/src/com/android/launcher3/ZetaPanelOwnership.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9d5d1ca59097b5cca1f1399919cf89392e1b488d
+--- /dev/null
++++ b/src/com/android/launcher3/ZetaPanelOwnership.java
+@@ -0,0 +1,20 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.launcher3;
++
++/** Stable physical panel ownership for the shared launcher model. No Android runtime dependency. */
++public final class ZetaPanelOwnership {
++    private ZetaPanelOwnership() { }
++
++    public static long cellContainerKey(int panel, int container) {
++        if (panel < 0 || panel > 1) throw new IllegalArgumentException("Invalid panel");
++        return ((long) panel << 32) | (container & 0xffffffffL);
++    }
++
++    public static boolean visibleTo(int panel, int itemPanel, int container) {
++        if (panel == -1) return true;
++        if (panel < 0 || panel > 1) throw new IllegalArgumentException("Invalid panel");
++        // Prediction and system containers are shared. Desktop (-100), dock (-101), and
++        // folder children (positive container IDs) retain explicit persistent ownership.
++        return itemPanel == panel || container < -101;
++    }
++}
+diff --git a/src/com/android/launcher3/ZetaTossGesture.java b/src/com/android/launcher3/ZetaTossGesture.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a3199742b2a0c17b49151a7450a31c26566a071e
+--- /dev/null
++++ b/src/com/android/launcher3/ZetaTossGesture.java
+@@ -0,0 +1,110 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.launcher3;
++
++import java.util.ArrayDeque;
++
++/** Raw display coordinates; the target vector follows physical panels through rotation. */
++public final class ZetaTossGesture {
++    // Allow a continuous lift-and-turn without requiring a sub-second trick.
++    // A deliberate pause still belongs to Recents, not to a later toss.
++    private static final long MAX_DURATION_MS = 1200;
++    private static final long PAUSE_MS = 240;
++    private static final long VELOCITY_WINDOW_MS = 120;
++    private static final long RELEASE_GRACE_MS = 120;
++    private static final float MIN_SPEED_DP_PER_SECOND = 350;
++    private final float density, targetX, targetY, downY;
++    private final long downTime;
++    private final ArrayDeque<Sample> samples = new ArrayDeque<>();
++    private float anchorX, anchorY, motionX, motionY, lastX, lastY;
++    private float furthestAlong, speed;
++    private long lastTime, motionTime, qualifiedTime = -1;
++    private boolean lifted, cancelled, lateralHook;
++
++    private static final class Sample {
++        final float x, y;
++        final long time;
++        Sample(float x, float y, long time) { this.x = x; this.y = y; this.time = time; }
++    }
++
++    public ZetaTossGesture(float x, float y, long time, float density, float dx, float dy) {
++        this.density = density;
++        downY = y;
++        downTime = lastTime = motionTime = time;
++        lastX = motionX = anchorX = x;
++        lastY = motionY = anchorY = y;
++        float length = (float) Math.hypot(dx, dy);
++        targetX = length == 0 ? 0 : dx / length;
++        targetY = length == 0 ? 0 : dy / length;
++        cancelled = length == 0 || density <= 0;
++        samples.addLast(new Sample(x, y, time));
++    }
++
++    public void cancel() { cancelled = true; samples.clear(); }
++
++    public boolean update(float x, float y, long time) {
++        if (cancelled || time < lastTime || time - downTime > MAX_DURATION_MS
++                || (lifted && time - motionTime > PAUSE_MS)) {
++            cancel();
++            return false;
++        }
++        if (!lifted && downY - y >= 48 * density) {
++            lifted = true;
++            anchorX = x;
++            anchorY = y;
++        }
++        if (Math.hypot(x - motionX, y - motionY) >= 3 * density) {
++            motionTime = time;
++            motionX = x;
++            motionY = y;
++        }
++        // Average a bounded recent window instead of trusting one noisy MOVE or UP.
++        // Retain one sample before the boundary so sparse and dense input agree.
++        if (time > lastTime) samples.addLast(new Sample(x, y, time));
++        while (samples.size() > 2) {
++            Sample first = samples.removeFirst();
++            if (samples.peekFirst().time > time - VELOCITY_WINDOW_MS
++                    && samples.size() < 64) {
++                samples.addFirst(first);
++                break;
++            }
++        }
++        java.util.Iterator<Sample> history = samples.iterator();
++        Sample first = history.next();
++        float startX = first.x, startY = first.y;
++        long startTime = first.time;
++        long cutoff = time - VELOCITY_WINDOW_MS;
++        if (startTime < cutoff && history.hasNext()) {
++            Sample second = history.next();
++            if (second.time > startTime) {
++                float fraction = (float) (cutoff - startTime) / (second.time - startTime);
++                startX += fraction * (second.x - first.x);
++                startY += fraction * (second.y - first.y);
++                startTime = cutoff;
++            }
++        }
++        long dt = time - startTime;
++        if (dt > 0) speed = ((x - startX) * targetX + (y - startY) * targetY) * 1000 / dt;
++        float forwardStep = (x - lastX) * targetX + (y - lastY) * targetY;
++        lastX = x;
++        lastY = y;
++        lastTime = time;
++        lateralHook |= Math.abs(x - anchorX) >= 48 * density;
++        // A plain Home swipe points toward the other pane in stacked rotation.
++        if (targetY < -0.7f && !lateralHook) return false;
++        float along = (x - anchorX) * targetX + (y - anchorY) * targetY;
++        float across = Math.abs((x - anchorX) * targetY - (y - anchorY) * targetX);
++        furthestAlong = Math.max(furthestAlong, along);
++        if (qualifiedTime >= 0 && furthestAlong - along > 24 * density) {
++            cancel(); // A deliberate reversal withdraws the move proposal.
++            return false;
++        }
++        boolean directed = lifted && along >= 72 * density
++                && across <= Math.max(128 * density, 1.5f * along);
++        if (directed && forwardStep > 0 && speed >= MIN_SPEED_DP_PER_SECOND * density) {
++            qualifiedTime = time;
++        }
++        // A tiny release wobble need not defeat an otherwise deliberate toss.
++        // The proposal expires promptly; holding it is still a Recents gesture.
++        return directed && qualifiedTime >= 0 && time - qualifiedTime <= RELEASE_GRACE_MS;
++    }
++}
+diff --git a/src/com/android/launcher3/ZetaWorkspaceMode.java b/src/com/android/launcher3/ZetaWorkspaceMode.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e2ba33fcb523c28e0334799f7d8fedef7d8e0ef9
+--- /dev/null
++++ b/src/com/android/launcher3/ZetaWorkspaceMode.java
+@@ -0,0 +1,31 @@
++// SPDX-License-Identifier: Apache-2.0
++package com.android.launcher3;
++
++import android.content.Context;
++
++/** Process-stable workspace namespace. Switching mode requires a framework/launcher restart. */
++public final class ZetaWorkspaceMode {
++    public static final String DATABASE = "zeta_workspace_v1.db";
++    private static volatile Boolean sEnabled;
++    private ZetaWorkspaceMode() { }
++
++    public static boolean enabled(Context context) {
++        Boolean cached = sEnabled;
++        if (cached != null) return cached;
++        // ApiWrapper initialization may marshal to the main thread. Never hold a class lock
++        // while waiting for it: IDP/model creation can reach this method from either thread.
++        boolean enabled = context.getPackageManager().hasSystemFeature("org.lineageos.zeta.workspace")
++                && com.android.launcher3.util.ApiWrapper.INSTANCE.get(context)
++                        .isZetaWorkspaceEnabled();
++        synchronized (ZetaWorkspaceMode.class) {
++            if (sEnabled == null) sEnabled = enabled;
++            return sEnabled;
++        }
++    }
++
++    public static String preferenceFile(Context context, String original) {
++        return enabled(context) ? "zeta_workspace_v1_" + original : original;
++    }
++
++    public static int widgetHostId(Context context) { return enabled(context) ? 1025 : 1024; }
++}
+diff --git a/src/com/android/launcher3/model/BgDataModel.kt b/src/com/android/launcher3/model/BgDataModel.kt
+index ca1948d94fc1cb97dbfaeb1b7e845ec2a7ee9c0d..2c92fdf3bfbae198a36837b4c20bceb5557d5125 100644
+--- a/src/com/android/launcher3/model/BgDataModel.kt
++++ b/src/com/android/launcher3/model/BgDataModel.kt
+@@ -413,6 +413,8 @@ constructor(
+     }
+ 
+     interface Callbacks {
++        fun getWorkspacePanelId(): Int = -1
++
+         /**
+          * Does a complete model rebind. The callback can be called on any thread and it is up to
+          * the client to move the executor to appropriate thread
+diff --git a/src/com/android/launcher3/model/LoaderCursor.java b/src/com/android/launcher3/model/LoaderCursor.java
+index ab4b7408369642f7756fa6d029adaa1e28f9a66b..85285a6400464baf417990f529d3cc9a82a62e31 100644
+--- a/src/com/android/launcher3/model/LoaderCursor.java
++++ b/src/com/android/launcher3/model/LoaderCursor.java
+@@ -97,7 +97,7 @@ public class LoaderCursor extends CursorWrapper {
+ 
+     private final IntArray mItemsToRemove = new IntArray();
+     private final IntArray mRestoredRows = new IntArray();
+-    private final IntSparseArrayMap<GridOccupancy> mOccupied = new IntSparseArrayMap<>();
++    private final android.util.LongSparseArray<GridOccupancy> mOccupied = new android.util.LongSparseArray<>();
+ 
+     // CollectionInfo objects, which have not yet been loaded from the DB, but are expected to
+     // found eventually as the loading progresses
+@@ -526,6 +526,9 @@ public class LoaderCursor extends CursorWrapper {
+         info.id = id;
+         info.container = container;
+         info.screenId = getInt(mScreenIndex);
++        int panelIndex = getColumnIndex(Favorites.ZETA_PANEL);
++        info.workspacePanel = panelIndex >= 0 ? getInt(panelIndex) : 0;
++        if (info.workspacePanel != 0 && info.workspacePanel != 1) info.workspacePanel = 0;
+         info.cellX = getInt(mCellXIndex);
+         info.cellY = getInt(mCellYIndex);
+     }
+@@ -592,9 +595,13 @@ public class LoaderCursor extends CursorWrapper {
+      */
+     protected boolean checkItemPlacement(ItemInfo item) {
+         int containerIndex = item.screenId;
++        long pageKey = com.android.launcher3.ZetaPanelOwnership.cellContainerKey(
++                item.workspacePanel, item.screenId);
++        long hotseatKey = com.android.launcher3.ZetaPanelOwnership.cellContainerKey(
++                item.workspacePanel, Favorites.CONTAINER_HOTSEAT);
+         if (item.container == Favorites.CONTAINER_HOTSEAT) {
+             final GridOccupancy hotseatOccupancy =
+-                    mOccupied.get(Favorites.CONTAINER_HOTSEAT);
++                    mOccupied.get(hotseatKey);
+ 
+             if (item.screenId >= mIDP.numDatabaseHotseatIcons) {
+                 Log.e(TAG, "Error loading shortcut " + item
+@@ -617,7 +624,7 @@ public class LoaderCursor extends CursorWrapper {
+             } else {
+                 final GridOccupancy occupancy = new GridOccupancy(mIDP.numDatabaseHotseatIcons, 1);
+                 occupancy.cells[item.screenId][0] = true;
+-                mOccupied.put(Favorites.CONTAINER_HOTSEAT, occupancy);
++                mOccupied.put(hotseatKey, occupancy);
+                 return true;
+             }
+         } else if (item.container != Favorites.CONTAINER_DESKTOP) {
+@@ -636,7 +643,7 @@ public class LoaderCursor extends CursorWrapper {
+             return false;
+         }
+ 
+-        if (!mOccupied.containsKey(item.screenId)) {
++        if (mOccupied.indexOfKey(pageKey) < 0) {
+             GridOccupancy screen = new GridOccupancy(countX + 1, countY + 1);
+             if (qsbOnFirstScreen() && item.screenId == Workspace.FIRST_SCREEN_ID) {
+                 // Mark the first X columns (X is width of the search container) in the first row as
+@@ -646,9 +653,9 @@ public class LoaderCursor extends CursorWrapper {
+                 int spanY = 1;
+                 screen.markCells(0, 0, spanX, spanY, true);
+             }
+-            mOccupied.put(item.screenId, screen);
++            mOccupied.put(pageKey, screen);
+         }
+-        final GridOccupancy occupancy = mOccupied.get(item.screenId);
++        final GridOccupancy occupancy = mOccupied.get(pageKey);
+ 
+         // Check if any workspace icons overlap with each other
+         if (occupancy.isRegionVacant(item.cellX, item.cellY, item.spanX, item.spanY)) {
+diff --git a/src/com/android/launcher3/model/ModelDbController.java b/src/com/android/launcher3/model/ModelDbController.java
+index 4eebc748426a509874f4d42600ef3730233b88a8..2cb7a6965de7dfbcdba957cbbf5fe8a6cf845b15 100644
+--- a/src/com/android/launcher3/model/ModelDbController.java
++++ b/src/com/android/launcher3/model/ModelDbController.java
+@@ -110,7 +110,9 @@ public class ModelDbController {
+     private synchronized void createDbIfNotExists() {
+         if (mOpenHelper == null) {
+             // Initialize the restore task before opening the DB
+-            Consumer<ModelDbController> restoreTask = RestoreDbTask.createRestoreTask(mContext);
++            Consumer<ModelDbController> restoreTask =
++                    com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)
++                            ? controller -> { } : RestoreDbTask.createRestoreTask(mContext);
+             String dbFile = mPrefs.get(DB_FILE);
+             if (dbFile.isEmpty()) {
+                 dbFile = mIdp.dbFile;
+@@ -334,6 +336,7 @@ public class ModelDbController {
+     public void attemptMigrateDb(LauncherRestoreEventLogger restoreEventLogger,
+             ModelDelegate modelDelegate) throws Exception {
+         createDbIfNotExists();
++        if (com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)) return;
+         if (shouldResetDb()) {
+             resetLauncherDb(restoreEventLogger);
+             return;
+diff --git a/src/com/android/launcher3/model/ModelWriter.java b/src/com/android/launcher3/model/ModelWriter.java
+index 78c7cde0dde789c4fcedb7264f6664776371d620..4aecbfd26a46d2aad1e0173a9a5209fd5cf66d9a 100644
+--- a/src/com/android/launcher3/model/ModelWriter.java
++++ b/src/com/android/launcher3/model/ModelWriter.java
+@@ -96,6 +96,9 @@ public class ModelWriter {
+             ItemInfo item, int container, int screenId, int cellX, int cellY) {
+         CellPos modelPos = mCellPosMapper.mapPresenterToModel(cellX, cellY, screenId, container);
+         item.container = container;
++        if (mOwner != null && mOwner.getWorkspacePanelId() >= 0) {
++            item.workspacePanel = mOwner.getWorkspacePanelId();
++        }
+         item.cellX = modelPos.cellX;
+         item.cellY = modelPos.cellY;
+         item.screenId = modelPos.screenId;
+@@ -162,7 +165,7 @@ public class ModelWriter {
+         notifyItemModified(item);
+ 
+         enqueueDeleteRunnable(new UpdateItemRunnable(item, () ->
+-                new ContentWriter(mContext)
++                new ContentWriter(mContext).putWorkspacePanel(item.workspacePanel)
+                         .put(Favorites.CONTAINER, item.container)
+                         .put(Favorites.CELLX, item.cellX)
+                         .put(Favorites.CELLY, item.cellY)
+@@ -184,6 +187,9 @@ public class ModelWriter {
+             updateItemInfoProps(item, container, screen, item.cellX, item.cellY);
+ 
+             final ContentValues values = new ContentValues();
++            if (com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)) {
++                values.put(Favorites.ZETA_PANEL, item.workspacePanel);
++            }
+             values.put(Favorites.CONTAINER, item.container);
+             values.put(Favorites.CELLX, item.cellX);
+             values.put(Favorites.CELLY, item.cellY);
+@@ -205,7 +211,7 @@ public class ModelWriter {
+         item.spanY = spanY;
+         notifyItemModified(item);
+         new UpdateItemRunnable(item, () ->
+-                new ContentWriter(mContext)
++                new ContentWriter(mContext).putWorkspacePanel(item.workspacePanel)
+                         .put(Favorites.CONTAINER, item.container)
+                         .put(Favorites.CELLX, item.cellX)
+                         .put(Favorites.CELLY, item.cellY)
+diff --git a/src/com/android/launcher3/model/data/ItemInfo.java b/src/com/android/launcher3/model/data/ItemInfo.java
+index 9b8a0755b13f6086dc723c6c511110932cf462a0..45051bd961d45ccc1f5741eef1d552e9eceddf01 100644
+--- a/src/com/android/launcher3/model/data/ItemInfo.java
++++ b/src/com/android/launcher3/model/data/ItemInfo.java
+@@ -126,6 +126,7 @@ public class ItemInfo {
+      * {@link Favorites#CONTAINER_HOTSEAT})
+      */
+     public int screenId = -1;
++    public int workspacePanel = 0;
+ 
+     /**
+      * Indicates the X position of the associated cell.
+@@ -222,6 +223,7 @@ public class ItemInfo {
+         minSpanY = info.minSpanY;
+         rank = info.rank;
+         screenId = info.screenId;
++        workspacePanel = info.workspacePanel;
+         itemType = info.itemType;
+         animationType = info.animationType;
+         container = info.container;
+@@ -288,7 +290,7 @@ public class ItemInfo {
+     }
+ 
+     public void writeToValues(@NonNull final ContentWriter writer) {
+-        writer.put(LauncherSettings.Favorites.ITEM_TYPE, itemType)
++        writer.putWorkspacePanel(workspacePanel).put(LauncherSettings.Favorites.ITEM_TYPE, itemType)
+                 .put(LauncherSettings.Favorites.CONTAINER, container)
+                 .put(LauncherSettings.Favorites.SCREEN, screenId)
+                 .put(LauncherSettings.Favorites.CELLX, cellX)
+@@ -307,6 +309,9 @@ public class ItemInfo {
+         spanX = values.getAsInteger(LauncherSettings.Favorites.SPANX);
+         spanY = values.getAsInteger(LauncherSettings.Favorites.SPANY);
+         rank = values.getAsInteger(LauncherSettings.Favorites.RANK);
++        if (values.containsKey(LauncherSettings.Favorites.ZETA_PANEL)) {
++            workspacePanel = values.getAsInteger(LauncherSettings.Favorites.ZETA_PANEL);
++        }
+     }
+ 
+     /**
+diff --git a/src/com/android/launcher3/model/data/WorkspaceData.kt b/src/com/android/launcher3/model/data/WorkspaceData.kt
+index 630269eb895a15ea11c68133a4f0fa3971db4514..abcfc8272ccf751135ade60004c8b8aeac6afd58 100644
+--- a/src/com/android/launcher3/model/data/WorkspaceData.kt
++++ b/src/com/android/launcher3/model/data/WorkspaceData.kt
+@@ -44,6 +44,18 @@ sealed class WorkspaceData : Iterable<ItemInfo> {
+         return screenSet.array
+     }
+ 
++    /** A view of the shared model for one physical panel, retaining canonical item instances. */
++    fun forPanel(panel: Int): WorkspaceData {
++        if (panel !in 0..1) return this
++        val selected = SparseArray<ItemInfo>()
++        forEach { item ->
++            // Predicted/system containers remain shared; persistent workspace roots and children
++            // carry panel ownership. No icon, folder or widget is cloned into two homes.
++            if (com.android.launcher3.ZetaPanelOwnership.visibleTo(panel, item.workspacePanel, item.container)) selected.put(item.id, item)
++        }
++        return ImmutableWorkspaceData(version, modificationId, selected)
++    }
++
+     /** Returns the [ItemInfo] associated with the [id] or null */
+     abstract operator fun get(id: Int): ItemInfo?
+ 
+diff --git a/src/com/android/launcher3/preview/PreviewSurfaceRenderer.java b/src/com/android/launcher3/preview/PreviewSurfaceRenderer.java
+index 20ee943cadb696aac85ebc1adb0508b0a031f11a..5b38dbeb2c5cf64e0ead6216c8a49330f3bf0559 100644
+--- a/src/com/android/launcher3/preview/PreviewSurfaceRenderer.java
++++ b/src/com/android/launcher3/preview/PreviewSurfaceRenderer.java
+@@ -150,7 +150,8 @@ public class PreviewSurfaceRenderer {
+         // Create the preview context
+         String layoutXml = bundle.getString(KEY_LAYOUT_XML);
+         boolean isCustomLayout = extendibleThemeManager() && !TextUtils.isEmpty(layoutXml);
+-        int widgetHostId = isCustomLayout ? APPWIDGET_HOST_ID + callingPid : APPWIDGET_HOST_ID;
++        int baseWidgetHostId = com.android.launcher3.ZetaWorkspaceMode.widgetHostId(mContext);
++        int widgetHostId = isCustomLayout ? baseWidgetHostId + callingPid : baseWidgetHostId;
+ 
+ 
+         String gridName = bundle.getString("name");
+diff --git a/src/com/android/launcher3/provider/RestoreDbTask.java b/src/com/android/launcher3/provider/RestoreDbTask.java
+index b79c04be9023ad9ac811666499e001c125164ee0..a270615480d2b637a557678cff621b0a727565a3 100644
+--- a/src/com/android/launcher3/provider/RestoreDbTask.java
++++ b/src/com/android/launcher3/provider/RestoreDbTask.java
+@@ -195,6 +195,7 @@ public class RestoreDbTask {
+      */
+     @VisibleForTesting
+     public static void removeOldDBs(Context context, String oldPhoneDbFileName) {
++        if (com.android.launcher3.ZetaWorkspaceMode.enabled(context)) return;
+         // At this point idp.dbFile contains the name of the dbFile from the previous phone
+         LauncherFiles.GRID_DB_FILES.stream()
+                 .filter(dbName -> !dbName.equals(oldPhoneDbFileName))
+@@ -215,7 +216,7 @@ public class RestoreDbTask {
+                     LauncherRestoreEventLogger.Companion.newInstance(context);
+             task.sanitizeDB(context, controller, db, backupManager, restoreEventLogger);
+             task.restoreAppWidgetIdsIfExists(context, controller, restoreEventLogger,
+-                    () -> new AppWidgetHost(context, APPWIDGET_HOST_ID));
++                    () -> new AppWidgetHost(context, com.android.launcher3.ZetaWorkspaceMode.widgetHostId(context)));
+             t.commit();
+             return true;
+         } catch (Exception e) {
+diff --git a/src/com/android/launcher3/qsb/QsbContainerView.java b/src/com/android/launcher3/qsb/QsbContainerView.java
+index d79a2a91070b11df26210e9e7907e943d3962e15..8b0856b15a5956ba7a638783f466e26199634cc7 100644
+--- a/src/com/android/launcher3/qsb/QsbContainerView.java
++++ b/src/com/android/launcher3/qsb/QsbContainerView.java
+@@ -44,6 +44,7 @@ import androidx.annotation.WorkerThread;
+ 
+ import com.android.launcher3.BuildConfig;
+ import com.android.launcher3.InvariantDeviceProfile;
++import com.android.launcher3.Launcher;
+ import com.android.launcher3.LauncherAppState;
+ import com.android.launcher3.LauncherPrefs;
+ import com.android.launcher3.R;
+@@ -170,12 +171,26 @@ public class QsbContainerView extends FrameLayout {
+ 
+         @Override
+         public void onInit(Bundle savedInstanceState) {
++            if (com.android.launcher3.ZetaWorkspaceMode.enabled(getContext())) {
++                int panel = workspacePanel();
++                mKeyWidgetId = "zeta_panel_" + panel + "_qsb_widget_id";
++            }
+             mQsbWidgetHost = createHost();
+             mOrientation = getContext().getResources().getConfiguration().orientation;
+         }
+ 
++        private int workspacePanel() {
++            com.android.launcher3.views.ActivityContext context =
++                    com.android.launcher3.views.ActivityContext.lookupContextNoThrow(getContext());
++            return context instanceof Launcher ? Math.max(0, ((Launcher) context).getWorkspacePanelId()) : 0;
++        }
++
+         protected QsbWidgetHost createHost() {
+-            return new QsbWidgetHost(getContext(), QSB_WIDGET_HOST_ID,
++            int hostId = QSB_WIDGET_HOST_ID;
++            if (com.android.launcher3.ZetaWorkspaceMode.enabled(getContext())) {
++                hostId = 1027 + Math.max(0, workspacePanel());
++            }
++            return new QsbWidgetHost(getContext(), hostId,
+                     (c) -> new QsbWidgetHostView(c), this::rebindFragment);
+         }
+ 
+diff --git a/src/com/android/launcher3/util/ApiWrapper.java b/src/com/android/launcher3/util/ApiWrapper.java
+index 9ce64831c5f70278db94be1be550345fa0a8919f..6a075906d0feed9109ab4c3c81bb410ff231a35d 100644
+--- a/src/com/android/launcher3/util/ApiWrapper.java
++++ b/src/com/android/launcher3/util/ApiWrapper.java
+@@ -59,6 +59,9 @@ public class ApiWrapper {
+     public static final DaggerSingletonObject<ApiWrapper> INSTANCE = new DaggerSingletonObject<>(
+             LauncherAppComponent::getApiWrapper);
+ 
++    /** SDK-only launcher variants do not participate in private framework workspaces. */
++    public boolean isZetaWorkspaceEnabled() { return false; }
++
+     protected final Context mContext;
+     private final String[] mLegacyMultiInstanceSupportedApps;
+ 
+diff --git a/src/com/android/launcher3/util/ContentWriter.java b/src/com/android/launcher3/util/ContentWriter.java
+index 7516460fc61dc62074c0c637eba12223fa8dc50a..a679dc8dc722925e855692c724170b61e08d4a2c 100644
+--- a/src/com/android/launcher3/util/ContentWriter.java
++++ b/src/com/android/launcher3/util/ContentWriter.java
+@@ -54,6 +54,14 @@ public class ContentWriter {
+         mContext = context;
+     }
+ 
++    public ContentWriter putWorkspacePanel(int panel) {
++        if (com.android.launcher3.ZetaWorkspaceMode.enabled(mContext)) {
++            if (panel < 0 || panel > 1) throw new IllegalArgumentException("Invalid workspace panel");
++            mValues.put(LauncherSettings.Favorites.ZETA_PANEL, panel);
++        }
++        return this;
++    }
++
+     public ContentWriter put(String key, Integer value) {
+         mValues.put(key, value);
+         return this;
+diff --git a/src/com/android/launcher3/widget/LauncherWidgetHolder.java b/src/com/android/launcher3/widget/LauncherWidgetHolder.java
+index 1bf260de8ce12ddddef0a19c31256b5148a3a27e..e6acac20501b7470def1ad290c29d21b9ac6cdd2 100644
+--- a/src/com/android/launcher3/widget/LauncherWidgetHolder.java
++++ b/src/com/android/launcher3/widget/LauncherWidgetHolder.java
+@@ -107,7 +107,7 @@ public class LauncherWidgetHolder {
+ 
+     @AssistedInject
+     protected LauncherWidgetHolder(@Assisted("UI_CONTEXT") @NonNull Context context) {
+-        this(context, APPWIDGET_HOST_ID);
++        this(context, com.android.launcher3.ZetaWorkspaceMode.widgetHostId(context));
+     }
+ 
+     public LauncherWidgetHolder(@NonNull Context context, int hostId) {

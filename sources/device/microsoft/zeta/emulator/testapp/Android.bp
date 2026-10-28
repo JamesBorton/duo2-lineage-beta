@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0
+android_app {
+    name: "ZetaWorkspaceTestApp",
+    srcs: ["src/**/*.java"],
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    min_sdk_version: "35",
+    optional_uses_libs: ["androidx.window.extensions"],
+    test_only: true,
+    product_specific: true,
+    optimize: { enabled: false },
+}

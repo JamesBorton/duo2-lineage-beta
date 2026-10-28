@@ -1,0 +1,16 @@
+{
+  "repository": "LineageOS/android_hardware_qcom_bootctrl",
+  "revision": "846dfb0652cc142e1783cbe085783527bbe4a190",
+  "files": {
+    "aidl/main.cpp": "8028a20d421616619ed3cb808c9ce163840b0941ed7d81ff7acb81caf11dbfac",
+    "aidl/BootControl.cpp": "2a910ffb3b9ca37b2940d5d2512bc361d1ff154a02cdf16ecc64e9fd04cec130",
+    "aidl/BootControl.h": "23db33616db1f2d0f11f7d07f0d33d77b5846e0a2c1ac48e4d7d16b71840850e",
+    "1.1/libboot_control_qti/libboot_control_qti.cpp": "18c62d0cee634fc9874f3f2427fe57a7ddfc986305a7ad8c37be517ccd548909",
+    "1.1/libboot_control_qti/libboot_control_qti.h": "13294e0fdd04241aaa000b1da885efe9c4c0dc09e954dcb71a743f2645316f53",
+    "gpt-utils/gpt-utils.cpp": "fa41d50540d6d18cd8bc23c223f43c38fa2acb4eaa54177c51f8e8846c58f350",
+    "gpt-utils/gpt-utils.h": "a5eab055230ccf9ae3479890d09b917bf316b40cebd7494c35ff5c4e7fa17f67",
+    "gpt-utils/recovery-ufs-bsg.cpp": "effc9aa4603c902dfb59629428d1d7a83e7449bf3a215a11b353f6ff1f3dfa1b",
+    "gpt-utils/recovery-ufs-bsg.h": "e70d77a35fe0a841965d9339bb3d085a9451a8a668cb04d1549adb50db11220a"
+  },
+  "changes": "None in imported C++/headers; system_ext build and init/policy integration only."
+}

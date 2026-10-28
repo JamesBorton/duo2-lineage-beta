@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.lineageos.zeta.posturecontroller" android:versionCode="1" android:versionName="1.0">
+<uses-sdk android:minSdkVersion="30" android:targetSdkVersion="36"/>
+<permission android:name="org.lineageos.zeta.permission.CONTROL_PANEL_LAYOUT" android:protectionLevel="signature"/>
+<uses-permission android:name="org.lineageos.zeta.permission.CONTROL_PANEL_LAYOUT"/>
+<application android:name=".ControllerApp" android:label="Duo screen switching" android:theme="@android:style/Theme.Material.NoActionBar" android:persistent="true" android:directBootAware="true" android:allowBackup="false">
+<activity android:name=".ControlActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+<activity android:name=".EmergencyActivity" android:process=":restore" android:exported="true" android:permission="android.permission.DUMP"/>
+<receiver android:name=".SafeRestoreReceiver" android:process=":restore" android:exported="true" android:permission="org.lineageos.zeta.permission.CONTROL_PANEL_LAYOUT"/>
+</application></manifest>

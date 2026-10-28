@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: Apache-2.0
+package { default_applicable_licenses: ["zeta_bootctrl_license"], }
+license {
+    name: "zeta_bootctrl_license",
+    license_kinds: ["SPDX-license-identifier-Apache-2.0", "SPDX-license-identifier-BSD"],
+    license_text: ["NOTICE"],
+}
+cc_binary {
+    name: "android.hardware.boot-service.zeta",
+    system_ext_specific: true,
+    relative_install_path: "hw",
+    srcs: ["main.cpp", "BootControl.cpp", "libboot_control_qti.cpp", "gpt-utils.cpp", "recovery-ufs-bsg.cpp"],
+    local_include_dirs: ["."],
+    cflags: ["-Wall", "-Werror", "-D_FILE_OFFSET_BITS=64", "-D_BSG_FRAMEWORK_KERNEL_HEADERS"],
+    header_libs: ["generated_kernel_headers"],
+    shared_libs: ["libbase", "libbinder_ndk", "android.hardware.boot-V1-ndk", "android.hardware.boot@1.1", "libcutils", "liblog", "libz"],
+    static_libs: ["libboot_control", "libbootloader_message", "libfstab"],
+    init_rc: ["zeta-bootctrl.rc"],
+    vintf_fragments: ["zeta-bootctrl.xml"],
+}
+cc_binary {
+    name: "zeta-slot-status-android",
+    system_ext_specific: true,
+    srcs: ["slot_status.cpp"],
+    shared_libs: ["libboot_control_client"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}
+

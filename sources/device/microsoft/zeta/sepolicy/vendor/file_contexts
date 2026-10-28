@@ -1,0 +1,13 @@
+# Exact recovery service entry point and whole UFS LUNs used for GPT slot flags.
+/system/bin/hw/android\.hardware\.boot-service\.qti\.recovery u:object_r:vendor_zeta_recovery_bootctl_exec:s0
+/dev/block/sd[adefg] u:object_r:vendor_zeta_gpt_block_device:s0
+/dev/block/sd[bc]1? u:object_r:vendor_zeta_xbl_block_device:s0
+/dev/sg[0-9]+ u:object_r:vendor_zeta_sg_device:s0
+
+# The stock misc partition must retain the standard boot-control type in recovery.
+/dev/block/by-name/misc u:object_r:misc_block_device:s0
+/dev/block/bootdevice/by-name/misc u:object_r:misc_block_device:s0
+/dev/block/platform/soc/1d84000\.ufshc/by-name/misc u:object_r:misc_block_device:s0
+
+# QTI USE_BSG_FRAMEWORK selects this exact UFS transport endpoint.
+/dev/ufs-bsg0? u:object_r:vendor_zeta_sg_device:s0

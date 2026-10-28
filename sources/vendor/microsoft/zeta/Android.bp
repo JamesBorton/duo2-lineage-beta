@@ -1,0 +1,258 @@
+// SPDX-License-Identifier: Apache-2.0
+soong_namespace {}
+
+package {
+    default_applicable_licenses: ["zeta_stock_proprietary_license"],
+}
+
+license {
+    name: "zeta_stock_proprietary_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["legacy_proprietary"],
+}
+
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_atrace_1_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.atrace@1.0-service.xml",
+    filename: "zeta-stock-android.hardware.atrace@1.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_boot_1_1",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.boot@1.1.xml",
+    filename: "zeta-stock-android.hardware.boot@1.1.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_cas_1_2_service",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.cas@1.2-service.xml",
+    filename: "zeta-stock-android.hardware.cas@1.2-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_gnss_2_1_service_qti",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.gnss@2.1-service-qti.xml",
+    filename: "zeta-stock-android.hardware.gnss@2.1-service-qti.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_graphics_mapper_impl_qti_display",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.graphics.mapper-impl-qti-display.xml",
+    filename: "zeta-stock-android.hardware.graphics.mapper-impl-qti-display.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_health_2_1",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.health@2.1.xml",
+    filename: "zeta-stock-android.hardware.health@2.1.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_lights_qti",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.lights-qti.xml",
+    filename: "zeta-stock-android.hardware.lights-qti.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_sensors_2_1_multihal",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.sensors@2.1-multihal.xml",
+    filename: "zeta-stock-android.hardware.sensors@2.1-multihal.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_thermal_2_0_service_qti",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.thermal@2.0-service.qti.xml",
+    filename: "zeta-stock-android.hardware.thermal@2.0-service.qti.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_usb_1_2_service",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.usb@1.2-service.xml",
+    filename: "zeta-stock-android.hardware.usb@1.2-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_wifi_hostapd",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.wifi.hostapd.xml",
+    filename: "zeta-stock-android.hardware.wifi.hostapd.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_android_hardware_wifi_1_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/android.hardware.wifi@1.0-service.xml",
+    filename: "zeta-stock-android.hardware.wifi@1.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_c2_manifest_vendor",
+    src: "proprietary/vendor/etc/vintf/manifest/c2_manifest_vendor.xml",
+    filename: "zeta-stock-c2_manifest_vendor.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_manifest",
+    src: "proprietary/vendor/etc/vintf/manifest/manifest.xml",
+    filename: "zeta-stock-manifest.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_manifest_android_hardware_drm_1_3_service_clearkey",
+    src: "proprietary/vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.clearkey.xml",
+    filename: "zeta-stock-manifest_android.hardware.drm@1.3-service.clearkey.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_manifest_android_hardware_drm_1_3_service_widevine",
+    src: "proprietary/vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.widevine.xml",
+    filename: "zeta-stock-manifest_android.hardware.drm@1.3-service.widevine.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_power",
+    src: "proprietary/vendor/etc/vintf/manifest/power.xml",
+    filename: "zeta-stock-power.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_diag_hal_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.diag.hal.service.xml",
+    filename: "zeta-stock-vendor.qti.diag.hal.service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_gnss_4_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.gnss@4.0-service.xml",
+    filename: "zeta-stock-vendor.qti.gnss@4.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_display_allocator_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.display.allocator-service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.display.allocator-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_display_composer_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.display.composer-service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.display.composer-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_limits_1_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.limits@1.0-service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.limits@1.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_servicetracker_1_2_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.servicetracker@1.2-service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.servicetracker@1.2-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_vibrator_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.vibrator.service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.vibrator.service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_hardware_wifi_wificfr_1_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.hardware.wifi.wificfr@1.0-service.xml",
+    filename: "zeta-stock-vendor.qti.hardware.wifi.wificfr@1.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_qti_memory_pasrmanager_1_0_service",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.qti.memory.pasrmanager@1.0-service.xml",
+    filename: "zeta-stock-vendor.qti.memory.pasrmanager@1.0-service.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_vendor_vintf_vendor_surface_dfci_1_0",
+    src: "proprietary/vendor/etc/vintf/manifest/vendor.surface.dfci@1.0.xml",
+    filename: "zeta-stock-vendor.surface.dfci@1.0.xml",
+    vendor: true,
+    sub_dir: "vintf/manifest",
+}
+
+prebuilt_etc {
+    name: "zeta_stock_odm_manifest",
+    src: "proprietary/odm/etc/vintf/manifest.xml",
+    filename: "manifest.xml",
+    device_specific: true,
+    sub_dir: "vintf",
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+prebuilt_etc {
+    name: "vendor_manifest_lahaina.xml",
+    src: "proprietary/vendor/etc/vintf/manifest_lahaina.xml",
+    filename: "manifest_lahaina.xml",
+    sub_dir: "vintf",
+    vendor: true,
+}

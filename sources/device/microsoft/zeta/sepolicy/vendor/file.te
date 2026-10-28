@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# Dedicated type for the one DWC3 role-control attribute used by Duo recovery.
+type vendor_sysfs_zeta_usb_role, fs_type, sysfs_type;
+
+# Recovery GPT/boot-LUN access. Raw stock vendor keeps its own installed policy.
+type vendor_zeta_gpt_block_device, dev_type;
+type vendor_zeta_xbl_block_device, dev_type;
+type vendor_zeta_sg_device, dev_type;
+type vendor_sysfs_zeta_scsi_target, fs_type, sysfs_type;
+
+# Recovery service is installed on /system; keep normal file-type tests valid.
+type vendor_zeta_recovery_bootctl_exec, exec_type, file_type, system_file_type;

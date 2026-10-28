@@ -1,0 +1,12 @@
+// Pinned interface contracts; personal prototype, redistribution not authorized.
+hidl_interface {
+    name: "vendor.surface.touchpen@1.0",
+    root: "vendor.surface",
+    srcs: [
+        "IDisplayTappedCallback.hal",
+        "IPenCallback.hal",
+        "ITouchPen.hal"
+    ],
+    interfaces: ["android.hidl.base@1.0"],
+    gen_java: true,
+}

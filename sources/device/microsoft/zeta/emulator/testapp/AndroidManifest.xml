@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.lineageos.zeta.workspacetest">
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <application android:label="Workspace Test" android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:resizeableActivity="true" android:allowBackup="false">
+        <uses-library android:name="androidx.window.extensions" android:required="false" />
+        <activity android:name=".LeftActivity" android:label="Workspace Left" android:exported="true" />
+        <activity android:name=".RightActivity" android:label="Workspace Right" android:exported="true" />
+        <activity android:name=".FullEditorActivity" android:label="Workspace Full Editor" android:exported="true" />
+        <activity android:name=".ChildActivity" android:label="Workspace Child" android:exported="true" />
+        <activity android:name=".SingletonActivity" android:label="Workspace Singleton" android:exported="true" android:launchMode="singleTask" android:taskAffinity="org.lineageos.zeta.workspacetest.singleton" />
+    </application>
+</manifest>

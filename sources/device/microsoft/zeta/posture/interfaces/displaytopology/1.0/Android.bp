@@ -1,0 +1,10 @@
+// Pinned interface contracts; personal prototype, redistribution not authorized.
+hidl_interface {
+    name: "vendor.surface.displaytopology@1.0",
+    root: "vendor.surface",
+    srcs: [
+        "IDisplayTopology.hal"
+    ],
+    interfaces: ["android.hidl.base@1.0"],
+    gen_java: true,
+}

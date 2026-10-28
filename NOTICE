@@ -1,0 +1,17 @@
+Surface Duo 2 unofficial LineageOS project
+Copyright 2026 James Borton and the respective project contributors.
+
+Includes modifications to Android Open Source Project and LineageOS software.
+Original copyright and attribution notices remain in source and patches.
+Includes Linux kernel changes and publicly published Microsoft/Qualcomm kernel
+component imports. See LICENSES, manifests/kernel-inputs.json and source headers.
+
+Boot-control sources include:
+Copyright (C) 2022 The Android Open Source Project
+Copyright (c) 2016, The Linux Foundation. All rights reserved.
+Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+See sources/device/microsoft/zeta/bootctrl, its NOTICE, and
+LICENSES/BSD-3-Clause-Clear.txt for the applicable attribution and terms.
+
+This notice is informational and does not change any license or grant rights
+to excluded stock firmware, omitted interfaces or third-party trademarks.

@@ -1,0 +1,2 @@
+/system_ext/bin/hw/android\.hardware\.boot-service\.zeta u:object_r:zeta_bootctrl_exec:s0
+/dev/block/sdg u:object_r:zeta_bootctrl_gpt_block_device:s0

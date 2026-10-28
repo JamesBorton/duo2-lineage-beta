@@ -1,0 +1,128 @@
+[
+  {
+    "path": "device/qcom/kernelscripts",
+    "repository": "surface-duo-oss-kernel.build",
+    "origin": "https://github.com/microsoft/surface-duo-oss-kernel.build.git",
+    "commit": "4bfce784ff9571a4dd78a4787d58addff5cce90a"
+  },
+  {
+    "path": "device_build",
+    "repository": "surface-duo-oss-device.build",
+    "origin": "https://github.com/microsoft/surface-duo-oss-device.build.git",
+    "commit": "d1732c0c7540be30ae4ab53fb41cb8a4523ad757"
+  },
+  {
+    "path": "kernel/msm-5.4",
+    "repository": "surface-duo-oss-kernel.msm-5..4",
+    "origin": "https://github.com/microsoft/surface-duo-oss-kernel.msm-5..4.git",
+    "commit": "177c60bdde799ce804bdcd1b87c51af5e80fde55"
+  },
+  {
+    "path": "kernel/tests",
+    "repository": "surface-duo-oss-kernel.tests",
+    "origin": "https://github.com/microsoft/surface-duo-oss-kernel.tests.git",
+    "commit": "8325a1f19c0873071d20f78093297348611a17fd"
+  },
+  {
+    "path": "kernel/msm-5.4/techpack/audio",
+    "repository": "surface-duo-oss-platform.vendor.opensource.audio-kernel",
+    "origin": "https://github.com/microsoft/surface-duo-oss-platform.vendor.opensource.audio-kernel.git",
+    "commit": "8abb9700ee5bfea5f2a08068872478361cfa8658"
+  },
+  {
+    "path": "kernel/msm-5.4/techpack/camera",
+    "repository": "surface-duo-oss-platform.vendor.opensource.camera-kernel",
+    "origin": "https://github.com/microsoft/surface-duo-oss-platform.vendor.opensource.camera-kernel.git",
+    "commit": "855a73f94286de2681b35ea22fff966e8a09bbc5"
+  },
+  {
+    "path": "kernel/msm-5.4/techpack/dataipa",
+    "repository": "surface-duo-oss-platform.vendor.opensource.dataipa",
+    "origin": "https://github.com/microsoft/surface-duo-oss-platform.vendor.opensource.dataipa.git",
+    "commit": "949b287950e7b993e6021ebcfc5ffaee24ce23d4"
+  },
+  {
+    "path": "kernel/msm-5.4/techpack/display",
+    "repository": "surface-duo-oss-platform.vendor.opensource.display-drivers",
+    "origin": "https://github.com/microsoft/surface-duo-oss-platform.vendor.opensource.display-drivers.git",
+    "commit": "bb4dba1254a5c13cee2e6172a6f47bc83950158b"
+  },
+  {
+    "path": "kernel/msm-5.4/techpack/video",
+    "repository": "surface-duo-oss-platform.vendor.opensource.video-driver",
+    "origin": "https://github.com/microsoft/surface-duo-oss-platform.vendor.opensource.video-driver.git",
+    "commit": "b47e2a85c2b0639b6761b4c647765b8590bdf2cb"
+  },
+  {
+    "path": "vendor/qcom/proprietary/devicetree",
+    "repository": "surface-duo-oss-sm8350.12.devicetree",
+    "origin": "https://github.com/microsoft/surface-duo-oss-sm8350.12.devicetree.git",
+    "commit": "4cbb29a49d0b34bde017df124d46f16ce601d3ed"
+  },
+  {
+    "path": "vendor/qcom/proprietary/display-devicetree",
+    "repository": "surface-duo-oss-sm8350.11.display-devicetree",
+    "origin": "https://github.com/microsoft/surface-duo-oss-sm8350.11.display-devicetree.git",
+    "commit": "4cd0b90f04c6831b47ab397fb56f3474d15af7bf"
+  },
+  {
+    "path": "vendor/qcom/proprietary/camera-devicetree",
+    "repository": "surface-duo-oss-sm8350.12.camera-devicetree",
+    "origin": "https://github.com/microsoft/surface-duo-oss-sm8350.12.camera-devicetree.git",
+    "commit": "7742f2517934a5bbead0302096177a0919aed7d7"
+  },
+  {
+    "path": "kernel/configs",
+    "repository": "kernel/configs",
+    "origin": "https://git.codelinaro.org/clo/la/kernel/configs.git",
+    "commit": "c2e37eacdd3cb10def7e69356ab103c24c66865d"
+  },
+  {
+    "path": "prebuilts/clang/host/linux-x86",
+    "repository": "platform/prebuilts/clang/host/linux-x86",
+    "origin": "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86.git",
+    "commit": "6e3223f76384455acde43affde3df0ea9df66c0d"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9",
+    "repository": "platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.git",
+    "commit": "e96fdcafcd060f51c408b966f3c39bea07e69fba"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/arm/arm-eabi-4.8",
+    "repository": "platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8.git",
+    "commit": "26e93f6af47f7bd3a9beb5c102a5f45e19bfa38a"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9",
+    "repository": "platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9.git",
+    "commit": "ed4dd4061ea14ec822ec5acc4ead64891c255882"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8",
+    "repository": "platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8.git",
+    "commit": "e763c254003f138107cffefde180bb661a3470bf"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8",
+    "repository": "platform/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8.git",
+    "commit": "e384bbf3fdb8d26f0400a54909f7a01bab638d17"
+  },
+  {
+    "path": "prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9",
+    "repository": "platform/prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/gcc/linux-x86/x86/x86_64-linux-android-4.9.git",
+    "commit": "b50888f6d587e5ac28c0ec674ec5a144e386b1d5"
+  },
+  {
+    "path": "prebuilts/build-tools",
+    "repository": "platform/prebuilts/build-tools",
+    "origin": "https://git.codelinaro.org/clo/la/platform/prebuilts/build-tools.git",
+    "commit": "54243b799992d4c5bcb908353cd257df9c9bd119"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "kernel_source_commit": "5c42d31b8d702a47e84fa2282bae64fabe35cb15",
+  "kernel_sha256": "387854b5e4fe50e875ab745d72416962564e7f3218caf5d580e684293e82ee5b",
+  "kernel_config_sha256": "37d1906a92c414837af4f754a31643dc6a176f660045608ceac40b8f1a4bdf96",
+  "kernel_module_strategy": "Unmodified stock vendor image; no generated module replacement",
+  "stock_build": "2023.501.541",
+  "stock_metadata_modules": 29,
+  "super_metadata_slots_verified": 3,
+  "super_alignment": 524288,
+  "super_alignment_offset_observed": 499712,
+  "device_not_modified": true,
+  "physical_super_image_built": false,
+  "stock_vintf_staging_only": true,
+  "raw_vendor_policy_validated_separately": true
+}

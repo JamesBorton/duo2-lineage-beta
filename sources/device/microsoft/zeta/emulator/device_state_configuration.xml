@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- QEMU-only native power fixture. OPEN is the sensorless default. The absent
+     test sensor gives the other states an always-false hardware predicate, so
+     guarded base-state overrides simulate them. Do not use EMULATED_ONLY: it
+     suppresses native wake when leaving that state and differs from the phone. -->
+<device-state-config>
+    <device-state>
+        <identifier>0</identifier>
+        <name>CLOSED</name>
+        <properties>
+            <property>com.android.server.policy.PROPERTY_POLICY_CANCEL_OVERRIDE_REQUESTS</property>
+            <property>com.android.server.policy.PROPERTY_FOLDABLE_HARDWARE_CONFIGURATION_FOLD_IN_CLOSED</property>
+            <property>com.android.server.policy.PROPERTY_POWER_CONFIGURATION_TRIGGER_SLEEP</property>
+        </properties>
+        <conditions>
+            <sensor>
+                <type>org.lineageos.zeta.test.native_power_override_only</type>
+                <name>Intentionally absent QEMU power fixture sensor</name>
+                <value>
+                    <min-inclusive>1</min-inclusive>
+                </value>
+            </sensor>
+        </conditions>
+    </device-state>
+    <device-state>
+        <identifier>1</identifier>
+        <name>OPEN</name>
+        <properties>
+            <property>com.android.server.policy.PROPERTY_FOLDABLE_HARDWARE_CONFIGURATION_FOLD_IN_OPEN</property>
+            <property>com.android.server.policy.PROPERTY_POWER_CONFIGURATION_TRIGGER_WAKE</property>
+        </properties>
+    </device-state>
+    <device-state>
+        <identifier>2</identifier>
+        <name>SINGLE_RIGHT</name>
+        <properties>
+            <property>com.android.server.policy.PROPERTY_POWER_CONFIGURATION_TRIGGER_WAKE</property>
+        </properties>
+        <conditions>
+            <sensor>
+                <type>org.lineageos.zeta.test.native_power_override_only</type>
+                <name>Intentionally absent QEMU power fixture sensor</name>
+                <value>
+                    <min-inclusive>1</min-inclusive>
+                </value>
+            </sensor>
+        </conditions>
+    </device-state>
+    <device-state>
+        <identifier>3</identifier>
+        <name>SINGLE_LEFT</name>
+        <properties>
+            <property>com.android.server.policy.PROPERTY_POWER_CONFIGURATION_TRIGGER_WAKE</property>
+        </properties>
+        <conditions>
+            <sensor>
+                <type>org.lineageos.zeta.test.native_power_override_only</type>
+                <name>Intentionally absent QEMU power fixture sensor</name>
+                <value>
+                    <min-inclusive>1</min-inclusive>
+                </value>
+            </sensor>
+        </conditions>
+    </device-state>
+</device-state-config>

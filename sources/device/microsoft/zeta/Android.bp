@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: Apache-2.0
+// Package the pinned Android 11 snapshot using AOSP legacy VNDK packaging.
+apex_vndk {
+    name: "com.android.vndk.v30",
+    defaults: ["vndk-apex-defaults"],
+    vndk_version: "30",
+    manifest: "vndk30_apex_manifest.json",
+    system_ext_specific: true,
+}
+
+// Reports the recovery boot HAL state without exposing any slot-changing command.
+cc_binary {
+    name: "zeta-slot-status",
+    srcs: ["slot_status.cpp"],
+    recovery: true,
+    shared_libs: ["libboot_control_client"],
+    cflags: ["-Wall", "-Wextra", "-Werror"],
+}

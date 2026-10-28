@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# The stock kernel exports role control on the parent MSM DWC3 device.
+genfscon sysfs /devices/platform/soc/a600000.ssusb/mode u:object_r:vendor_sysfs_zeta_usb_role:s0
+
+# QTI boot control resolves the XBL UFS boot LUN through SCSI generic nodes.
+genfscon sysfs /devices/platform/soc/1d84000.ufshc/host0/target0:0:0 u:object_r:vendor_sysfs_zeta_scsi_target:s0

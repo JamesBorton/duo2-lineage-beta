@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-28",
+  "source_restore": {
+    "result": "PASS",
+    "projects": [
+      {
+        "project": "frameworks/base",
+        "state": "exact prototype tree; original custom history not restored"
+      },
+      {
+        "project": "packages/apps/Launcher3",
+        "state": "exact prototype tree; original custom history not restored"
+      },
+      {
+        "project": "device/microsoft/zeta",
+        "state": "reviewed snapshot; omissions listed in manifest"
+      },
+      {
+        "project": "vendor/microsoft/zeta",
+        "state": "exact tracked source snapshot"
+      },
+      {
+        "project": "kernel/microsoft/sm8350",
+        "state": "exact prototype tree; original custom history not restored"
+      }
+    ],
+    "physical_phone_build_complete": false,
+    "reason": "four HAL contracts and external build inputs are intentionally not supplied"
+  },
+  "negative_controls": [
+    {
+      "case": "private-key-marker",
+      "result": "PASS: rejected"
+    },
+    {
+      "case": "unresolved-contract",
+      "result": "PASS: rejected"
+    },
+    {
+      "case": "source-tampering",
+      "result": "PASS: rejected"
+    }
+  ],
+  "upstream_source": "exact public bases fetched from existing local source cache",
+  "clean_network_restore_tested": false,
+  "fresh_android_build_tested": false,
+  "phone_accessed": false,
+  "license_clearance_claimed": false,
+  "exact_tree_checks": [
+    {
+      "project": "frameworks/base",
+      "expected_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
+      "actual_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
+      "result": "PASS"
+    },
+    {
+      "project": "packages/apps/Launcher3",
+      "expected_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
+      "actual_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
+      "result": "PASS"
+    },
+    {
+      "project": "kernel/microsoft/sm8350",
+      "expected_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+      "actual_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+      "result": "PASS"
+    }
+  ]
+}

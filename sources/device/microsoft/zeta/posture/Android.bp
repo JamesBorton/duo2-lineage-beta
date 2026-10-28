@@ -1,0 +1,21 @@
+package { default_applicable_licenses: ["zeta_posture_project_license"], }
+license {
+    name: "zeta_posture_project_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+// SPDX-License-Identifier: Apache-2.0
+java_library {
+    name: "zeta-device-state",
+    srcs: ["src/**/*.java"],
+    libs: ["services"],
+    static_libs: ["zeta-posture-contract"],
+    installable: true,
+}
+
+java_library {
+    name: "zeta-posture-contract",
+    srcs: ["common/**/*.java"],
+    sdk_version: "current",
+}

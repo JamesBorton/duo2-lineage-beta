@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible source or prototype behavior issue
+body:
+  - type: markdown
+    attributes:
+      value: No public binary is released yet. Omit device serials, tokens, PINs and unredacted logs. Report sensitive vulnerabilities privately through Security.
+  - type: input
+    id: version
+    attributes:
+      label: Build or source revision
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps, panel and posture
+      description: Include whether this is physical hardware or an emulator.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true

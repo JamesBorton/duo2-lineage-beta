@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Observed AVC: init cannot write generic sysfs:file mode; USB remains none.
+# Permit only the specifically labeled DWC3 role file, only in recovery.
+recovery_only(`
+    allow init vendor_sysfs_zeta_usb_role:file { getattr open write };
+    allow recovery vendor_sysfs_zeta_usb_role:file r_file_perms;
+')
