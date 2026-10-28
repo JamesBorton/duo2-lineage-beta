@@ -1,0 +1,8 @@
+{
+  "revision": "5c42d31b8d702a47e84fa2282bae64fabe35cb15",
+  "tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+  "asset": "zeta-kernel-source-5c42d31b8d70.tar.gz",
+  "bytes": 236757230,
+  "sha256": "23848d36cd7464df9d582016f214db3b3a0e3c9532f54136307fdf0240929697",
+  "scope": "Complete Git-tracked kernel source, imported components, configuration and license texts; no bit-identical clean-host rebuild claim"
+}

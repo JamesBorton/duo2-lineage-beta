@@ -45,3 +45,8 @@ credits access passed on the emulator; ARM64 phone access remains to be checked.
 Upstream enables proprietary_codecs and ffmpeg_branding=Chrome. No additional
 codec patent rights or clearance are claimed. Google's Sans Flex font has an OFL
 grant; it is not an unlicensed Google font merely because it is from Google.
+
+The owner recovery preparation tool includes an unmodified AOSP avbtool.py at
+revision91f1bfc948d35265c3b1e5e97bf1c410e65d18fa. Its original MIT permission,
+copyright and warranty text remain at the start of that file. See
+tools/beta/third_party/provenance.json for its source and digest.

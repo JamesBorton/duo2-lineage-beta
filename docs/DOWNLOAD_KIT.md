@@ -34,3 +34,11 @@ python3 assembly.py assemble --kit /path/to/beta-kit --stock /path/to/ota_c1-12-
 This design keeps stock binaries out of the public download. It grants no rights
 to them and does not certify the assembled result for uses beyond its applicable
 component terms. Follow only the exact release's tested install instructions.
+
+The recovery preparation tool is also portable Python. It takes the exact normal
+boot image and recipe for a release, adds only your existing adbkey.pub, applies
+the validated temporary recovery layout, and verifies its AVB framing. It keeps
+secure ADB enabled and rejects an input that already contains another computer's
+key. It never accepts a private key and never connects to or flashes a phone.
+Five positive/negative framing and trust tests pass on Windows and Linux; an
+exact-image physical boot test is still required before release instructions.

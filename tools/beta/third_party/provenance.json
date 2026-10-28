@@ -1,0 +1,8 @@
+{
+  "file": "avbtool.py",
+  "upstream": "https://android.googlesource.com/platform/external/avb/",
+  "revision": "91f1bfc948d35265c3b1e5e97bf1c410e65d18fa",
+  "sha256": "fc5332131a907ae22978e16a84fa12a14d277a60d8e2ad77c31a0097dafeb657",
+  "license": "MIT, original full header retained",
+  "modified": false
+}

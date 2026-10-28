@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import shlex
 import zipfile
 
 
@@ -28,6 +29,8 @@ def main():
     ap.add_argument('--keys', type=Path, required=True)
     ap.add_argument('--stock-root', type=Path, required=True)
     ap.add_argument('--output', type=Path, required=True)
+    ap.add_argument('--prepared-input', type=Path, help='Reuse an independently checked prepared signing ZIP')
+    ap.add_argument('--prepared-notices', type=Path, help='Matching prepared notice target-files ZIP')
     args = ap.parse_args()
     assert not args.output.exists(), 'Use a new private output directory'
     args.output.mkdir(parents=True)
@@ -36,29 +39,49 @@ def main():
     keys = json.loads((args.keys/'key-inventory.json').read_text())
     env = os.environ.copy()
     env['PATH'] = str(host/'bin') + ':' + env['PATH']
-    subprocess.run(['python3', str(scripts/'prepare-beta-notices.py'), '--target-files', str(args.target_files),
-                    '--output-dir', str(args.output/'notices'), '--host-tools', str(host/'bin'),
-                    '--stock-root', str(args.stock_root)], check=True, env=env)
-    notices = args.output/'notices/target-files-notices.zip'
-    signing_input = args.output/'target-files-signing-input.zip'
     stripped = []
     old_release = 'build/make/target/product/security/testkey'
     assert old_release in keys['apk_key_mapping']
-    with zipfile.ZipFile(notices) as src, zipfile.ZipFile(signing_input, 'w', allowZip64=True) as dst:
-        for info in src.infolist():
-            if info.filename.endswith('/adb_keys'):
-                stripped.append(info.filename)
-                dst.writestr(copy.copy(info), b'')
-            elif info.filename == 'META/misc_info.txt':
-                lines = src.read(info).decode().splitlines()
-                lines = ['extra_recovery_keys=' if x.startswith('extra_recovery_keys=') else x for x in lines]
-                assert 'extra_recovery_keys=' in lines
-                dst.writestr(copy.copy(info), '\n'.join(lines)+'\n')
-            elif info.filename == 'META/otakeys.txt':
-                dst.writestr(copy.copy(info), old_release+'.x509.pem\n')
-            else:
-                with src.open(info) as source, dst.open(copy.copy(info), 'w') as destination:
-                    shutil.copyfileobj(source, destination, 4*1024*1024)
+    assert bool(args.prepared_input)==bool(args.prepared_notices)
+    if args.prepared_input:
+        signing_input=args.prepared_input
+        notices=args.prepared_notices
+        assert signing_input.is_file() and notices.is_file()
+        with zipfile.ZipFile(signing_input) as src,zipfile.ZipFile(notices) as original:
+            assert src.read('META/zeta_notice_corrections.json')==original.read('META/zeta_notice_corrections.json')
+            assert src.read('META/otakeys.txt').decode().strip()==old_release+'.x509.pem'
+            assert 'extra_recovery_keys=\n' in src.read('META/misc_info.txt').decode()
+            for name in src.namelist():
+                if name.endswith('/adb_keys'):
+                    assert not src.read(name).strip()
+                    assert (src.getinfo(name).external_attr>>16)&0o170000==0o100000,'Prepared adb_keys must be a regular empty file'
+                    stripped.append(name)
+    else:
+        subprocess.run(['python3', str(scripts/'prepare-beta-notices.py'), '--target-files', str(args.target_files),
+                        '--output-dir', str(args.output/'notices'), '--host-tools', str(host/'bin'),
+                        '--stock-root', str(args.stock_root), '--webview-source', str(args.tree/'external/chromium-webview/prebuilt/arm64/webview.apk')], check=True, env=env)
+        notices = args.output/'notices/target-files-notices.zip'
+        signing_input = args.output/'target-files-signing-input.zip'
+        with zipfile.ZipFile(notices) as src, zipfile.ZipFile(signing_input, 'w', allowZip64=True) as dst:
+            for info in src.infolist():
+                if info.filename.endswith('/adb_keys'):
+                    stripped.append(info.filename)
+                    clean=copy.copy(info)
+                    # adb_keys can be a symlink in target-files. An empty
+                    # symlink target cannot be extracted; publish an empty
+                    # regular key file instead and preserve secure ADB.
+                    clean.external_attr=(0o100644<<16)
+                    dst.writestr(clean, b'')
+                elif info.filename == 'META/misc_info.txt':
+                    lines = src.read(info).decode().splitlines()
+                    lines = ['extra_recovery_keys=' if x.startswith('extra_recovery_keys=') else x for x in lines]
+                    assert 'extra_recovery_keys=' in lines
+                    dst.writestr(copy.copy(info), '\n'.join(lines)+'\n')
+                elif info.filename == 'META/otakeys.txt':
+                    dst.writestr(copy.copy(info), old_release+'.x509.pem\n')
+                else:
+                    with src.open(info) as source, dst.open(copy.copy(info), 'w') as destination:
+                        shutil.copyfileobj(source, destination, 4*1024*1024)
     assert {'BOOT/RAMDISK/adb_keys','ROOT/adb_keys'} <= set(stripped)
     # Use the release tool's own embedded Python and libraries. A source hook is
     # added to a private copy, preserving the executable prefix and original AOSP
@@ -86,6 +109,17 @@ def main():
         command += ['-k', old+'='+new]
     for name, key in sorted(keys['apex_payload_keys'].items()):
         command += ['--extra_apex_payload_key', name+'='+key['private_key']]
+    # This AOSP version passes the APK-name map to GetApexKeys. Explicit APEX
+    # container mappings are therefore necessary even with complete -k rules.
+    with zipfile.ZipFile(signing_input) as src:
+        rows=[dict(p.split('=',1) for p in shlex.split(line)) for line in src.read('META/apexkeys.txt').decode().splitlines() if line.strip()]
+        for row in rows:
+            if row['container_certificate']=='PRESIGNED':continue
+            old=row['container_certificate'].removesuffix('.x509.pem')
+            command += ['--extra_apks',row['name']+'='+keys['apk_key_mapping'][old]]
+    # Upstream prebuilt WebView has its own existing signer. Preserve its exact
+    # bytes and signature, rather than applying its generic apkcerts placeholder.
+    command += ['--extra_apks','webview.apk=']
     for part in ('vbmeta', 'vbmeta_system'):
         command += ['--avb_'+part+'_key', str(args.keys/'avb-root.pem'),
                     '--avb_'+part+'_algorithm', 'SHA256_RSA4096']

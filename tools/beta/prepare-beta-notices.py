@@ -64,6 +64,7 @@ def main():
     parser.add_argument('--target-files',type=Path,required=True)
     parser.add_argument('--output-dir',type=Path,required=True)
     parser.add_argument('--host-tools',type=Path,required=True)
+    parser.add_argument('--webview-source',type=Path,help='Exact original upstream ARM64 prebuilt; replaces a prototype build-resigned APK')
     parser.add_argument('--stock-root',type=Path,required=True,help='Verified owner stock extraction; needed for notices present only inside raw images')
     args=parser.parse_args();args.output_dir.mkdir(parents=True,exist_ok=False)
     replacements={};report={'input_target_files':args.target_files.name,'partitions':{},'stock_images_changed':False}
@@ -74,6 +75,12 @@ def main():
         assert len(names)==1,names
         apk=temp/'webview.apk'
         with archive.open(names[0]) as source,apk.open('wb') as destination:shutil.copyfileobj(source,destination,4*1024*1024)
+        if args.webview_source:
+            upstream=args.webview_source.read_bytes()
+            assert sha(upstream)=='1d2f61832b2596b0046cb82cf3634609ea866098d097a83fac27c35272ac726a'
+            report['prototype_packaged_webview_sha256']=sha(apk.read_bytes())
+            apk.write_bytes(upstream);replacements[names[0]]=upstream
+            report['upstream_webview_signature_retained']=True
         badging=subprocess.check_output([str(args.host_tools/'aapt2'),'dump','badging',str(apk)],text=True)
         assert "versionName='156.0.8078.47'" in badging.splitlines()[0],'Update the source/patch lock before accepting another WebView version'
         credits,original,webview=webview_credits(apk,args.host_tools,temp)

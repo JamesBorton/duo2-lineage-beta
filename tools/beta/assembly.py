@@ -185,7 +185,7 @@ def create(args):
             segment={'offset':absolute,'length':op['length'],'sha256':op['sha256']}
             if key in lookup:segment.update(kind='stock-copy',stock_offset=lookup[key])
             else:
-                require(op['type'] in (0,1),'Stock chunk requires nonportable re-encoding; generate OTA with --compressor_types=bz2')
+                require(op['type'] in (0,1),'Stock chunk requires nonportable re-encoding; enable the documented ZETA_FULL_REPLACE_BZ2_ONLY=1 host policy')
                 segment.update(kind='stock-image',partition=name,codec='bz2' if op['type']==1 else 'raw',extents=op['extents'])
                 raw=operation_data(target,op['extents'])
                 packed=bz2.compress(raw,compresslevel=9) if op['type']==1 else raw
