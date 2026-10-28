@@ -56,3 +56,13 @@ packages before the PC's sideload command returns. With no add-ons, choose No;
 then require the latest installation status 0. ADB's percentage is not the
 installation result. Do not bypass a signature failure or repeat an erase to
 escape this prompt. Exact public steps will follow the completed acceptance run.
+
+
+Temporary recovery must remain running when entering sideload. Select
+**Apply update -> Apply from ADB in its menu**. Do not use `adb reboot sideload`:
+on this build that command performs a real reboot, discarding RAM-booted
+recovery and returning to the installed slot's recovery and OTA trust. During the
+prototype-to-beta transition that older recovery rejects the new signature.
+The first maintainer attempt exposed this sequence fault; the warning was
+declined. ADB exit 0 is only a transport result. Check the actual recovery status
+and matching recovery identity before treating an installation as successful.

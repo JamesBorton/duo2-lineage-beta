@@ -37,7 +37,9 @@ Remaining gates before publishing download assets:
 - Finish the authorized clean beta installation, verify recovery status 0, all
   ten installed partition hashes, direct boot hash and target QTI/UFS state; then
   verify normal Android build, boot success, snapshot completion and stability.
-  At this checkpoint sideload is still active; installation success is unconfirmed.
+  The first attempt was rejected after a sideload command rebooted out of the
+  temporary recovery. The warning was declined; the corrected menu-based retry
+  and installation acceptance remain required.
 - Complete fresh setup and exact-build physical acceptance: panels/touch, both
   folded sides, close/wake, independent apps, shared Recents, toss/buttons,
   keyboard/unlock placement, Wi-Fi, cameras and charging. Identify untested
