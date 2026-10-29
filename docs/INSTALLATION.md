@@ -3,7 +3,10 @@
 No downloadable beta is published yet. Candidate 1793224122 has passed offline
 ROM/signature checks and real owner-input reconstruction on Windows/Linux.
 Authenticated temporary recovery and read-only slot checks pass on the phone;
-clean ROM installation and physical acceptance are in progress. The old HAL contracts have been replaced and are no longer required.
+clean installation and normal Android/workspace boot now pass on the maintainer's
+Duo 2. The agreed feature checks, including battery close/reopen and RIGHT PIN,
+pass; update/restore acceptance remains in progress. The old HAL contracts have
+been replaced and are no longer required.
 
 The planned download is an owner-input kit plus the exact normal boot image,
 public certificates, recovery recipe, sources, notices and checksums. Each owner
@@ -66,3 +69,11 @@ prototype-to-beta transition that older recovery rejects the new signature.
 The first maintainer attempt exposed this sequence fault; the warning was
 declined. ADB exit 0 is only a transport result. Check the actual recovery status
 and matching recovery identity before treating an installation as successful.
+
+
+The maintainer's corrected menu-based clean installation of candidate 1793224122
+passed RSA verification result 0, status 0, all ten installed partition hashes,
+normal signed-runtime hashes, boot success, an independent B-success readback and
+two stability runs exceeding two minutes. Core dual-screen/keyboard/navigation,
+Wi-Fi and Aperture previews pass on this build. This is one clean-install result;
+it does not replace the remaining data-preserving-update and stock-restore tests.

@@ -9,21 +9,23 @@ This repository publishes a reviewed source snapshot, known issues and release
 requirements. The new beta candidate replaces four copied HAL contracts with an original narrow
 AOSP HwBinder adapter. All 25 current-source emulator gates pass; its exact signed
 phone build passes offline signing/package audits and real Windows/Linux owner-input
-reconstruction. Authenticated temporary recovery has booted on the phone; clean ROM
-installation and exact-build physical acceptance remain in progress.
+reconstruction. The exact signed candidate now passes clean installation, normal boot and core
+dual-screen/Wi-Fi/Aperture checks on the physical phone. Update/restore validation
+and final download instructions remain in progress.
 The planned download is an assembly kit: each owner supplies the official Microsoft
 recovery ZIP, then the kit reconstructs the complete signed installer locally.
 See [download design](docs/DOWNLOAD_KIT.md), [release readiness](docs/RELEASE_READINESS.md) and [installation status](docs/INSTALLATION.md).
 
-## Prototype behavior
+## Device validation
 
-The maintainer's prototype boots with SELinux Enforcing. Owner testing across
-recent candidates has confirmed both displays and touch, independent apps,
-shared Recents, app toss, This screen / Other screen buttons, folded screen
-switching, a keyboard on either panel and right-default unlock controls.
-Build 1793208198 additionally passed prompt close-to-sleep and reopen/touch tests
-on USB and battery. Wi-Fi and front/rear camera previews passed on earlier builds;
-the full hardware smoke test has not been repeated on this exact build.
+Signed beta candidate1793224122 passes clean installation, Enforcing normal boot,
+independent successful-slot readback and two stability runs exceeding two minutes.
+Owner testing on this exact beta confirms both panels/touch, independent apps,
+shared Recents, toss, This screen/Other screen buttons, folded switching,
+keyboard typing on the right, right-default PIN, prompt close/reopen on USB and
+after30 seconds unplugged, Wi-Fi and front/rear Aperture camera previews.
+See the [recorded feature matrix](manifests/physical-beta-validation.json).
+Data-preserving beta reinstall and beta-to-stock restore/return tests remain.
 
 This is not a claim of daily-driver readiness. Cellular, fingerprint, Bluetooth,
 audio, long-term battery behavior and other hardware need a published acceptance
