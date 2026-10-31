@@ -1,4 +1,4 @@
-# A Surface Duo 2 ROM, mostly built on vibes
+# A Surface Duo 2 Lineage OS ROM with Stock-like screen behavior
 
 I'm James. SWE by trade. Not a phone dev.
 
@@ -30,8 +30,9 @@ me, and I'm putting it out here so other people can try it and tell me what work
 what doesn't, and what I've missed.
 
 ## What actually works?
+This is not my daily driver, I have not tested all things extensively.
 
-Honestly, I'm not sure how many features work properly. So far, I've personally tested:
+I've personally tested:
 
 - Fingerprint scanner
 - Bluetooth
@@ -76,13 +77,13 @@ before you start.
 You'll need:
 
 - A Surface Duo 2 and a backup of anything you care about
-- Your own official Microsoft **2023.501.541** recovery ZIP
+- Your own official Microsoft **2023.501.541** recovery ZIP (you get this online, outlined in the installation process)
 - Windows or Linux, Python 3.11+, Android Platform-Tools and 20 GB free
 - Some patience, a charged phone and a USB cable that behaves itself
 
 **First installation erases your apps, files and PIN.** A compatible beta update
 is intended to keep your data, but back it up anyway. I haven't tried this kit on Windows or used it to
-unlock a genuinely locked phone yet. Don't relock the bootloader while using the beta.
+unlock a genuinely locked phone yet. So far works fantastic on Arch Linux. Don't relock the bootloader while using the beta.
 
 The kit builds the signed installer locally using your Microsoft recovery ZIP.
 I'm not distributing the stock firmware, and your private keys and personalized
