@@ -1,61 +1,98 @@
-# Independent workspace beta for Surface Duo 2
+# A Surface Duo 2 ROM, mostly built on vibes
 
-Unofficial LineageOS 23.2 / Android 16 for **Surface Duo 2 only**. Independent
-community project, not affiliated with Microsoft, Qualcomm or LineageOS.
+I'm James. SWE by trade. Not a phone dev.
 
-## Experimental beta 1
+This project has been "vibe coded" using 6.1 Sol and 6 Astra. I wanted to see what
+I could get working on my Surface Duo 2, and this is where we ended up: an
+unofficial LineageOS 23.2 / Android 16 beta with independent left/right workspaces.
 
-This release is for community testing and feedback. The independent left/right
-workspace activates automatically at Home after full-display setup. The clock
-widget sizing correction is included. Read the scope below before installing.
+**This process is not for the faint of heart.** I can't guarantee it'll work for
+your phone. The beta has worked for mine, though. This is not a daily driver for
+me, and I'm putting it out here so other people can try it and tell me what works,
+what doesn't, and what I've missed.
 
-**Download the complete installer kit from [Releases](https://github.com/JamesBorton/duo2-lineage-beta/releases).**
-Extract it, open START-HERE.html and keep all files together. The source checkout
-is for review/development; do not run an unstamped installer from a Git clone.
+## What actually works?
 
-You need a Surface Duo 2, your own official Microsoft 2023.501.541 recovery ZIP,
-Windows or Linux, Python 3.11+, Platform-Tools and 20 GB free. First installation
-unlocks/formats and **erases data**. A supported beta update intends to retain data.
-The helper verifies signatures, stock bytes, slots/snapshots, battery and actual
-installed images. It never asks you to select a slot or enter a PIN on the computer.
+Honestly, I'm not sure how many features work properly. So far, I've personally tested:
 
-The download is an **owner-input assembly kit**, not a full stock-containing ROM.
-Your official ZIP stays on your computer and supplies the withheld stock data.
-Your ADB private key and personalized recovery stay private. See [download design](docs/DOWNLOAD_KIT.md).
-The kit contains a [security-review-first AI assistant prompt](tools/beta/AI-ASSISTANT-PROMPT.txt)
-for help from an assistant that can inspect local files. AI review is optional and
-is not an authenticity or safety guarantee.
+- Fingerprint scanner
+- Bluetooth
+- Both touch screens
+- Wi-Fi
 
-## What is tested, and what remains open
+Those are my observations on my phone, not a promise about yours or an exhaustive
+test of every feature. Calls, mobile data, cameras, audio and long-term battery
+behavior still need proper testing. If you try something, please report back.
 
-Core fresh installation, setup/default workspace, PIN, displays/touch, RIGHT typing,
-fold/reopen and signed fallback/normal restore passed on one phone with the earlier
-beta 1793371964. The clock correction passed 35 targeted emulator checks. This exact
-packaged build has its own automated image/emulator/signature reports and has not
-been installed on the maintainer phone. No fresh physical claim is inferred.
+Setup, the independent workspace, typing and PIN unlock on the right screen, closing/reopening
+and the classic-layout fallback have also been checked on an earlier beta.
+The latest packaged build includes a clock-widget fix tested in the emulator;
+I haven't reinstalled that exact build on my phone. The detailed
+[testing notes](docs/TESTING.md) keep the phone checks and automated checks separate.
 
-**Real Windows installation, physical locked-bootloader unlock and unlisted everyday
-hardware remain unqualified.** Calls/data/audio/Bluetooth/fingerprint/camera and
-battery behavior need reports on this exact release. Classic fallback is retained.
-Stock return is a separately reviewed manual process, not a one-click helper.
-Do not relock the bootloader while using this beta.
+## What about the original Surface Duo?
 
-Start with [testing scope](docs/TESTING.md), [known issues](docs/KNOWN-ISSUES.md),
-[stock-return limitations](docs/RESTORE-STOCK.md) and [release readiness](docs/RELEASE_READINESS.md).
-Report reproducible problems using the issue forms. Do not upload identifiers,
-private keys, account details, stock firmware, personalized recovery or raw sessions.
+No idea whether this could be made to work on the original Duo. I only have a
+Duo 2. **This release and its installer target the Duo 2; the installer won't accept
+an original Duo.** Please don't try to force it past that check.
 
-## Integrity, sources and licensing
+## Want to give it a go?
 
-[Verify the kit](docs/VERIFY-DOWNLOAD.md) against the release SHA256SUMS and detached signature. The existing
-beta certificate SHA256 fingerprint is:
+**[Download the installer kit from Releases](https://github.com/JamesBorton/duo2-lineage-beta/releases).**
+Extract the whole ZIP, open **START-HERE.html**, and keep the files together.
+GitHub's source-code ZIP is not the installer.
+
+I recommend using the included
+[agentic AI prompt](tools/beta/AI-ASSISTANT-PROMPT.txt). Give it to Claude, Codex or
+an agentic AI of your choice that can inspect the extracted files. It starts with
+a security sweep of the installer code, then helps you through the process.
+An AI review isn't a guarantee of safety, either.
+
+If you're feeling feisty, go for it with the guide yourself. Either way, read the
+[known issues](docs/KNOWN-ISSUES.md) and [stock-return notes](docs/RESTORE-STOCK.md)
+before you start.
+
+You'll need:
+
+- A Surface Duo 2 and a backup of anything you care about
+- Your own official Microsoft **2023.501.541** recovery ZIP
+- Windows or Linux, Python 3.11+, Android Platform-Tools and 20 GB free
+- Some patience, a charged phone and a USB cable that behaves itself
+
+**First installation erases your apps, files and PIN.** A compatible beta update
+is intended to keep your data, but back it up anyway. I haven't tried this kit on Windows or used it to
+unlock a genuinely locked phone yet. Don't relock the bootloader while using the beta.
+
+The kit builds the signed installer locally using your Microsoft recovery ZIP.
+I'm not distributing the stock firmware, and your private keys and personalized
+recovery stay on your computer. More on that [here](docs/DOWNLOAD_KIT.md).
+If a signature, hash, battery or device check fails, stop and ask for help rather
+than bypassing it. Stock restore is a separate manual process, not a button in
+this installer.
+
+## Google apps and app stores
+
+This does **not** come with Google apps. You can install apps or other app stores
+yourself. Adding Google apps is up to you, too; I haven't tested or provided a
+Google-apps installation procedure for this ROM.
+
+## Tell me what you find
+
+[Open an issue](https://github.com/JamesBorton/duo2-lineage-beta/issues) with the
+build you're using, what you tried and what happened. For install problems, include
+your computer OS and the step where it stopped. Please leave out PINs, device
+identifiers, private keys, account details and full unredacted logs. Don't upload
+your stock ZIP or your whole working folder.
+
+## Checksums, source and the boring but necessary bits
+
+[Verify your download](docs/VERIFY-DOWNLOAD.md). The beta signing certificate's
+SHA256 fingerprint is:
 
 `2192dea4f2e70b54b21cd99e8a37083c85aac2a1d7b7ae8066418bbcfdd0bc45`
 
-This repository contains source patches, device/vendor integration recipes and
-installer source, with exact upstream pins and retained licenses. It contains no
-private project history, firmware binaries, built APKs or device captures.
-Run `python tools/verify-public-tree.py` for source integrity/privacy checks.
-See [source reproduction and correspondence limits](docs/SOURCES.md),
-[licensing](LICENSING.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
-Complete source companions and checksums accompany the release assets.
+Source patches, installer code, upstream pins and licenses are here for review.
+See [sources](docs/SOURCES.md), [licensing](LICENSING.md),
+[third-party notices](THIRD_PARTY_NOTICES.md) and
+[release qualification](docs/RELEASE_READINESS.md). This is an independent project,
+not affiliated with Microsoft, Qualcomm or LineageOS.
