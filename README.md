@@ -29,6 +29,9 @@ your phone. The beta has worked for mine, though. This is not a daily driver for
 me, and I'm putting it out here so other people can try it and tell me what works,
 what doesn't, and what I've missed.
 
+I'm not responsible for what you do to your device. This worked on mine, but I
+can't promise you won't brick yours. **Use at your own risk.**
+
 ## What actually works?
 This is not my daily driver, I have not tested all things extensively.
 
@@ -97,6 +100,12 @@ this installer.
 This does **not** come with Google apps. You can install apps or other app stores
 yourself. Adding Google apps is up to you, too; I haven't tested or provided a
 Google-apps installation procedure for this ROM.
+
+## Make it your own
+
+Don't like how I did something? I'm not offended. I didn't do very much.
+Feel free to take the code and make it your own. Just keep the existing licenses
+and notices with it.
 
 ## Tell me what you find
 
