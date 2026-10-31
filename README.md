@@ -104,7 +104,7 @@ Google-apps installation procedure for this ROM.
 ## Make it your own
 
 Don't like how I did something? I'm not offended. I didn't do very much.
-Feel free to take the code and make it your own. Just keep the existing licenses
+Feel free to take the code and make it your own. Just keep the upstream licenses
 and notices with it.
 
 ## Tell me what you find
