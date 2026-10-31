@@ -1,6 +1,6 @@
 # Source reproduction
 
-This is a reviewed source snapshot for candidate build 1793224122,
+This is a reviewed source snapshot for experimental candidate build 1793400160,
 not a complete reproducible public binary release. It has a fresh repository
 history; original source commit IDs are provenance references, not commits hosted
 in this repository. No private bundles or experimental branches are published.
@@ -40,7 +40,7 @@ and the on-device payload consumer are unchanged. The full patch is published.
 
 The current build uses `lunch lineage_zeta-bp4a-userdebug`, `OUT_DIR=out-zeta`,
 Clang/toolchain inputs recorded below, and `m -j16 droidcore target-files-package
-otatools`. Use a new build number/time for each candidate. Before release, target
+otatools sepolicy-analyze`. Use a new build number/time for each candidate. Before release, target
 files need stock VINTF metadata, complete notice delivery, dedicated signing and
 the same package/boot/security audits as the tested candidate. The signing tools
 in tools/beta are preparation tools, not an assertion of complete reproduction.
@@ -72,7 +72,7 @@ permission to redistribute a resulting binary ROM.
 
 ## Staged source companions
 
-The planned download assets include complete tracked kernel source at
+The source companion download assets include complete tracked kernel source at
 5c42d31b8d702a47e84fa2282bae64fabe35cb15, conservative GPL/LGPL userspace source
 candidates, and the exact Chromium FFmpeg revision
 9db86ce5b5b454dfc96c435f9f0723012980c37f. Per-file hashes accompany the assets.

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <resources>
+    <!-- Duo workspace works on clean setup; explicit user opt-out and safe boot still win. -->
+    <bool name="config_zetaWorkspaceDefaultEnabled">true</bool>
     <string name="config_deviceSpecificDeviceStatePolicyProvider" translatable="false">org.lineageos.zeta.devicestate.ZetaDeviceStatePolicy$Provider</string>
     <!-- Support both property-based and legacy state power policy on this branch. -->
     <integer-array name="config_deviceStatesOnWhichToWakeUp"><item>1</item><item>2</item><item>3</item></integer-array>

@@ -1,5 +1,7 @@
 * text=auto eol=lf
 sources/** -text
-patches/*.patch -text
+patches/*.patch -text -whitespace
 patches/*.gz binary
 LICENSES/** -text
+
+# Unified-diff context lines are format data; source hashes and exact tree restoration validate patches.

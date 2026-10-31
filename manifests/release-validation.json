@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "date_utc": "2026-10-31T00:09:26.386761+00:00",
+  "build": "1793400160",
+  "release_type": "experimental community testing",
+  "experimental_package_ready": true,
+  "general_use_qualified": false,
+  "exact_release_phone_tested": false,
+  "real_Windows_tested": false,
+  "locked_bootloader_unlock_physically_tested": false,
+  "source_revisions": {
+    "frameworks/base": "c254d915babea5c6726d42d049f8a904a937c368",
+    "packages/apps/Launcher3": "eb26df7fb4db8a17739cbb2b8f6c8a8e4a2ba964",
+    "device/microsoft/zeta": "3e40be29665c89f34fa8b06371410a6467949b70",
+    "vendor/microsoft/zeta": "6546aaf61b8051cc8c6e80820498069aea8d2370",
+    "kernel/microsoft/sm8350": "5c42d31b8d702a47e84fa2282bae64fabe35cb15",
+    "system/update_engine": "e7f1bae306b1b86b80d65bf4cc2c3cc3435f9d37",
+    "prebuilts/vndk/v30": "5f9884aa352825291757dfd6694b874ad8c1805e"
+  },
+  "all26_current_image_emulator_gates_passed": true,
+  "gates": {
+    "core": true,
+    "layout": true,
+    "controls": true,
+    "gestures": true,
+    "privacy": true,
+    "shade": true,
+    "fallback": true,
+    "safe-boot": true,
+    "immersive": true,
+    "actions": true,
+    "pairs": true,
+    "widgets": true,
+    "next": true,
+    "navigation": true,
+    "permission_parcels": true,
+    "preview_geometry": true,
+    "home_animation": true,
+    "next_host_gestures": true,
+    "host_geometry_state": true,
+    "screen_buttons": true,
+    "toss_usability": true,
+    "ime_rendering": true,
+    "right_keyguard_default": true,
+    "close_sleep": true,
+    "display_power_unit_tests": true,
+    "default_on": true
+  },
+  "real_setup_default_NULL_RIGHT_PIN_and_fallback_checks": 83,
+  "clock_fix_targeted_checks": 35,
+  "final_phone_Launcher_DEX_matches_targeted_tested_code": true,
+  "APK_signatures_checked": 123,
+  "APEX_signatures_checked": 37,
+  "preserved_APEX_exceptions": [
+    "SYSTEM/apex/com.android.apex.cts.shim.apex"
+  ],
+  "signed_target_files_sha256": "c62c94f3860719bd8f2c9075f4a0d4c781d913f19bbc20633c5b0ac68983620c",
+  "compiled_package_and_policy_stages": [
+    "dedicated-beta-signing",
+    "independent-signed-image-audit",
+    "signed-workspace-package",
+    "signed-next-package",
+    "signed-navigation-package",
+    "signed-close-sleep-package",
+    "signed-posture-integration",
+    "signed-vendor-policy"
+  ],
+  "signed_image_checks": {
+    "stock_vendor_odm_unchanged": true,
+    "stock_vendor_boot_dtbo_prefix_unchanged": true,
+    "avb_root_and_system_key_verified": true,
+    "recovery_secure_adb_without_authorized_keys": true,
+    "recovery_ota_trust_only_beta_key": true,
+    "notice_xml_parse_passed": true,
+    "webview_upstream_preserved": true,
+    "vintf_passed": true,
+    "care_map_properties_and_bounds_verified": true
+  },
+  "ota": {
+    "ota_sha256": "d2530ef544b6d0ba10d5db10bb02f0242bb7e8f11f52f533934549a2d7990f55",
+    "ota_bytes": 1952414405,
+    "whole_file_signature_verified": true,
+    "payload_signatures_verified": true,
+    "payload_hashes_verified": true,
+    "all_ten_partition_hashes_match_signed_images": true,
+    "caremap_matches_audited_signed_target_files": true
+  },
+  "stock_exclusion": {
+    "state": "PASS",
+    "stock_partitions": [
+      "dtbo",
+      "odm",
+      "vendor",
+      "vendor_boot"
+    ],
+    "operations_checked": 839,
+    "every_stock_payload_range_excluded": true,
+    "no_public_segment_intersects_stock_range": true,
+    "ota_sha256": "d2530ef544b6d0ba10d5db10bb02f0242bb7e8f11f52f533934549a2d7990f55",
+    "kit_public_data_sha256": "2251fbda4dc610b850783aeb649b17e474a3f28f58396901c7a35031d4dffe85",
+    "scope": "Payload-data exclusion; no grant of stock-input rights or general license clearance"
+  },
+  "installer": {
+    "filename": "Duo2-beta-installer-1793400160.zip",
+    "bytes": 1300852014,
+    "sha256": "0034e08db61fca924b17c601aba18ff275e6044a3f7b11643b5844b1efe32271",
+    "native_Arch_and_Ubuntu_exact_reconstruction_passed": true,
+    "whole_file_payload_metadata_RSA_verified": true,
+    "both_source_and_target_owner_recoveries_equal_across_hosts": true,
+    "tampered_actual_OTA_rejected": true
+  },
+  "signed_workspace_fallback": {
+    "filename": "Duo2-workspace-safe-1793400160.img",
+    "sha256": "83f1f61e5b7482ae514284840e9219e2e85c8b5e491356a06e1d39c7cd26297a",
+    "algorithm": "SHA256_RSA4096",
+    "signature_verified": true,
+    "kernel_and_ramdisk_unchanged": true,
+    "public_key_sha256": "c1cea4b80df5ed2427a0f1f23c0b80bd379b01d20a4c51e04cab891f206663a4",
+    "physical_boot_tested": false,
+    "independent_stdlib_RSA_and_image_hash_verified": true,
+    "tampered_digest_and_payload_rejected": true,
+    "private_key_or_openssl_used_for_independent_verification": false
+  },
+  "historical_phone_scope": {
+    "build": "1793371964",
+    "fresh_stock_to_beta_install_setup_default_workspace_RIGHT_PIN_core_displays_touch_typing_fold_and_signed_fallback_restore_passed": true,
+    "clock_clipped_on_that_phone": true,
+    "not_a_phone_pass_for_this_release": true
+  },
+  "host_scripted_tests": {
+    "native_Arch": 167,
+    "Ubuntu": 167,
+    "public_portable_subset": 98
+  },
+  "source_companion_review": {
+    "candidate_source_project_revisions_checked": 40,
+    "mismatches": [],
+    "clean_host_binary_rebuild_claimed": false,
+    "legacy_VNDK_original_Google_CI_manifest_verified": false
+  },
+  "private_keys_exported": false
+}

@@ -103,6 +103,7 @@ def main():
             archive.writestr('zeta_beta_signer.py', (scripts/'zeta_beta_signer.py').read_bytes())
     tool.chmod(0o700)
     env['ZETA_BETA_SIGNING_INPUT'] = str(signing_input)
+    env['ZETA_BETA_KEY_ROOT'] = str(args.keys.resolve())
     output = args.output/'target-files-beta-signed.zip'
     command = [str(tool), '-v', '-p', str(host), '-o']
     for old, new in sorted(keys['apk_key_mapping'].items()):

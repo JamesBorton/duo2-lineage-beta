@@ -1,25 +1,18 @@
 name: Bug report
-description: Report a reproducible source or prototype behavior issue
+description: Report a beta behavior problem without private device data
+title: "[Bug] "
 body:
-  - type: markdown
-    attributes:
-      value: No public binary is released yet. Omit device serials, tokens, PINs and unredacted logs. Report sensitive vulnerabilities privately through Security.
   - type: input
-    id: version
-    attributes:
-      label: Build or source revision
-    validations:
-      required: true
+    id: build
+    attributes: {label: Beta build, placeholder: "1793400160"}
+    validations: {required: true}
   - type: textarea
-    id: reproduction
-    attributes:
-      label: Steps, panel and posture
-      description: Include whether this is physical hardware or an emulator.
-    validations:
-      required: true
+    id: repro
+    attributes: {label: Steps to reproduce, description: "Describe expected and actual results. Do not include PINs, identifiers, account data or raw logs."}
+    validations: {required: true}
   - type: textarea
-    id: result
-    attributes:
-      label: Expected and actual behavior
-    validations:
-      required: true
+    id: host
+    attributes: {label: Environment, description: "Computer OS, Python and Platform-Tools versions; previous ROM; bootloader already unlocked or not."}
+  - type: textarea
+    id: evidence
+    attributes: {label: Redacted observations, description: "Installation stage, exact non-private error, frequency and conditions. Do not upload your working folder, firmware or personalized recovery."}

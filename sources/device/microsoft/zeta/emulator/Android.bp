@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Emulator-only variant: retain real Lineage setup and suppress SDK auto-setup.
+override_android_app {
+    name: "ZetaWorkspaceSetupWizard",
+    base: "LineageSetupWizard",
+    package_name: "org.lineageos.setupwizard",
+    overrides: ["LineageSetupWizard", "Provision", "SdkSetup"],
+}

@@ -1,0 +1,17 @@
+Surface Duo 2 beta installer/helper source
+Copyright 2026 James Borton and the project contributors.
+Licensed under Apache License 2.0; see LICENSE.
+
+The unmodified third_party/avbtool.py is Copyright 2016 The Android Open
+Source Project, under its retained MIT license header. Revision and hash
+are recorded in third_party/provenance.json.
+
+The OTA-verification and read-only LP-format readers implement formats
+documented by AOSP recovery, update_engine and liblp. References are kept
+in their source comments. No private signing key is included.
+
+The helper-source license is not a grant of rights to Microsoft recovery
+input, Android payload components, kernel or other firmware. Their notices
+and corresponding-source obligations remain separate. Python and Android
+SDK Platform-Tools are obtained separately from their official distributors.
+This private preview does not certify public redistribution clearance.

@@ -2486,10 +2486,10 @@ index a2f226283005599db6ca60a442fbd938659feff9..89c851ae09647e372fe2de59d309b33f
              final WindowState win = getTopChild();
 diff --git a/services/core/java/com/android/server/wm/ZetaTaskDisplayArea.java b/services/core/java/com/android/server/wm/ZetaTaskDisplayArea.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..8429f2bf234977a5014d73722ed2a560b2c79bee
+index 0000000000000000000000000000000000000000..e6c0457ffaabb27a319bdafa301976798f1287da
 --- /dev/null
 +++ b/services/core/java/com/android/server/wm/ZetaTaskDisplayArea.java
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,57 @@
 +// SPDX-License-Identifier: Apache-2.0
 +package com.android.server.wm;
 +
@@ -2506,6 +2506,7 @@ index 0000000000000000000000000000000000000000..8429f2bf234977a5014d73722ed2a560
 +    }
 +    boolean workspaceVisible(){
 +        if(workspace.switching)return false;
++        if(!workspace.setupComplete())return panel==ZetaWorkspaceGeometry.LEFT;
 +        if(panel==ZetaWorkspaceGeometry.SPAN)return workspace.state.spannedTask()>=0 && workspace.state.composition()==ZetaWorkspaceGeometry.SPAN;
 +        if(workspace.state.spannedTask()>=0 && workspace.state.composition()==ZetaWorkspaceGeometry.SPAN)return false;
 +        return workspace.state.composition()==ZetaWorkspaceGeometry.SPAN || workspace.state.composition()==panel;
@@ -2516,7 +2517,11 @@ index 0000000000000000000000000000000000000000..8429f2bf234977a5014d73722ed2a560
 +        int rotation=parent.windowConfiguration.getRotation();
 +        if(rotation<0||rotation>3)rotation=0;
 +        ZetaWorkspaceGeometry.Bounds b=ZetaWorkspaceGeometry.bounds(panel,workspace.state.composition(),rotation);
-+        Rect bounds=new Rect(b.left,b.top,b.right,b.bottom);
++        // SetupWizard needs one full-display surface, without changing the
++        // task-area topology that must become dual-pane at first Home.
++        Rect bounds=!workspace.setupComplete() && panel==ZetaWorkspaceGeometry.LEFT
++                ? new Rect(parent.windowConfiguration.getBounds())
++                : new Rect(b.left,b.top,b.right,b.bottom);
 +        Configuration resolved=getResolvedOverrideConfiguration();
 +        resolved.windowConfiguration.setBounds(bounds);
 +        resolved.windowConfiguration.setMaxBounds(bounds);
@@ -2619,10 +2624,10 @@ index 0000000000000000000000000000000000000000..e46d4ccf019bd9753cafbfdfebed39a1
 +}
 diff --git a/services/core/java/com/android/server/wm/ZetaWorkspacePolicy.java b/services/core/java/com/android/server/wm/ZetaWorkspacePolicy.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..fbe8cf43efbeb66f9e2b8db070e4a5893e887482
+index 0000000000000000000000000000000000000000..06a199c6dae6c2e5b9e218e5da3a9841f63c70f3
 --- /dev/null
 +++ b/services/core/java/com/android/server/wm/ZetaWorkspacePolicy.java
-@@ -0,0 +1,688 @@
+@@ -0,0 +1,718 @@
 +// SPDX-License-Identifier: Apache-2.0
 +package com.android.server.wm;
 +
@@ -2634,7 +2639,7 @@ index 0000000000000000000000000000000000000000..fbe8cf43efbeb66f9e2b8db070e4a589
 +import java.util.ArrayList;
 +import java.util.List;
 +
-+/** Device-only, opt-in task areas. No synthetic physical displays or vendor image changes. */
++/** Device-only, policy-gated task areas. No synthetic physical displays or vendor image changes. */
 +final class ZetaWorkspacePolicy {
 +    static final String FEATURE="org.lineageos.zeta.workspace";
 +    static final String ENABLED="zeta_workspace_enabled";
@@ -2652,8 +2657,37 @@ index 0000000000000000000000000000000000000000..fbe8cf43efbeb66f9e2b8db070e4a589
 +    private boolean mHomeRepairPosted;
 +    private int mShadePanel = -1;
 +    private boolean mShadeVisible;
++    private boolean mSetupComplete;
++    boolean setupComplete() { return mSetupComplete; }
 +
-+    ZetaWorkspacePolicy(WindowManagerService service,DisplayContent display){this.service=service;this.display=display;}
++    ZetaWorkspacePolicy(WindowManagerService service,DisplayContent display){
++        this.service=service;this.display=display;
++        mSetupComplete=readSetupComplete();
++        android.database.ContentObserver observer=new android.database.ContentObserver(service.mH) {
++            @Override public void onChange(boolean selfChange) {
++                synchronized(service.mGlobalLock) {
++                    if(get(display)!=ZetaWorkspacePolicy.this)return;
++                    boolean complete=readSetupComplete();
++                    if(complete==mSetupComplete)return;
++                    mSetupComplete=complete;
++                    Slog.i("ZetaWorkspace","Setup layout complete="+complete);
++                    refresh();
++                    if(complete)service.mAtmService.mRootWindowContainer.startHomeOnEmptyDisplays("zeta-setup-complete");
++                }
++            }
++        };
++        service.mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
++                Settings.Global.DEVICE_PROVISIONED),false,observer,android.os.UserHandle.USER_ALL);
++        service.mContext.getContentResolver().registerContentObserver(Settings.Secure.getUriFor(
++                Settings.Secure.USER_SETUP_COMPLETE),false,observer,android.os.UserHandle.USER_ALL);
++    }
++    private boolean readSetupComplete() {
++        return Settings.Global.getInt(service.mContext.getContentResolver(),
++                Settings.Global.DEVICE_PROVISIONED,0)!=0
++                && Settings.Secure.getIntForUser(service.mContext.getContentResolver(),
++                        Settings.Secure.USER_SETUP_COMPLETE,0,
++                        service.mAtmService.mAmInternal.getCurrentUserId())!=0;
++    }
 +    static boolean enabled(WindowManagerService service,DisplayContent display){
 +        if(!display.isDefaultDisplay || SystemProperties.getBoolean("ro.boot.zeta_workspace_safe",false)
 +                || !service.mContext.getPackageManager().hasSystemFeature(FEATURE))return false;
@@ -2704,6 +2738,7 @@ index 0000000000000000000000000000000000000000..fbe8cf43efbeb66f9e2b8db070e4a589
 +                .isTaskVisibleInZetaWorkspace(task);
 +    }
 +    TaskDisplayArea launchArea() {
++        if(!mSetupComplete)return areas[0];
 +        return areas[state.composition() == ZetaWorkspaceGeometry.SPAN
 +                ? state.focusedPanel() : state.composition()];
 +    }
@@ -2932,7 +2967,7 @@ index 0000000000000000000000000000000000000000..fbe8cf43efbeb66f9e2b8db070e4a589
 +    void dump(java.io.PrintWriter out) {
 +        out.println("enabled=true composition=" + state.composition()
 +                + " switching=" + switching + " focusedPanel=" + state.focusedPanel() + " spannedTask=" + state.spannedTask()
-+                + " parkedSpan=" + state.parkedSpan()
++                + " setupComplete=" + mSetupComplete + " parkedSpan=" + state.parkedSpan()
 +                + " shadePanel=" + (mShadeVisible ? mShadePanel : -1));
 +        for (ZetaTaskDisplayArea area : areas) {
 +            out.println("panel=" + area.panel + " visible=" + area.workspaceVisible()

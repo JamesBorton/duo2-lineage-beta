@@ -1,0 +1,1 @@
+These immutable reports describe the earlier beta 1793224122 or its source baseline. They do not qualify the current release. Current build and test scope is recorded in ../release-validation.json and ../../docs/TESTING.md.

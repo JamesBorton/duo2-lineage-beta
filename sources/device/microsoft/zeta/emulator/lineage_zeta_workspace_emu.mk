@@ -18,3 +18,6 @@ PRODUCT_PACKAGES_DEBUG += ZetaWorkspaceTestApp
 
 # Public OEM Window Extensions library for window-local hinge reporting.
 PRODUCT_PACKAGES += androidx.window.extensions
+
+# Exercise the phone setup wizard instead of SDK automatic provisioning.
+PRODUCT_PACKAGES += ZetaWorkspaceSetupWizard

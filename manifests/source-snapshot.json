@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "date": "2026-10-28",
-  "prototype_build": "1793224122",
-  "distribution": "beta candidate source; no installable release yet",
+  "date": "2026-10-30",
+  "prototype_build": "1793400160",
+  "distribution": "Experimental beta1 source for build1793400160; exact release phone/Windows qualification remains separate.",
   "projects": [
     {
       "id": "frameworks-base",
       "path": "frameworks/base",
       "upstream_url": "https://github.com/LineageOS/android_frameworks_base.git",
       "upstream_base": "958afcc3d647d57571650cee4172afe0da619171",
-      "head": "9b182f1a328b23d856ab04ab192d6ba79af42acd",
-      "tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
+      "head": "c254d915babea5c6726d42d049f8a904a937c368",
+      "tree": "0fbf2ee5f93c243b267abcfe4ce2bb3adf311f9f",
       "patch": "patches/frameworks-base.patch",
-      "patch_sha256": "80ce87d575775a459ab1374b486e9f82c872c60ebd7396b635772e9230606c52",
+      "patch_sha256": "f8cbfc8d8220a69d8df36b7fab49443777c9046ff9d800576d8ba5d98e923ddf",
       "patch_index_restore": "PASS: exact recorded tree"
     },
     {
@@ -20,10 +20,10 @@
       "path": "packages/apps/Launcher3",
       "upstream_url": "https://github.com/LineageOS/android_packages_apps_Launcher3.git",
       "upstream_base": "f83fbe24ed3c0bd3c4d7cd3186ffadefeda5b7db",
-      "head": "cfc92d3c3fd57ea1e92d761a9004905efa15f4fa",
-      "tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
+      "head": "eb26df7fb4db8a17739cbb2b8f6c8a8e4a2ba964",
+      "tree": "779ae132bdb19c33a79d50125d8c65287be0e8cd",
       "patch": "patches/launcher3.patch",
-      "patch_sha256": "7e75b0a7a1e7ee6453abf62285ad820cfc0c2034c83c08714d89cc4d2ff44d34",
+      "patch_sha256": "25c4a104ca848d29c1efd49119f59d9e8e88e04caa7d0bcd86154ed8d3767fa2",
       "patch_index_restore": "PASS: exact recorded tree"
     },
     {
@@ -31,8 +31,8 @@
       "path": "device/microsoft/zeta",
       "upstream_url": null,
       "upstream_base": null,
-      "head": "d22d42891be66e4f1e97f9bd83ce5e066cb4631c",
-      "tree": "f7d84c0903e1d3c09855decf65cd21c51ed4f7b9",
+      "head": "3e40be29665c89f34fa8b06371410a6467949b70",
+      "tree": "cc362e103d9db4a39b225a65c71536140814bc16",
       "snapshot": "sources/device/microsoft/zeta",
       "omitted": [
         "README.full-rom.md",
@@ -201,14 +201,19 @@
       "git_blob": "09d2f68c2ac96d44d322f52620acc8c20e44c5bd",
       "mode": "100644"
     },
+    "sources/device/microsoft/zeta/emulator/Android.bp": {
+      "sha256": "7819a59d005563bb80b405f4cdcefc3575861c4c707979b806df02ec11346d1c",
+      "git_blob": "67c4f6aae040955e975f162f734408cc6ec56495",
+      "mode": "100644"
+    },
     "sources/device/microsoft/zeta/emulator/device_state_configuration.xml": {
       "sha256": "0231a64b18b7652208af8074ffb48611d30296fcad6d0c1dfd5be6204afd5902",
       "git_blob": "93646fb94f96b840cc9932daa6ca042892bb131b",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/emulator/lineage_zeta_workspace_emu.mk": {
-      "sha256": "2b48e0ca2a475d74df650499472c25cd1533d84e488abbaf89fecc0af673d315",
-      "git_blob": "1f46c7703628ec577b60663cd9b97d7c6dd93097",
+      "sha256": "fbeb1853e39b8ba8ba33608025875b15c6323b6169935ac0f07609260d7214ef",
+      "git_blob": "81a3558da1a1462c774e919b524e6fae1942847e",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/emulator/overlay/frameworks/base/core/res/res/values/config.xml": {
@@ -312,8 +317,8 @@
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/overlay/frameworks/base/core/res/res/values/config.xml": {
-      "sha256": "d958bd916e074d40e19c69f7b75a6c6262f4a8cc6dc800237dbae53f74239cd0",
-      "git_blob": "c98d0957a62a50ddb82969e829aeef1fd3edbb36",
+      "sha256": "a5daa353ccee414a0a2c2a6df75610bcc1081e0ee97c32e86cb1e9025faf3bb0",
+      "git_blob": "bd2eb11062040d72a9c830c5f67615f2cf5b6d24",
       "mode": "100644"
     },
     "sources/device/microsoft/zeta/posture/Android.bp": {

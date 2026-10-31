@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "device": "zeta",
+  "label": "Experimental beta 1 \u2014 1793400160",
+  "build": "1793400160",
+  "workspace_default_enabled": true,
+  "stock_incremental": "202305010541",
+  "stock_sha256": "8e695f5e7d4a88ee76d06d4457fd6f203f4c65f35aa0c3e0a87961e24ec5c302",
+  "ota_sha256": "d2530ef544b6d0ba10d5db10bb02f0242bb7e8f11f52f533934549a2d7990f55",
+  "certificate_sha256": "2192dea4f2e70b54b21cd99e8a37083c85aac2a1d7b7ae8066418bbcfdd0bc45",
+  "partitions": [
+    {
+      "name": "boot",
+      "size": 134217728,
+      "sha256": "e997a5b771ca80d3fe0c4990d1953899f6149e3a31e0104a1f8bf277c50e441a"
+    },
+    {
+      "name": "dtbo",
+      "size": 25165824,
+      "sha256": "b3aa31c66d482eb037cc3268daf96876d87873a66931071fca56334374164435"
+    },
+    {
+      "name": "odm",
+      "size": 1249280,
+      "sha256": "405a6c7c81bc143af547f36f75a858d8120a3e1402b18a222fd880cb3813d6a0"
+    },
+    {
+      "name": "product",
+      "size": 507170816,
+      "sha256": "16c2922d4ffefa7d5e39e80abcab5927fed31d660af90003c48a198833dd469c"
+    },
+    {
+      "name": "system",
+      "size": 1049251840,
+      "sha256": "ce8a6a2addfefd18287dd39cc997675ad782325ec24eaff052a3fa31ba20bbb3"
+    },
+    {
+      "name": "system_ext",
+      "size": 562589696,
+      "sha256": "ff5a31401e0fe708850a9bd85c961618381a77756b03230b5ebbcb779f4502e7"
+    },
+    {
+      "name": "vbmeta",
+      "size": 8192,
+      "sha256": "fe32d0e12d72b4a3764ceac32d3b8064b61366b993ac3cdae95f3a8efc918940"
+    },
+    {
+      "name": "vbmeta_system",
+      "size": 4096,
+      "sha256": "ba3396a8622e8fded6c700f1e468cb9b14e11c7840ff4caa9a0fbd3239549ee0"
+    },
+    {
+      "name": "vendor",
+      "size": 1631506432,
+      "sha256": "14d3afa645688495521232ca7c50084af7a14a86389f2715c57a4bce8e4dc631"
+    },
+    {
+      "name": "vendor_boot",
+      "size": 100663296,
+      "sha256": "e2ee4a3bb3ca49b0e6f5f6cbcb386c7553877f23754875ae89c74c49ea065928"
+    }
+  ],
+  "runtime": {
+    "services": "2e4bfb77805cf678eb3add8604ae92be77b1b1750a5a156ee5c5bf889437dde7",
+    "resources": "642902aa2bc6431f0ab44c4fa32ce56acb854e51cfc3e2989d5313b34008b0cb",
+    "systemui": "3d6868160da6500232e641d1d15e6091ba284525ae85be1ce63834736777cfde",
+    "launcher": "97049c07263c8b683e16f82dbf8e8dc1685da44d08b37b41df1ddde4e83459a3"
+  },
+  "stock_partitions": {
+    "dtbo": {
+      "size": 25165824,
+      "sha256": "a294cfb873d7317c1c49f4996e2e4f481d4e1ded25e00913a0855cae94bc24cd"
+    },
+    "odm": {
+      "size": 1249280,
+      "sha256": "405a6c7c81bc143af547f36f75a858d8120a3e1402b18a222fd880cb3813d6a0"
+    },
+    "vendor": {
+      "size": 1631506432,
+      "sha256": "14d3afa645688495521232ca7c50084af7a14a86389f2715c57a4bce8e4dc631"
+    },
+    "vendor_boot": {
+      "size": 100663296,
+      "sha256": "1b68e1bdadd1b6caaaaf7ff9e69a8cbb3d40b14d795da0056bf8cda92847a222"
+    }
+  },
+  "sources": {
+    "1793371964": {
+      "runtime": {
+        "services": "2e4bfb77805cf678eb3add8604ae92be77b1b1750a5a156ee5c5bf889437dde7",
+        "resources": "642902aa2bc6431f0ab44c4fa32ce56acb854e51cfc3e2989d5313b34008b0cb",
+        "systemui": "3d6868160da6500232e641d1d15e6091ba284525ae85be1ce63834736777cfde",
+        "launcher": "777822b3f87adf981e7b23340a0755f10faccc574aeb2f9579f062ffcc68f781"
+      },
+      "recovery": "1793371964"
+    },
+    "1793400160": {
+      "runtime": {
+        "services": "2e4bfb77805cf678eb3add8604ae92be77b1b1750a5a156ee5c5bf889437dde7",
+        "resources": "642902aa2bc6431f0ab44c4fa32ce56acb854e51cfc3e2989d5313b34008b0cb",
+        "systemui": "3d6868160da6500232e641d1d15e6091ba284525ae85be1ce63834736777cfde",
+        "launcher": "97049c07263c8b683e16f82dbf8e8dc1685da44d08b37b41df1ddde4e83459a3"
+      },
+      "recovery": "1793400160"
+    }
+  },
+  "recoveries": {
+    "1793371964": {
+      "boot": "compat/1793371964-boot.img",
+      "recipe": "compat/1793371964-recovery.json"
+    },
+    "1793400160": {
+      "boot": "normal-boot.img",
+      "recipe": "owner-recovery-recipe.json"
+    }
+  },
+  "qualification": {
+    "generic_helper_real_device_tested": false,
+    "new_kit_real_Windows_tested": false,
+    "target_ROM_installed_core_checks_passed": false,
+    "experimental_community_testing": true,
+    "general_use_qualified": false,
+    "base_1793371964_phone_tests_passed": true,
+    "clock_fix_targeted_emulator_checks": 35
+  },
+  "files": {
+    "AI-ASSISTANT-PROMPT.txt": "9dee95ade106ad7acc0d06563105ca6d70e07eadea6fab3320cdb2150e5ca6f7",
+    "Install.cmd": "a6147156dce05f6b5c3b77c702054a34ff58c9f2cb9a48d7b658ab0238e9529d",
+    "Install.sh": "360b47c71e5838b83cdb7337b97744583637022009f5e31c0a98443f38d306c8",
+    "KNOWN-ISSUES.md": "15e84cc397ecb7c4f4800eb593e44939eeb7c6c89d073b441056ffe9ee1866d3",
+    "LICENSE": "69849221bfb90053de2134ef5e6d540287b4b98062326492f1f96f5da685524b",
+    "NOTICE": "c15a9412a90983310d9545de44ab9a559c7eced6cfdc779330553cc6d33d495f",
+    "RESTORE-STOCK.md": "8d7265d47a48b880413e1b8fddacf40dfd69d7cb0ee2e3cad6f308885592cb6e",
+    "START-HERE.html": "a285c1af105f2f639f7e1bb8f73d631de9f340819763431dc0a753cafc930410",
+    "START-HERE.md": "fb5db72634539268bfa8673d8c7a0f62bdf94fde380da23cb2f0daf2100de304",
+    "TESTING.md": "597194b56a4c1bae0b4945cd1289d9f0744fd991d2b53be2b485eeb1bfd5c788",
+    "assembly.json": "d125e107108a5074a7c883999b01e2e89d94689892984a134e3cad348f08ba98",
+    "assembly.py": "585904194a806a7fed52d31c09694486852fa0bc4dca35ccc7f4e4897248b6e7",
+    "compat/1793371964-boot.img": "9e3bb9ece73fdae9b60ddb7ae21639c6f9b9b38d2066bdfd0669e4701ad5203b",
+    "compat/1793371964-recovery.json": "4cd5d0c41884518107d53dad4f35ddbfcb106b73cc8670a97ecff71382400ee9",
+    "installer_ui.py": "104a9c59953d79cc171cba43a996c7fdceb6e35a2a881bde6f9f3636134b2edf",
+    "normal-boot.img": "e997a5b771ca80d3fe0c4990d1953899f6149e3a31e0104a1f8bf277c50e441a",
+    "ota.x509.pem": "81cbe4f354a1f358d4e1a2dfe147234746b4a1e8419d2194d6d6db7b2b137e46",
+    "owner-recovery-recipe.json": "3e826652d9fd87187432d214d1b014722d97140971e46cd72f97961e4611ec90",
+    "preflight-owner-install.py": "feef1eeff93960e5b8dde01ea2504d66699c2fdff5f6d8e227f884f1eddf96f5",
+    "prepare-owner-recovery.py": "05b061be2ae93a886f50b4425f514babc97a17e5c5946e6a241be6437652b9e1",
+    "public-data.bin": "2251fbda4dc610b850783aeb649b17e474a3f28f58396901c7a35031d4dffe85",
+    "stock_layout.py": "ac4bc00e031566e46f8cff6bee29e14519e8a509b750c7735a729475c8f20661",
+    "third_party/avbtool.py": "fc5332131a907ae22978e16a84fa12a14d277a60d8e2ad77c31a0097dafeb657",
+    "third_party/provenance.json": "8a83244110d99a0683b4ae22a793e523aae0e8605a4e9f47aa00eb74ee2765eb",
+    "verify_package.py": "bae1914d2ac93ce3ed13b7c3011b01f1b28bfd0ea8b55eb9e909d2e8d45b6748"
+  }
+}

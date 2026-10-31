@@ -1,47 +1,16 @@
-# Owner-input beta download
+# Owner-input installer kit
 
-The planned release is a portable assembly kit. It is not published yet.
+The release ZIP is an assembly kit. It contains the open/project-managed data and
+recipes; every stock vendor/ODM/vendor_boot/DTBO operation-data range is withheld.
+The owner obtains the exact official Microsoft 2023.501.541 ZIP independently.
+Assembly reconstructs the exact beta-signed OTA locally, then checks whole-file,
+payload and metadata RSA signatures, hashes and expected partition sizes.
 
-You supply the official Surface Duo 2 recovery ZIP, obtained from Microsoft's
-[Surface recovery page](https://support.microsoft.com/surface-recovery-image).
-That page may require your serial number and Microsoft sign-in. The supported
-input is ota_c1-12-customer_2023.501.541.zip, 3,228,333,341 bytes, SHA256:
+Normal boot/recipes contain no maintainer ADB authorization. Personalized recovery
+is generated locally with the owner's existing public adbkey.pub; the private key
+never belongs in the kit or a bug report. Full reconstructed OTA, official firmware,
+personalized recovery and raw sessions stay local. No automatic upload is needed.
 
-```
-8e695f5e7d4a88ee76d06d4457fd6f203f4c65f35aa0c3e0a87961e24ec5c302
-```
-
-The kit contributes the newly built Android images and an assembly recipe. It
-excludes every operation-data range for vendor, odm, vendor_boot and dtbo. It
-copies matching compressed bytes from your stock ZIP or re-encodes your stock
-image chunks with BZ2/raw operations. Any stock firmware-prefix difference is an
-error; only explicitly bounded AVB metadata edits may be supplied. There is no
-fallback that downloads or embeds a missing stock chunk.
-
-Python 3.11+ on Windows or Linux reconstructs the complete signed OTA locally.
-The assembler verifies the input, kit, chunk and final-file hashes. ZIP signature
-bytes are retained, so the result must be byte-identical to the tested installer.
-No ADB, phone operation or network access occurs during assembly. It refuses an
-existing output. Allow at least 12 GiB free disk space for input extraction and output.
-The actual signed candidate reconstructs to identical bytes on Windows/Linux; see
-[recorded reconstruction](../manifests/owner-input-reconstruction.json). Do not sideload a partial result or a mismatched ZIP.
-
-The eventual command will be:
-
-```sh
-python3 assembly.py assemble --kit /path/to/beta-kit --stock /path/to/ota_c1-12-customer_2023.501.541.zip --output /path/to/lineage-zeta-beta.zip
-```
-
-This design keeps stock binaries out of the public download. It grants no rights
-to them and does not certify the assembled result for uses beyond its applicable
-component terms. Follow only the exact release's tested install instructions.
-
-The recovery preparation tool is also portable Python. It takes the exact normal
-boot image and recipe for a release, adds only your existing adbkey.pub, applies
-the validated temporary recovery layout, and verifies its AVB framing. It keeps
-secure ADB enabled and rejects an input that already contains another computer's
-key. It never accepts a private key and never connects to or flashes a phone.
-Five positive/negative framing and trust tests pass on Windows and Linux. The
-byte-identical real owner recovery has temporarily booted twice on the physical
-Duo 2 with authenticated ADB and Enforcing SELinux. Full ROM acceptance and the
-complete install/update/restore guide remain release requirements.
+The final release manifest records exact kit/source/checksum identities and the
+actual stock-range exclusion/reconstruction result. Windows is still unqualified
+for this exact release; older Windows results are not carried forward.

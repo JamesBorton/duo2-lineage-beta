@@ -1,51 +1,45 @@
 {
-  "date": "2026-10-28",
-  "candidate": "1793224122",
+  "date": "2026-10-30",
+  "candidate": "1793400160",
   "result": "PASS",
+  "method": "Independent temporary Git index applies exact patches to pinned public bases; snapshot hashes checked separately",
   "projects": [
     {
-      "project": "frameworks/base",
-      "expected_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
-      "restored_tree": "bd57197a9f306c59cf8c7395356452dfedb5f971",
-      "passed": true
+      "path": "frameworks/base",
+      "tree": "0fbf2ee5f93c243b267abcfe4ce2bb3adf311f9f",
+      "patch_index_restore": "PASS: exact recorded tree",
+      "snapshot_files_checked": false
     },
     {
-      "project": "packages/apps/Launcher3",
-      "expected_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
-      "restored_tree": "fd45ea56b0e17c3d646da57dcab07fb35f56dca0",
-      "passed": true
+      "path": "packages/apps/Launcher3",
+      "tree": "779ae132bdb19c33a79d50125d8c65287be0e8cd",
+      "patch_index_restore": "PASS: exact recorded tree",
+      "snapshot_files_checked": false
     },
     {
-      "project": "device/microsoft/zeta",
-      "snapshot_files_verified": true,
-      "omitted_historical_documents": [
-        "README.full-rom.md",
-        "README.md",
-        "posture/README.md"
-      ],
-      "passed": true
+      "path": "device/microsoft/zeta",
+      "tree": "cc362e103d9db4a39b225a65c71536140814bc16",
+      "patch_index_restore": null,
+      "snapshot_files_checked": true
     },
     {
-      "project": "vendor/microsoft/zeta",
-      "snapshot_files_verified": true,
-      "omitted_historical_documents": [],
-      "passed": true
+      "path": "vendor/microsoft/zeta",
+      "tree": "ba825ca0e02c9703ee97ba61c1d3cc7a52c806cb",
+      "patch_index_restore": null,
+      "snapshot_files_checked": true
     },
     {
-      "project": "kernel/microsoft/sm8350",
-      "expected_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
-      "restored_tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
-      "passed": true
+      "path": "kernel/microsoft/sm8350",
+      "tree": "6e4e461a6bbe6425023fd3d40afce3d2dab4cbdb",
+      "patch_index_restore": "PASS: exact recorded tree",
+      "snapshot_files_checked": false
     },
     {
-      "project": "system/update_engine",
-      "expected_tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
-      "restored_tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
-      "passed": true
+      "path": "system/update_engine",
+      "tree": "6c1c2888fb9d435cde7c5617d3f40dedf75a841d",
+      "patch_index_restore": "PASS: exact recorded tree",
+      "snapshot_files_checked": false
     }
   ],
-  "private_history_restored": false,
-  "firmware_or_keys_downloaded": false,
-  "phone_used": false,
-  "scope": "Source restoration only; no clean-host binary rebuild or physical acceptance claim"
+  "clean_network_and_binary_rebuild_tested": false
 }

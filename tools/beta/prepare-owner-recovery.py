@@ -17,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import shutil
+import os
 
 
 def require(condition,message):
@@ -122,11 +123,12 @@ def main():
     avbtool=Path(__file__).resolve().parent/'third_party/avbtool.py'
     # AVB resolves a hash descriptor by partition name, so verify a staged
     # boot.img even when the owner chooses another output filename.
+    child_env = {k:v for k,v in os.environ.items() if not k.upper().startswith('PYTHON') and k.upper() not in ('AVB_INVOCATION_LOGFILE','ANDROID_SECURE_STORAGE_CMD','TMP__KEY_FILE_NAME')}
     with tempfile.TemporaryDirectory(prefix='zeta-recovery-',dir=args.output.parent) as scratch:
         staged=Path(scratch)/'boot.img';staged.write_bytes(image)
-        subprocess.run([sys.executable,str(avbtool),'add_hash_footer','--image',str(staged),'--partition_name','boot',
-                        '--partition_size','134217728','--salt','00'*32],check=True)
-        subprocess.run([sys.executable,str(avbtool),'verify_image','--image',str(staged)],check=True)
+        subprocess.run([sys.executable,'-I',str(avbtool),'add_hash_footer','--image',str(staged),'--partition_name','boot',
+                        '--partition_size','134217728','--salt','00'*32],check=True,env=child_env)
+        subprocess.run([sys.executable,'-I',str(avbtool),'verify_image','--image',str(staged)],check=True,env=child_env)
         with staged.open('rb') as src,args.output.open('xb') as dst:shutil.copyfileobj(src,dst,4*1024*1024)
     with args.output.open('rb') as out:digest=hashlib.file_digest(out,'sha256').hexdigest()
     print('Temporary owner-authorized recovery prepared:',args.output)

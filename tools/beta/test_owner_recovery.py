@@ -3,7 +3,8 @@
 """Portable recovery framing, trust and preservation tests; no phone operations."""
 import base64,gzip,hashlib,importlib.util,json
 from pathlib import Path
-import struct,subprocess,sys,tempfile,unittest
+import struct,subprocess,sys,tempfile,unittest,os
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('prepare_owner_recovery',ROOT/'prepare-owner-recovery.py')
@@ -51,6 +52,14 @@ class RecoveryTests(unittest.TestCase):
         for name,_,body in self.entries:
             if name.startswith('system/bin/') or name in ('init','sepolicy'):
                 self.assertEqual(entries[name],body);self.assertEqual(entries['first_stage_ramdisk/'+name],body)
+
+    def test_inherited_avb_logging_hook_cannot_write_a_file(self):
+        unwanted=self.root/'unrequested-log'
+        with patch.dict(os.environ, {'AVB_INVOCATION_LOGFILE':str(unwanted),
+                                   'ANDROID_SECURE_STORAGE_CMD':'must-not-run'}):
+            result=self.run_tool()
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertFalse(unwanted.exists())
 
     def test_wrong_input_rejected(self):
         self.boot.write_bytes(self.boot.read_bytes()+b'changed')

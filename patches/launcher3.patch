@@ -2750,6 +2750,75 @@ index 7516460fc61dc62074c0c637eba12223fa8dc50a..a679dc8dc722925e855692c724170b61
      public ContentWriter put(String key, Integer value) {
          mValues.put(key, value);
          return this;
+diff --git a/src/com/android/launcher3/widget/LauncherAppWidgetHostView.java b/src/com/android/launcher3/widget/LauncherAppWidgetHostView.java
+index 129f80635c8835c940492c69b2f1d265c28704f6..67a2090b5b1c181313c5fa3da95c51eacf350352 100644
+--- a/src/com/android/launcher3/widget/LauncherAppWidgetHostView.java
++++ b/src/com/android/launcher3/widget/LauncherAppWidgetHostView.java
+@@ -21,11 +21,13 @@ import static android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID;
+ import android.appwidget.AppWidgetProviderInfo;
+ import android.content.Context;
+ import android.graphics.Rect;
++import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Parcelable;
+ import android.os.SystemClock;
+ import android.os.Trace;
+ import android.util.Log;
++import android.util.SizeF;
+ import android.util.SparseArray;
+ import android.util.SparseBooleanArray;
+ import android.util.SparseIntArray;
+@@ -44,6 +46,7 @@ import com.android.launcher3.CheckLongPressHelper;
+ import com.android.launcher3.Flags;
+ import com.android.launcher3.R;
+ import com.android.launcher3.Utilities;
++import com.android.launcher3.ZetaWorkspaceMode;
+ import com.android.launcher3.model.data.ItemInfo;
+ import com.android.launcher3.popup.Poppable;
+ import com.android.launcher3.popup.PoppableType;
+@@ -54,6 +57,8 @@ import com.android.launcher3.views.BaseDragLayer;
+ import com.android.launcher3.views.BaseDragLayer.TouchCompleteListener;
+ import com.android.launcher3.views.UpdateDeferrableView;
+ 
++import java.util.Collections;
++
+ /**
+  * {@inheritDoc}
+  */
+@@ -62,6 +67,22 @@ public class LauncherAppWidgetHostView extends BaseLauncherAppWidgetHostView
+ 
+     private static final String TAG = "LauncherAppWidgetHostView";
+ 
++    private SizeF mLastZetaWidgetSize;
++    private int mLastZetaWidgetId = INVALID_APPWIDGET_ID;
++    private final Runnable mReportZetaWidgetSize = () -> {
++        if (!isAttachedToWindow() || getAppWidgetId() <= 0 || getWidth() <= 0
++                || getHeight() <= 0) return;
++        float density = getResources().getDisplayMetrics().density;
++        SizeF size = new SizeF(getWidth() / density, getHeight() / density);
++        if (getAppWidgetId() == mLastZetaWidgetId && size.equals(mLastZetaWidgetSize)) return;
++        // The host API removes its default padding and updates both legacy min/max
++        // and responsive sizes. This window has one actual panel allocation; global
++        // display profiles include heights this widget never receives.
++        updateAppWidgetSize(Bundle.EMPTY, Collections.singletonList(size));
++        mLastZetaWidgetId = getAppWidgetId();
++        mLastZetaWidgetSize = size;
++    };
++
+     // Related to the auto-advancing of widgets
+     private static final long ADVANCE_INTERVAL = 20000;
+     private static final long ADVANCE_STAGGER = 250;
+@@ -292,6 +313,10 @@ public class LauncherAppWidgetHostView extends BaseLauncherAppWidgetHostView
+     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+         super.onLayout(changed, left, top, right, bottom);
+         mIsScrollable = isTaggedAsScrollable() || checkScrollableRecursively(this);
++        if (ZetaWorkspaceMode.enabled(getContext())) {
++            removeCallbacks(mReportZetaWidgetSize);
++            post(mReportZetaWidgetSize);
++        }
+     }
+ 
+     /**
 diff --git a/src/com/android/launcher3/widget/LauncherWidgetHolder.java b/src/com/android/launcher3/widget/LauncherWidgetHolder.java
 index 1bf260de8ce12ddddef0a19c31256b5148a3a27e..e6acac20501b7470def1ad290c29d21b9ac6cdd2 100644
 --- a/src/com/android/launcher3/widget/LauncherWidgetHolder.java
@@ -2763,3 +2832,25 @@ index 1bf260de8ce12ddddef0a19c31256b5148a3a27e..e6acac20501b7470def1ad290c29d21b
      }
  
      public LauncherWidgetHolder(@NonNull Context context, int hostId) {
+diff --git a/src/com/android/launcher3/widget/util/WidgetSizeHandler.kt b/src/com/android/launcher3/widget/util/WidgetSizeHandler.kt
+index fdeecc5c6564c42ba97c99d64fae529219578194..39a036bb48a771cd94d461d82a5fa264dbf67ae1 100644
+--- a/src/com/android/launcher3/widget/util/WidgetSizeHandler.kt
++++ b/src/com/android/launcher3/widget/util/WidgetSizeHandler.kt
+@@ -24,6 +24,7 @@ import android.graphics.Rect
+ import android.os.Bundle
+ import android.util.SizeF
+ import com.android.launcher3.InvariantDeviceProfile
++import com.android.launcher3.ZetaWorkspaceMode
+ import com.android.launcher3.dagger.ApplicationContext
+ import com.android.launcher3.dagger.LauncherComponentProvider.appComponent
+ import com.android.launcher3.dagger.LauncherComponentProvider.get
+@@ -57,6 +58,9 @@ constructor(
+         executor: Executor = Executors.UI_HELPER_EXECUTOR,
+     ) {
+         if (widgetId <= 0) return
++        // Per-panel hosts publish their measured size after layout. Do not race
++        // that with estimates from full-display/other-orientation profiles.
++        if (ZetaWorkspaceMode.enabled(context)) return
+         executor.execute {
+             val widgetManager = AppWidgetManager.getInstance(context)
+             val sizeOptions = getWidgetSizeOptions(spanX, spanY)

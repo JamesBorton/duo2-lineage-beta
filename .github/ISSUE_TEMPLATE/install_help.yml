@@ -1,0 +1,15 @@
+name: Installation stopped
+description: Request help without retrying a sender or bypassing checks
+title: "[Install] "
+body:
+  - type: input
+    id: build
+    attributes: {label: Kit build}
+    validations: {required: true}
+  - type: textarea
+    id: stage
+    attributes: {label: Current screen and stopped step, description: "Leave the screen unchanged. State normal Android, bootloader, recovery or sideload, and the exact error. Do not post serial/IMEI/PIN or a full log folder."}
+    validations: {required: true}
+  - type: textarea
+    id: host
+    attributes: {label: Computer and previous ROM, description: "OS/Python/Platform-Tools versions, previous ROM and whether the bootloader was already unlocked. Never attach keys, stock ZIPs or personalized recovery."}

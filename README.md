@@ -1,69 +1,61 @@
-# LineageOS for Surface Duo 2
+# Independent workspace beta for Surface Duo 2
 
-Unofficial LineageOS 23.2 / Android 16 work for **Surface Duo 2 (zeta / SM8350)**.
-Independent community project; not affiliated with or endorsed by Microsoft,
-Qualcomm or the LineageOS project. Surface Duo 1 is not a supported target.
+Unofficial LineageOS 23.2 / Android 16 for **Surface Duo 2 only**. Independent
+community project, not affiliated with Microsoft, Qualcomm or LineageOS.
 
-**Status: public beta preparation. No installable ROM or recovery is published here yet.**
-This repository publishes a reviewed source snapshot, known issues and release
-requirements. The new beta candidate replaces four copied HAL contracts with an original narrow
-AOSP HwBinder adapter. All 25 current-source emulator gates pass; its exact signed
-phone build passes offline signing/package audits and real Windows/Linux owner-input
-reconstruction. The exact signed candidate now passes clean installation, normal boot and core
-dual-screen/Wi-Fi/Aperture checks on the physical phone. Update/restore validation
-and final download instructions remain in progress.
-The planned download is an assembly kit: each owner supplies the official Microsoft
-recovery ZIP, then the kit reconstructs the complete signed installer locally.
-See [download design](docs/DOWNLOAD_KIT.md), [release readiness](docs/RELEASE_READINESS.md) and [installation status](docs/INSTALLATION.md).
+## Experimental beta 1
 
-## Device validation
+This release is for community testing and feedback. The independent left/right
+workspace activates automatically at Home after full-display setup. The clock
+widget sizing correction is included. Read the scope below before installing.
 
-Signed beta candidate1793224122 passes clean installation, Enforcing normal boot,
-independent successful-slot readback and two stability runs exceeding two minutes.
-Owner testing on this exact beta confirms both panels/touch, independent apps,
-shared Recents, toss, This screen/Other screen buttons, folded switching,
-keyboard typing on the right, right-default PIN, prompt close/reopen on USB and
-after30 seconds unplugged, Wi-Fi and front/rear Aperture camera previews.
-See the [recorded feature matrix](manifests/physical-beta-validation.json).
-Data-preserving beta reinstall and beta-to-stock restore/return tests remain.
+**Download the complete installer kit from [Releases](https://github.com/JamesBorton/duo2-lineage-beta/releases).**
+Extract it, open START-HERE.html and keep all files together. The source checkout
+is for review/development; do not run an unstamped installer from a Git clone.
 
-This is not a claim of daily-driver readiness. Cellular, fingerprint, Bluetooth,
-audio, long-term battery behavior and other hardware need a published acceptance
-matrix. Pen and peek/glance support are deferred. Android 11 vendor components
-and a 5.4.233 kernel remain; no new kernel security backports are claimed.
+You need a Surface Duo 2, your own official Microsoft 2023.501.541 recovery ZIP,
+Windows or Linux, Python 3.11+, Platform-Tools and 20 GB free. First installation
+unlocks/formats and **erases data**. A supported beta update intends to retain data.
+The helper verifies signatures, stock bytes, slots/snapshots, battery and actual
+installed images. It never asks you to select a slot or enter a PIN on the computer.
 
-## Sources and checks
+The download is an **owner-input assembly kit**, not a full stock-containing ROM.
+Your official ZIP stays on your computer and supplies the withheld stock data.
+Your ADB private key and personalized recovery stay private. See [download design](docs/DOWNLOAD_KIT.md).
+The kit contains a [security-review-first AI assistant prompt](tools/beta/AI-ASSISTANT-PROMPT.txt)
+for help from an assistant that can inspect local files. AI review is optional and
+is not an authenticity or safety guarantee.
 
-| Location | Contents |
-|---|---|
-| `patches/` | Framework, Launcher, kernel and host packaging changes against exact public bases; no private Git history |
-| `sources/` | Device and vendor integration source, including the new HAL adapter; historical local instructions omitted |
-| `manifests/source-snapshot.json` | Original revisions, expected reconstructed trees, SHA-256 values and explicit omissions |
-| `manifests/upstream.xml` | Pinned public upstream Android dependencies; custom projects are restored separately |
-| `manifests/kernel-inputs.json` | Microsoft component and compiler input revisions |
-| `LICENSES/` | Applicable license texts and kernel licensing information |
+## What is tested, and what remains open
 
-With Python 3.11+ and Git:
+Core fresh installation, setup/default workspace, PIN, displays/touch, RIGHT typing,
+fold/reopen and signed fallback/normal restore passed on one phone with the earlier
+beta 1793371964. The clock correction passed 35 targeted emulator checks. This exact
+packaged build has its own automated image/emulator/signature reports and has not
+been installed on the maintainer phone. No fresh physical claim is inferred.
 
-```sh
-python3 tools/verify-public-tree.py
-python3 tools/restore-sources.py --destination ../zeta-review-sources
-```
+**Real Windows installation, physical locked-bootloader unlock and unlisted everyday
+hardware remain unqualified.** Calls/data/audio/Bluetooth/fingerprint/camera and
+battery behavior need reports on this exact release. Classic fallback is retained.
+Stock return is a separately reviewed manual process, not a one-click helper.
+Do not relock the bootloader while using this beta.
 
-The second command downloads pinned public source bases into a **new** directory,
-applies the patches and verifies the reconstructed trees. It does not fetch
-firmware, signing keys or compiler tools, and does not build or flash
-a phone. Read [source reproduction](docs/SOURCES.md) first.
+Start with [testing scope](docs/TESTING.md), [known issues](docs/KNOWN-ISSUES.md),
+[stock-return limitations](docs/RESTORE-STOCK.md) and [release readiness](docs/RELEASE_READINESS.md).
+Report reproducible problems using the issue forms. Do not upload identifiers,
+private keys, account details, stock firmware, personalized recovery or raw sessions.
 
-## Licensing and participation
+## Integrity, sources and licensing
 
-Our eligible original contributions are Apache-2.0. Kernel and third-party
-material keep their existing licenses; this is a mixed-license repository.
-Read [licensing scope](LICENSING.md), [third-party notices](THIRD_PARTY_NOTICES.md)
-and [NOTICE](NOTICE). No license to Microsoft/Qualcomm stock firmware is granted
-by this project's Apache license. No firmware or built applications are included.
+[Verify the kit](docs/VERIFY-DOWNLOAD.md) against the release SHA256SUMS and detached signature. The existing
+beta certificate SHA256 fingerprint is:
 
-See [contribution guidance](CONTRIBUTING.md) and [security reporting](SECURITY.md).
-For a rights or attribution concern, open an issue identifying the affected path
-and ownership/basis. Please omit private credentials and device identifiers.
-Software is supplied as-is under the applicable license terms.
+`2192dea4f2e70b54b21cd99e8a37083c85aac2a1d7b7ae8066418bbcfdd0bc45`
+
+This repository contains source patches, device/vendor integration recipes and
+installer source, with exact upstream pins and retained licenses. It contains no
+private project history, firmware binaries, built APKs or device captures.
+Run `python tools/verify-public-tree.py` for source integrity/privacy checks.
+See [source reproduction and correspondence limits](docs/SOURCES.md),
+[licensing](LICENSING.md) and [third-party notices](THIRD_PARTY_NOTICES.md).
+Complete source companions and checksums accompany the release assets.
