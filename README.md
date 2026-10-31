@@ -3,8 +3,17 @@
 I'm James. SWE by trade. Not a phone dev.
 
 This project has been "vibe coded" using 6.1 Sol and 6 Astra. I wanted to see what
-I could get working on my Surface Duo 2, and this is where we ended up: an
-unofficial LineageOS 23.2 / Android 16 beta with independent left/right workspaces.
+I could get working on my Surface Duo 2, and this is where we ended up.
+
+## What is this?
+
+It's an experimental custom ROM for the Surface Duo 2, built on unofficial
+LineageOS 23.2 / Android 16. Installing it replaces Microsoft's stock Android
+software on the phone with this build.
+
+The idea is to get a newer version of Android running while keeping the dual-screen
+stuff that makes a Duo a Duo. It includes a custom workspace with independent
+left and right Home screens, so you can use a different app on each side.
 
 Some of the stock-like Duo features are built in and working on mine:
 
