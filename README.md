@@ -6,6 +6,15 @@ This project has been "vibe coded" using 6.1 Sol and 6 Astra. I wanted to see wh
 I could get working on my Surface Duo 2, and this is where we ended up: an
 unofficial LineageOS 23.2 / Android 16 beta with independent left/right workspaces.
 
+Some of the stock-like Duo features are built in and working on mine:
+
+- Two separate screens, with a different app on each
+- Fold it back to use one screen at a time
+- Double-tap the screen you want to use to switch sides when folded back
+- Toss apps between screens
+- Move an app to the other screen through Recents
+- Different orientations, including portrait and landscape
+
 **This process is not for the faint of heart.** I can't guarantee it'll work for
 your phone. The beta has worked for mine, though. This is not a daily driver for
 me, and I'm putting it out here so other people can try it and tell me what works,
@@ -19,10 +28,13 @@ Honestly, I'm not sure how many features work properly. So far, I've personally 
 - Bluetooth
 - Both touch screens
 - Wi-Fi
+- Front and back cameras
+- Flashlight
+- Audio
 
 Those are my observations on my phone, not a promise about yours or an exhaustive
-test of every feature. Calls, mobile data, cameras, audio and long-term battery
-behavior still need proper testing. If you try something, please report back.
+test of every feature. Calls, mobile data and long-term battery behavior still
+need proper testing. If you try something, please report back.
 
 Setup, the independent workspace, typing and PIN unlock on the right screen, closing/reopening
 and the classic-layout fallback have also been checked on an earlier beta.
